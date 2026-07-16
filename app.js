@@ -1,4 +1,6 @@
 const storageKey = 'lounge-ledger-v1';
+const supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
+let cloudUser = null, saveTimer = null;
 const defaultData = {
   month: '2026-07',
   casts: [
@@ -19,7 +21,9 @@ const defaultData = {
 };
 let data = JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData;
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
-const save = () => localStorage.setItem(storageKey, JSON.stringify(data));
+const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); if(cloudUser){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToCloud,500); } };
+async function saveToCloud(){ const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload:data,updated_at:new Date().toISOString()}); if(error) console.error('Cloud save failed',error); }
+async function loadFromCloud(){ const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle(); if(error){showAuthMessage('データベース設定を確認してください。');return;} if(row?.payload){data=row.payload;localStorage.setItem(storageKey,JSON.stringify(data));} render(); }
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const dateJP = d => new Date(d+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
 function calcCast(cast){
@@ -61,4 +65,16 @@ form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.pre
 window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;data.casts=data.casts.filter(x=>x.id!==id);save();render()};
 $('#saveSettings').onclick=()=>{document.querySelectorAll('[data-setting]').forEach(x=>data.settings[x.dataset.setting]=Number(x.value));data.settings.categories=$('#categories').value.split(',').map(x=>x.trim()).filter(Boolean);document.querySelectorAll('[data-hourly]').forEach(x=>{const c=data.casts.find(c=>c.id===x.dataset.hourly);if(c)c.hourly=Number(x.value)});save();render();alert('計算設定を保存しました。')};
 $('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#overlay').classList.add('show')};function closeMenu(){$('#sidebar').classList.remove('open');$('#overlay').classList.remove('show')}$('#overlay').onclick=closeMenu;
-const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});render();
+const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+function showAuthMessage(message){$('#authMessage').textContent=message;}
+async function initializeAuth(){
+  if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(session) await setSignedIn(session.user);
+  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{if(session&&!cloudUser) await setSignedIn(session.user);if(!session){cloudUser=null;$('#authScreen').classList.remove('hidden');}});
+}
+async function setSignedIn(user){cloudUser=user;$('#authScreen').classList.add('hidden');await loadFromCloud();}
+$('#authForm').addEventListener('submit',async e=>{e.preventDefault();showAuthMessage('ログインしています…');const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');});
+$('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
+$('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
+initializeAuth();

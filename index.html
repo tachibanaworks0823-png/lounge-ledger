@@ -11,6 +11,21 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <section class="auth-screen" id="authScreen" aria-live="polite">
+    <div class="auth-card">
+      <span class="auth-mark">L</span>
+      <p class="eyebrow">PRIVATE STORE MANAGEMENT</p>
+      <h1>Lounge Ledger</h1>
+      <p class="auth-copy">売上・給与・支出を安全に管理</p>
+      <form id="authForm" class="auth-form">
+        <label>メールアドレス<input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label>パスワード<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="6文字以上"></label>
+        <button class="primary-button" type="submit">ログイン</button>
+        <button class="text-button" type="button" id="signUpButton">初めての方はこちら（アカウント作成）</button>
+        <p class="auth-message" id="authMessage"></p>
+      </form>
+    </div>
+  </section>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#dashboard"><span class="brand-mark">L</span><span>LOUNGE<br><b>LEDGER</b></span></a>
@@ -28,7 +43,7 @@
       <header class="topbar">
         <button class="menu-button" id="menuButton" aria-label="メニューを開く">☰</button>
         <div><p class="eyebrow" id="todayLabel"></p><h1 id="pageTitle">7月の営業状況</h1></div>
-        <div class="top-actions"><button class="month-pill" id="monthButton">2026年 7月 ▾</button><span class="profile">管</span></div>
+        <div class="top-actions"><button class="month-pill" id="monthButton">2026年 7月 ▾</button><span class="profile">管</span><button class="logout-button" id="logoutButton">ログアウト</button></div>
       </header>
 
       <section class="view active" id="dashboard">
@@ -57,6 +72,8 @@
   </div>
   <div class="overlay" id="overlay"></div>
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button value="cancel" class="close" aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button value="cancel" class="secondary-button">キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
