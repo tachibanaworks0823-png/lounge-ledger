@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#54233f" />
+  <title>Lounge Ledger | 店舗管理</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard"><span class="brand-mark">L</span><span>LOUNGE<br><b>LEDGER</b></span></a>
+      <p class="nav-caption">店舗管理</p>
+      <nav class="navigation" aria-label="メインメニュー">
+        <button class="nav-item active" data-view="dashboard"><span>▦</span>ダッシュボード</button>
+        <button class="nav-item" data-view="slips"><span>▤</span>伝票・売上</button>
+        <button class="nav-item" data-view="casts"><span>♙</span>キャスト給与</button>
+        <button class="nav-item" data-view="expenses"><span>◫</span>支出管理</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span>計算設定</button>
+      </nav>
+      <div class="store-switcher"><span class="avatar">L</span><div><b>Lounge Sample</b><small>管理者</small></div><span class="chevron">⌄</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="メニューを開く">☰</button>
+        <div><p class="eyebrow" id="todayLabel"></p><h1 id="pageTitle">7月の営業状況</h1></div>
+        <div class="top-actions"><button class="month-pill" id="monthButton">2026年 7月 ▾</button><span class="profile">管</span></div>
+      </header>
+
+      <section class="view active" id="dashboard">
+        <div class="section-head"><div><p class="eyebrow">MONTHLY OVERVIEW</p><h2>今月の集計</h2></div><button class="primary-button" id="dashboardAddSlip">＋ 伝票を入力</button></div>
+        <div class="summary-grid">
+          <article class="metric-card"><span class="metric-icon wine">￥</span><p>総売上</p><strong id="totalSales">¥0</strong><small id="salesCount">伝票 0件</small></article>
+          <article class="metric-card"><span class="metric-icon violet">♙</span><p>女子給</p><strong id="totalPayroll">¥0</strong><small id="payrollRatio">売上に対して 0%</small></article>
+          <article class="metric-card"><span class="metric-icon gold">◫</span><p>総支出</p><strong id="totalExpenses">¥0</strong><small id="expenseDetails">経費 0件</small></article>
+          <article class="metric-card"><span class="metric-icon green">◎</span><p>営業残高</p><strong id="operatingBalance">¥0</strong><small>売上 − 女子給 − 支出</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel chart-panel"><div class="panel-heading"><div><h2>日別売上</h2><p>伝票から自動集計</p></div><span class="legend"><i></i>売上</span></div><div class="chart" id="salesChart"><div class="chart-y"><span>¥150k</span><span>¥100k</span><span>¥50k</span><span>¥0</span></div><div class="chart-bars"></div></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>本日の確認事項</h2><p>登録漏れを防ぎます</p></div></div><div id="checkList" class="check-list"></div></article>
+        </div>
+        <article class="panel table-panel"><div class="panel-heading"><div><h2>キャスト別・支給見込み</h2><p>勤務・バック・控除を反映した概算</p></div><button class="text-button" data-view-target="casts">給与一覧へ →</button></div><div class="table-wrap"><table><thead><tr><th>キャスト</th><th>指名売上</th><th>勤務時間</th><th>バック</th><th>控除後支給額</th></tr></thead><tbody id="dashboardCastTable"></tbody></table></div></article>
+      </section>
+
+      <section class="view" id="slips"><div class="section-head"><div><p class="eyebrow">SALES SLIPS</p><h2>伝票・売上</h2><p class="description">1枚の伝票から、売上とキャストのバックを同時に登録します。</p></div><button class="primary-button" id="addSlip">＋ 伝票を入力</button></div><div class="info-banner"><b>入力の流れ</b><span>①伝票の売上を入力　→　②担当キャスト・指名種別を追加　→　③保存すると給与計算へ反映</span></div><article class="panel table-panel"><div class="panel-heading"><div><h2>伝票一覧</h2><p id="slipSummary">今月の伝票</p></div></div><div class="table-wrap"><table><thead><tr><th>日付</th><th>伝票番号</th><th>売上</th><th>決済</th><th>組数 / 客数</th><th>キャスト</th><th></th></tr></thead><tbody id="slipTable"></tbody></table></div></article></section>
+
+      <section class="view" id="casts"><div class="section-head"><div><p class="eyebrow">CAST PAYROLL</p><h2>キャスト給与</h2><p class="description">勤務・バック・日払い・控除をキャスト別に確認できます。</p></div><div class="button-row"><button class="secondary-button" id="addShift">＋ 勤務を登録</button><button class="primary-button" id="addCast">＋ キャストを追加</button></div></div><article class="panel table-panel"><div class="panel-heading"><div><h2>支給一覧</h2><p>支給額は「計算設定」の控除率・バック率で自動計算されます。</p></div></div><div class="table-wrap"><table><thead><tr><th>キャスト</th><th>本指名売上</th><th>本指名 / 同伴</th><th>勤務</th><th>時間給</th><th>バック計</th><th>控除計</th><th>支給額</th><th></th></tr></thead><tbody id="castTable"></tbody></table></div></article></section>
+
+      <section class="view" id="expenses"><div class="section-head"><div><p class="eyebrow">EXPENSES</p><h2>支出管理</h2><p class="description">支出を登録すると、カテゴリ別集計と営業残高に自動反映されます。</p></div><button class="primary-button" id="addExpense">＋ 支出を入力</button></div><div class="expense-summary" id="expenseSummary"></div><article class="panel table-panel"><div class="panel-heading"><div><h2>支出一覧</h2><p>カテゴリは設定から追加・変更できます。</p></div></div><div class="table-wrap"><table><thead><tr><th>日付</th><th>カテゴリ</th><th>会社名 / 支払先</th><th>内容</th><th>金額</th><th></th></tr></thead><tbody id="expenseTable"></tbody></table></div></article></section>
+
+      <section class="view" id="settings"><div class="section-head"><div><p class="eyebrow">CALCULATION SETTINGS</p><h2>計算設定</h2><p class="description">バック率・時給・控除率を変更すると、以後の給与計算に適用されます。</p></div><button class="primary-button" id="saveSettings">設定を保存</button></div><div class="settings-grid"><article class="panel"><div class="panel-heading"><div><h2>バック単価</h2><p>伝票で追加した実績に対する支給単価</p></div></div><div class="setting-fields" id="backSettings"></div></article><article class="panel"><div class="panel-heading"><div><h2>控除設定</h2><p>給与計算時に総支給から差し引く割合</p></div></div><div class="setting-fields" id="deductionSettings"></div></article></div><article class="panel setting-cast-panel"><div class="panel-heading"><div><h2>キャスト別の時給</h2><p>キャストごとに基本時給を設定します。</p></div></div><div id="castRateSettings" class="cast-rate-settings"></div></article></section>
+    </main>
+  </div>
+  <div class="overlay" id="overlay"></div>
+  <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button value="cancel" class="close" aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button value="cancel" class="secondary-button">キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
