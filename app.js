@@ -47,16 +47,24 @@ function render(){ renderDashboard();renderSlips();renderCasts();renderExpenses(
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
+  const weekdays=['日','月','火','水','木','金','土'];
   return Array.from({length:count},(_,i)=>{
-    const date=`${data.month}-${String(i+1).padStart(2,'0')}`;
-    const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date);
+    const date=data.month+'-'+String(i+1).padStart(2,'0');
+    const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date);
     const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
     const groups=slips.reduce((n,x)=>n+Number(x.groups||0),0);
     const guests=slips.reduce((n,x)=>n+Number(x.guests||0),0);
     const nominated=slips.reduce((n,x)=>n+x.casts.reduce((m,c)=>m+Number(c.sales||0),0),0);
     const expense=expenses.reduce((n,x)=>n+Number(x.amount||0),0);
-    return {date,day:i+1,sales,card,cash:Math.max(0,sales-card),groups,guests,nominated,expense,balance:sales-expense};
+    const advance=shifts.reduce((n,x)=>n+Number(x.advance||0),0);
+    const hourly=shifts.reduce((n,x)=>n+Number(x.hours||0)*(data.casts.find(c=>c.id===x.castId)?.hourly||0),0);
+    const back=slips.reduce((n,slip)=>n+slip.casts.reduce((m,item)=>m+(item.type==='本指名'?Number(data.settings.mainNomination||0):0)+(item.type==='同伴'?Number(data.settings.companion||0):0)+Number(item.extension||0)*Number(data.settings.extension||0)+Number(item.drink||0)*Number(data.settings.drink||0)+Number(item.bottle||0)*Number(data.settings.bottle||0)+Number(item.champagne||0)*Number(data.settings.champagne||0),0),0);
+    const gross=hourly+back;
+    const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.welfareRate||0))/100);
+    const payroll=Math.max(0,gross-deductions-advance);
+    const cash=Math.max(0,sales-card);
+    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],sales,card,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
   });
 }
 function renderDashboard(){
@@ -71,8 +79,9 @@ function renderDashboard(){
     ['現金比率',`${t.sales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/t.sales*100):0}%`,'現金売上 ÷ 総売上']
   ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
   $('#dailySalesTable').innerHTML=rows.map(x=>{
-    const hasActivity=x.sales||x.expense;
-    return `<tr class="${hasActivity?'has-activity':''}"><td><b>${x.day}日</b><small>${dateJP(x.date).match(/\\(.+\\)/)?.[0]||''}</small></td><td class="amount sales">${x.sales?yen(x.sales):'—'}</td><td class="amount">${x.sales?yen(x.cash):'—'}</td><td class="amount">${x.card?yen(x.card):'—'}</td><td>${x.groups||'—'}</td><td>${x.guests||'—'}</td><td class="amount">${x.guests?yen(x.sales/x.guests):'—'}</td><td class="amount">${x.nominated?yen(x.nominated):'—'}</td><td class="amount expense">${x.expense?yen(x.expense):'—'}</td><td class="amount balance">${hasActivity?yen(x.balance):'—'}</td></tr>`;
+    const hasActivity=x.sales||x.expense||x.advance||x.payroll;
+    const amount=n=>n?yen(n):'—';
+    return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td>'+x.weekday+'</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.nominated)+'</td></tr>';
   }).join('');
 }
 function renderSlips(){ $('#slipSummary').textContent=`${data.month.replace('-','年')}月・${data.slips.length}件`; $('#slipTable').innerHTML=data.slips.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`<tr><td>${dateJP(s.date)}</td><td>${s.id}</td><td>${yen(s.total)}</td><td><span class="status ${s.card?'':'cash'}">${s.card?'カード '+yen(s.card):'現金'}</span></td><td>${s.groups}組 / ${s.guests}名</td><td>${s.casts.map(a=>castName(a.castId)+'（'+a.type+'）').join('、')}</td><td><button class="text-button" onclick="removeItem('slips','${s.id}')">削除</button></td></tr>`).join('')||empty(7,'伝票はまだありません'); }
