@@ -56,7 +56,7 @@ function dailyRows(){
   });
 }
 function renderDashboard(){
-  const t=totals(); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${data.slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${data.expenses.length}件`;$('#operatingBalance').textContent=yen(t.balance);
+  const t=totals(); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${data.slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${data.expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
   const rows=dailyRows(), activeRows=rows.filter(x=>x.sales||x.expense);
   $('#dailyLedgerTotal').textContent=yen(t.sales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
@@ -70,7 +70,6 @@ function renderDashboard(){
     const hasActivity=x.sales||x.expense;
     return `<tr class="${hasActivity?'has-activity':''}"><td><b>${x.day}日</b><small>${dateJP(x.date).match(/\\(.+\\)/)?.[0]||''}</small></td><td class="amount sales">${x.sales?yen(x.sales):'—'}</td><td class="amount">${x.sales?yen(x.cash):'—'}</td><td class="amount">${x.card?yen(x.card):'—'}</td><td>${x.groups||'—'}</td><td>${x.guests||'—'}</td><td class="amount">${x.guests?yen(x.sales/x.guests):'—'}</td><td class="amount">${x.nominated?yen(x.nominated):'—'}</td><td class="amount expense">${x.expense?yen(x.expense):'—'}</td><td class="amount balance">${hasActivity?yen(x.balance):'—'}</td></tr>`;
   }).join('');
-  const checks=[];if(!data.slips.length)checks.push(['！','本日の伝票を登録','売上を入力すると日別集計へ反映されます']);else checks.push(['✓','伝票を確認','今月 '+data.slips.length+' 件の伝票を登録済みです']);if(!data.shifts.length)checks.push(['！','勤務を登録','キャスト給与の計算には勤務時間が必要です']);else checks.push(['◷','女子給を確認','日払いと控除を含む支給見込みを確認できます']);if(!data.expenses.length)checks.push(['！','支出を登録','仕入れ・経費を入力して残高を正しくします']);else checks.push(['◫','支出を確認',data.expenses.length+' 件の支出をカテゴリ別に集計しています']);$('#checkList').innerHTML=checks.map(x=>`<div class="check"><span class="check-icon">${x[0]}</span><div><p>${x[1]}</p><small>${x[2]}</small></div></div>`).join('');
   $('#dashboardCastTable').innerHTML=data.casts.map(c=>{const x=calcCast(c);return `<tr><td>${c.name}</td><td>${yen(x.nominated)}</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.back)}</td><td>${yen(x.payout)}</td></tr>`}).join('')||empty(5,'キャストを登録してください');
 }
 function renderSlips(){ $('#slipSummary').textContent=`${data.month.replace('-','年')}月・${data.slips.length}件`; $('#slipTable').innerHTML=data.slips.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`<tr><td>${dateJP(s.date)}</td><td>${s.id}</td><td>${yen(s.total)}</td><td><span class="status ${s.card?'':'cash'}">${s.card?'カード '+yen(s.card):'現金'}</span></td><td>${s.groups}組 / ${s.guests}名</td><td>${s.casts.map(a=>castName(a.castId)+'（'+a.type+'）').join('、')}</td><td><button class="text-button" onclick="removeItem('slips','${s.id}')">削除</button></td></tr>`).join('')||empty(7,'伝票はまだありません'); }
