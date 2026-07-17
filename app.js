@@ -113,6 +113,7 @@ function businessDate(){
 function customerOptions(){
   return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))].map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');
 }
+function payeeOptions(){return [...new Set(data.expenses.map(x=>x.company).filter(Boolean))].map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');}
 function openForm(type){mode=type;$('#dialogKicker').textContent=type==='slip'?'SALES SLIP':type==='expense'?'EXPENSE':type==='shift'?'SHIFT':'CAST';
  if(type==='slip'){
    $('#dialogTitle').textContent='伝票を入力';
@@ -123,7 +124,7 @@ function openForm(type){mode=type;$('#dialogKicker').textContent=type==='slip'?'
    field('客数','guests','number')+
    '<label class="field"><span>指名</span><select required name="nominationType"><option value="" selected disabled>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';
  }
- if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+'<label class="field">カテゴリ<select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('新しい項目（必要なとき）','newCategory','text','full')+field('会社名・支払先','company')+field('金額','amount','number')+field('内容（任意）','note','text','full');}
+ if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+'<label class="field">カテゴリ<select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('新しい項目（必要なとき）','newCategory','text','full')+ '<label class="field">会社名・支払先<input required name="company" list="payeeHistory" autocomplete="off"></label><datalist id="payeeHistory">'+payeeOptions()+'</datalist>'+field('金額','amount','number')+field('内容（任意）','note','text','full');}
  if(type==='shift'){ $('#dialogTitle').textContent='勤務を登録';fields.innerHTML=field('勤務日','date','date')+'<label class="field">キャスト<select name="castId">'+data.casts.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></label>'+field('実働時間','hours','number')+field('日払い','advance','number');}
  if(type==='cast'){ $('#dialogTitle').textContent='キャストを追加';fields.innerHTML=field('お名前','name')+field('基本時給','hourly','number');}
  const now=new Date().toISOString().slice(0,10);fields.querySelectorAll('input[type=date]').forEach(x=>x.value=now);if(type==='slip'){const dateField=fields.querySelector('input[name="date"]');if(dateField)dateField.value=businessDate();}showEntryDialog();
