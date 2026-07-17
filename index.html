@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="daily-ledger.css" />
 </head>
 <body>
-  <section class="auth-screen" id="authScreen" aria-live="polite">supabase-js@2/dist/umd/supabase.js
+  <section class="auth-screen" id="authScreen" aria-live="polite">
     <div class="auth-card">
       <span class="auth-mark">L</span>
       <p class="eyebrow">PRIVATE STORE MANAGEMENT</p>
@@ -52,10 +53,13 @@
           <article class="metric-card"><span class="metric-icon wine">￥</span><p>総売上</p><strong id="totalSales">¥0</strong><small id="salesCount">伝票 0件</small></article>
           <article class="metric-card"><span class="metric-icon violet">♙</span><p>女子給</p><strong id="totalPayroll">¥0</strong><small id="payrollRatio">売上に対して 0%</small></article>
           <article class="metric-card"><span class="metric-icon gold">◫</span><p>総支出</p><strong id="totalExpenses">¥0</strong><small id="expenseDetails">経費 0件</small></article>
-          <article class="metric-card"><span class="metric-icon green">◎</span><p>営業残高</p><strong id="operatingBalance">¥0</strong><small>売上 − 女子給 − 支出</small></article>
-        </div>
+          <article class="metric-card"><span class="metric-icon green">◎</span><p>営業残高</p><strong id="operatingBalance">¥0</strong><small>売上 − 女子給 − 支出</small></articl        <article class="panel daily-ledger-panel">
+          <div class="panel-heading daily-ledger-heading"><div><p class="eyebrow">DAILY SALES LEDGER</p><h2>日別売上表</h2><p>売上・入金・経費を日ごとに自動集計</p></div><div class="daily-ledger-total"><span>月間売上</span><strong id="dailyLedgerTotal">¥0</strong></div></div>
+          <div class="daily-kpi-row" id="dailyKpis"></div>
+          <div class="daily-table-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>売上</th><th>現金</th><th>カード</th><th>組数</th><th>客数</th><th>客単価</th><th>指名売上</th><th>支出</th><th>営業残高</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div>
+        </article>
         <div class="dashboard-grid">
-<article class="panel daily-sales-panel"><div class="panel-heading"><div><h2 id="dailySalesTitle">日別売上</h2><p>写真の一覧に合わせて日別の数字を横並びで確認</p></div><span class="legend daily-legend"><i></i>入力済み</span></div><div class="daily-sales-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>総売上</th><th>カード</th><th>酒代</th><th>仕入れ</th><th>不足分</th><th>体験入店</th><th>日払い</th><th>組数</th><th>客数</th><th>支出計</th><th>現金残高</th><th>女子給</th><th>女子給率</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div><div class="daily-sales-cards" id="dailySalesCards"></div></article>
+></div></article>
           <article class="panel"><div class="panel-heading"><div><h2>本日の確認事項</h2><p>登録漏れを防ぎます</p></div></div><div id="checkList" class="check-list"></div></article>
         </div>
         <article class="panel table-panel"><div class="panel-heading"><div><h2>キャスト別・支給見込み</h2><p>勤務・バック・控除を反映した概算</p></div><button class="text-button" data-view-target="casts">給与一覧へ →</button></div><div class="table-wrap"><table><thead><tr><th>キャスト</th><th>指名売上</th><th>勤務時間</th><th>バック</th><th>控除後支給額</th></tr></thead><tbody id="dashboardCastTable"></tbody></table></div></article>
@@ -72,7 +76,7 @@
   </div>
   <div class="overlay" id="overlay"></div>
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button value="cancel" class="close" aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button value="cancel" class="secondary-button">キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
