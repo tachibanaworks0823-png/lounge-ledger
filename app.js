@@ -102,7 +102,7 @@ function renderShifts(){
   $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';
   $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small></th>').join('')+'</tr>';
   const counts='<tr class="shift-count-row"><th>出勤</th>'+days.map(d=>'<td>'+data.shifts.filter(x=>x.date===d.date).length+'人</td>').join('')+'</tr>';
-  const castRows=data.casts.map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?shift.hours+'h':'＋';const cls=(shift?'has-shift ':'')+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(\\''+c.id+'\\',\\''+d.date+'\\')">'+label+'</button></td>';}).join('')+'</tr>').join('');
+  const castRows=data.casts.map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?shift.hours+'h':'＋';const cls=(shift?'has-shift ':'')+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(&quot;'+c.id+'&quot;,&quot;'+d.date+'&quot;)">'+label+'</button></td>';}).join('')+'</tr>').join('');
   $('#shiftTableBody').innerHTML=counts+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
 }
 window.editShiftCell=(castId,date)=>{
