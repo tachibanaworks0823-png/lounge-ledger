@@ -55,7 +55,7 @@
           <article class="metric-card"><span class="metric-icon green">◎</span><p>営業残高</p><strong id="operatingBalance">¥0</strong><small>売上 − 女子給 − 支出</small></article>
         </div>
         <div class="dashboard-grid">
-          <article class="panel chart-panel"><div class="panel-heading"><div><h2>日別売上</h2><p>伝票から自動集計</p></div><span class="legend"><i></i>売上</span></div><div class="chart" id="salesChart"><div class="chart-y"><span>¥150k</span><span>¥100k</span><span>¥50k</span><span>¥0</span></div><div class="chart-bars"></div></div></article>
+<article class="panel daily-sales-panel"><div class="panel-heading"><div><h2 id="dailySalesTitle">日別売上</h2><p>写真の一覧に合わせて日別の数字を横並びで確認</p></div><span class="legend daily-legend"><i></i>入力済み</span></div><div class="daily-sales-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>総売上</th><th>カード</th><th>酒代</th><th>仕入れ</th><th>不足分</th><th>体験入店</th><th>日払い</th><th>組数</th><th>客数</th><th>支出計</th><th>現金残高</th><th>女子給</th><th>女子給率</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div><div class="daily-sales-cards" id="dailySalesCards"></div></article>
           <article class="panel"><div class="panel-heading"><div><h2>本日の確認事項</h2><p>登録漏れを防ぎます</p></div></div><div id="checkList" class="check-list"></div></article>
         </div>
         <article class="panel table-panel"><div class="panel-heading"><div><h2>キャスト別・支給見込み</h2><p>勤務・バック・控除を反映した概算</p></div><button class="text-button" data-view-target="casts">給与一覧へ →</button></div><div class="table-wrap"><table><thead><tr><th>キャスト</th><th>指名売上</th><th>勤務時間</th><th>バック</th><th>控除後支給額</th></tr></thead><tbody id="dashboardCastTable"></tbody></table></div></article>
