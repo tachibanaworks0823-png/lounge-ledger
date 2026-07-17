@@ -75,7 +75,7 @@ function renderDashboard(){
   $('#dailyKpis').innerHTML=[
     ['営業日数',`${activeDays}日`,'売上または支出の登録日'],
     ['平均日商',yen(activeDays?t.sales/activeDays:0),'営業日の平均'],
-    ['平均客単価',yen(guests?t.sales/guests:0),`来店 ${guests}名 / ${groups}組`],
+    ['平均客単価',yen(guests?t.sales/guests:0),`来店 ${groups}組 / ${guests}名`],
     ['現金比率',`${t.sales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/t.sales*100):0}%`,'現金売上 ÷ 総売上']
   ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
   $('#dailySalesTable').innerHTML=rows.map(x=>{
