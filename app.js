@@ -44,7 +44,7 @@ function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
   return Array.from({length:count},(_,i)=>{
-    const date=\`${data.month}-${String(i+1).padStart(2,'0')}\`;
+    const date=`${data.month}-${String(i+1).padStart(2,'0')}`;
     const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date);
     const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
@@ -61,14 +61,14 @@ function renderDashboard(){
   $('#dailyLedgerTotal').textContent=yen(t.sales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
   $('#dailyKpis').innerHTML=[
-    ['営業日数',\`${activeDays}日\`,'売上または支出の登録日'],
+    ['営業日数',`${activeDays}日`,'売上または支出の登録日'],
     ['平均日商',yen(activeDays?t.sales/activeDays:0),'営業日の平均'],
-    ['平均客単価',yen(guests?t.sales/guests:0),\`来店 ${guests}名 / ${groups}組\`],
-    ['現金比率',\`${t.sales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/t.sales*100):0}%\`,'現金売上 ÷ 総売上']
-  ].map(([label,value,note])=>\`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>\`).join('');
+    ['平均客単価',yen(guests?t.sales/guests:0),`来店 ${guests}名 / ${groups}組`],
+    ['現金比率',`${t.sales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/t.sales*100):0}%`,'現金売上 ÷ 総売上']
+  ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
   $('#dailySalesTable').innerHTML=rows.map(x=>{
     const hasActivity=x.sales||x.expense;
-    return \`<tr class="${hasActivity?'has-activity':''}"><td><b>${x.day}日</b><small>${dateJP(x.date).match(/\\(.+\\)/)?.[0]||''}</small></td><td class="amount sales">${x.sales?yen(x.sales):'—'}</td><td class="amount">${x.sales?yen(x.cash):'—'}</td><td class="amount">${x.card?yen(x.card):'—'}</td><td>${x.groups||'—'}</td><td>${x.guests||'—'}</td><td class="amount">${x.guests?yen(x.sales/x.guests):'—'}</td><td class="amount">${x.nominated?yen(x.nominated):'—'}</td><td class="amount expense">${x.expense?yen(x.expense):'—'}</td><td class="amount balance">${hasActivity?yen(x.balance):'—'}</td></tr>\`;
+    return `<tr class="${hasActivity?'has-activity':''}"><td><b>${x.day}日</b><small>${dateJP(x.date).match(/\\(.+\\)/)?.[0]||''}</small></td><td class="amount sales">${x.sales?yen(x.sales):'—'}</td><td class="amount">${x.sales?yen(x.cash):'—'}</td><td class="amount">${x.card?yen(x.card):'—'}</td><td>${x.groups||'—'}</td><td>${x.guests||'—'}</td><td class="amount">${x.guests?yen(x.sales/x.guests):'—'}</td><td class="amount">${x.nominated?yen(x.nominated):'—'}</td><td class="amount expense">${x.expense?yen(x.expense):'—'}</td><td class="amount balance">${hasActivity?yen(x.balance):'—'}</td></tr>`;
   }).join('');
   const checks=[];if(!data.slips.length)checks.push(['！','本日の伝票を登録','売上を入力すると日別集計へ反映されます']);else checks.push(['✓','伝票を確認','今月 '+data.slips.length+' 件の伝票を登録済みです']);if(!data.shifts.length)checks.push(['！','勤務を登録','キャスト給与の計算には勤務時間が必要です']);else checks.push(['◷','女子給を確認','日払いと控除を含む支給見込みを確認できます']);if(!data.expenses.length)checks.push(['！','支出を登録','仕入れ・経費を入力して残高を正しくします']);else checks.push(['◫','支出を確認',data.expenses.length+' 件の支出をカテゴリ別に集計しています']);$('#checkList').innerHTML=checks.map(x=>`<div class="check"><span class="check-icon">${x[0]}</span><div><p>${x[1]}</p><small>${x[2]}</small></div></div>`).join('');
   $('#dashboardCastTable').innerHTML=data.casts.map(c=>{const x=calcCast(c);return `<tr><td>${c.name}</td><td>${yen(x.nominated)}</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.back)}</td><td>${yen(x.payout)}</td></tr>`}).join('')||empty(5,'キャストを登録してください');
