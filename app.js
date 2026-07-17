@@ -22,11 +22,15 @@ const defaultData = {
   ],
   settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, taxRate:10, welfareRate:5, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'] }
 };
-let data = JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData;
+function normalizeData(source){
+  const value=source||{};
+  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],shifts:Array.isArray(value.shifts)?value.shifts:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories}};
+}
+let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
 const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); if(cloudUser){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToCloud,500); } };
 async function saveToCloud(){ const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload:data,updated_at:new Date().toISOString()}); if(error) console.error('Cloud save failed',error); }
-async function loadFromCloud(){ const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle(); if(error){showAuthMessage('データベース設定を確認してください。');return;} if(row?.payload){data=row.payload;localStorage.setItem(storageKey,JSON.stringify(data));} render(); }
+async function loadFromCloud(){ const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle(); if(error){showAuthMessage('データベース設定を確認してください。');return;} if(row?.payload){data=normalizeData(row.payload);localStorage.setItem(storageKey,JSON.stringify(data));} render(); }
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const dateJP = d => new Date(d+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
 function calcCast(cast){
@@ -56,7 +60,7 @@ function dailyRows(){
   });
 }
 function renderDashboard(){
-  const t=totals(); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${data.slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${data.expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
+  const t=totals(); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${data.slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${data.expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
   const rows=dailyRows(), activeRows=rows.filter(x=>x.sales||x.expense);
   $('#dailyLedgerTotal').textContent=yen(t.sales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
