@@ -101,6 +101,8 @@ function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.t
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));
 const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields');let mode='';
 function showEntryDialog(){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
+function closeEntryDialog(){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
+document.querySelectorAll('[data-close-dialog]').forEach(button=>button.onclick=closeEntryDialog);
 const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
 function businessDate(){
   const d=new Date();
