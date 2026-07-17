@@ -94,15 +94,31 @@ function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.t
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));
 const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields');let mode='';
 const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
+function businessDate(){
+  const d=new Date();
+  if(d.getHours()<6)d.setDate(d.getDate()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function customerOptions(){
+  return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))].map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');
+}
 function openForm(type){mode=type;$('#dialogKicker').textContent=type==='slip'?'SALES SLIP':type==='expense'?'EXPENSE':type==='shift'?'SHIFT':'CAST';
- if(type==='slip'){ $('#dialogTitle').textContent='伝票を入力';fields.innerHTML=field('営業日','date','date')+field('伝票番号','id','text')+field('総売上（税込）','total','number')+field('カード売上（なければ0）','card','number')+field('組数','groups','number')+field('客数','guests','number')+assignmentHtml();}
- if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+`<label class="field">カテゴリ<select name="category">${data.settings.categories.map(x=>`<option>${x}</option>`).join('')}</select></label>`+field('会社名・支払先','company')+field('金額','amount','number')+field('内容（任意）','note','text','full');}
- if(type==='shift'){ $('#dialogTitle').textContent='勤務を登録';fields.innerHTML=field('勤務日','date','date')+`<label class="field">キャスト<select name="castId">${data.casts.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></label>`+field('実働時間','hours','number')+field('日払い','advance','number');}
+ if(type==='slip'){
+   $('#dialogTitle').textContent='伝票を入力';
+   fields.innerHTML=field('日付','date','date')+
+   '<label class="field full">顧客名<input required name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
+   field('伝票番号','id','text')+field('売上','total','number')+
+   '<label class="field">決済<select required name="payment"><option value="" selected disabled>選択してください</option><option value="現金">現金</option><option value="カード">カード</option></select></label>'+
+   field('客数','guests','number')+
+   '<label class="field"><span>指名</span><select required name="nominationType"><option value="" selected disabled>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';
+ }
+ if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+'<label class="field">カテゴリ<select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('会社名・支払先','company')+field('金額','amount','number')+field('内容（任意）','note','text','full');}
+ if(type==='shift'){ $('#dialogTitle').textContent='勤務を登録';fields.innerHTML=field('勤務日','date','date')+'<label class="field">キャスト<select name="castId">'+data.casts.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></label>'+field('実働時間','hours','number')+field('日払い','advance','number');}
  if(type==='cast'){ $('#dialogTitle').textContent='キャストを追加';fields.innerHTML=field('お名前','name')+field('基本時給','hourly','number');}
- const now=new Date().toISOString().slice(0,10);fields.querySelectorAll('input[type=date]').forEach(x=>x.value=now);if(type==='slip')fields.elements.id.value='S-'+now.slice(5).replace('-','')+'-'+String(data.slips.length+1).padStart(2,'0');dialog.showModal(); }
-function assignmentHtml(){return `<div class="assignment"><h3>キャスト・バック情報 <small>（伝票1枚につき1名。複数名の場合は伝票を分けて登録してください）</small></h3><div class="assignment-row"><label>キャスト<select name="castId">${data.casts.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></label><label>種別<select name="type"><option>フリー・場内</option><option>本指名</option><option>同伴</option></select></label><label>本指名売上<input name="nominatedSales" type="number" value="0"></label><label>ドリンク数<input name="drinks" type="number" value="0"></label><label>延長数<input name="extension" type="number" value="0"></label><label>ボトル数<input name="bottle" type="number" value="0"></label><label>シャンパン数<input name="champagne" type="number" value="0"></label></div></div>`}
+ const now=new Date().toISOString().slice(0,10);fields.querySelectorAll('input[type=date]').forEach(x=>x.value=now);if(type==='slip')fields.elements.date.value=businessDate();dialog.showModal();
+}
 ['addSlip','dashboardAddSlip'].forEach(id=>$('#'+id).onclick=()=>openForm('slip'));$('#addExpense').onclick=()=>openForm('expense');$('#addShift').onclick=()=>openForm('shift');$('#addCast').onclick=()=>openForm('cast');
-form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const x=Object.fromEntries(new FormData(form));if(mode==='slip'){data.slips.push({id:x.id,date:x.date,total:+x.total,card:+x.card,groups:+x.groups,guests:+x.guests,casts:[{castId:x.castId,type:x.type,sales:+x.nominatedSales,drink:+x.drinks,extension:+x.extension,bottle:+x.bottle,champagne:+x.champagne}]})}if(mode==='expense'){data.expenses.push({id:'E-'+Date.now(),date:x.date,category:x.category,company:x.company,note:x.note,amount:+x.amount})}if(mode==='shift'){data.shifts.push({date:x.date,castId:x.castId,hours:+x.hours,advance:+x.advance})}if(mode==='cast'){data.casts.push({id:'c-'+Date.now(),name:x.name,hourly:+x.hourly})}save();render();dialog.close();});
+form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const x=Object.fromEntries(new FormData(form));if(mode==='slip'){data.slips.push({id:x.id,date:x.date,customerName:x.customerName,total:+x.total,card:x.payment==='カード'?+x.total:0,payment:x.payment,groups:1,guests:+x.guests,nominationType:x.nominationType,casts:[]})}if(mode==='expense'){data.expenses.push({id:'E-'+Date.now(),date:x.date,category:x.category,company:x.company,note:x.note,amount:+x.amount})}if(mode==='shift'){data.shifts.push({date:x.date,castId:x.castId,hours:+x.hours,advance:+x.advance})}if(mode==='cast'){data.casts.push({id:'c-'+Date.now(),name:x.name,hourly:+x.hourly})}save();render();dialog.close();});
 window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;data.casts=data.casts.filter(x=>x.id!==id);save();render()};
 $('#saveSettings').onclick=()=>{document.querySelectorAll('[data-setting]').forEach(x=>data.settings[x.dataset.setting]=Number(x.value));data.settings.categories=$('#categories').value.split(',').map(x=>x.trim()).filter(Boolean);document.querySelectorAll('[data-hourly]').forEach(x=>{const c=data.casts.find(c=>c.id===x.dataset.hourly);if(c)c.hourly=Number(x.value)});save();render();alert('計算設定を保存しました。')};
 $('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#overlay').classList.add('show')};function closeMenu(){$('#sidebar').classList.remove('open');$('#overlay').classList.remove('show')}$('#overlay').onclick=closeMenu;
