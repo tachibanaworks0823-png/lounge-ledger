@@ -51,9 +51,11 @@
         <div class="section-head"><div><p class="eyebrow">MONTHLY OVERVIEW</p><h2>今月の集計</h2></div><button class="primary-button" id="dashboardAddSlip">＋ 伝票を入力</button></div>
         <div class="summary-grid">
           <article class="metric-card"><span class="metric-icon wine">￥</span><p>総売上</p><strong id="totalSales">¥0</strong><small id="salesCount">伝票 0件</small></article>
-          <article class="metric-card"><span class="metric-icon violet">♙</span><p>女子給</p><strong id="totalPayroll">¥0</strong><small id="payrollRatio">売上に対して 0%</small></article>
           <article class="metric-card"><span class="metric-icon gold">◫</span><p>総支出</p><strong id="totalExpenses">¥0</strong><small id="expenseDetails">経費 0件</small></article>
-          <article class="metric-card"><span class="metric-icon green">◎</span><p>営業残高</p><strong id="operatingBalance">¥0</strong><small>売上 − 女子給 − 支出</small></articl        <article class="panel daily-ledger-panel">
+          <article class="metric-card"><span class="metric-icon violet">♙</span><p>女子給</p><strong id="totalPayroll">¥0</strong><small id="payrollDetails">支給見込み</small></article>
+          <article class="metric-card"><span class="metric-icon green">%</span><p>女子給率</p><strong id="payrollRatio">0%</strong><small>女子給 ÷ 総売上</small></article>
+        </div>
+        <article class="panel daily-ledger-panel">
           <div class="panel-heading daily-ledger-heading"><div><p class="eyebrow">DAILY SALES LEDGER</p><h2>日別売上表</h2><p>売上・入金・経費を日ごとに自動集計</p></div><div class="daily-ledger-total"><span>月間売上</span><strong id="dailyLedgerTotal">¥0</strong></div></div>
           <div class="daily-kpi-row" id="dailyKpis"></div>
           <div class="daily-table-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>売上</th><th>現金</th><th>カード</th><th>組数</th><th>客数</th><th>客単価</th><th>指名売上</th><th>支出</th><th>営業残高</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div>
