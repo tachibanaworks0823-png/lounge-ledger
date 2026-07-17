@@ -98,22 +98,21 @@ function renderShifts(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
   const weekdays=['日','月','火','水','木','金','土'];
-  const days=Array.from({length:count},(_,i)=>{const day=i+1,date=data.month+'-'+String(day).padStart(2,'0'),weekdayIndex=new Date(date+'T12:00:00').getDay();return {day,date,weekday:weekdays[weekdayIndex],weekdayIndex};});
+  const holidays={'2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日','2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日','2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日','2026-05-06':'振替休日','2026-07-20':'海の日','2026-08-11':'山の日','2026-09-21':'敬老の日','2026-09-22':'国民の休日','2026-09-23':'秋分の日','2026-10-12':'スポーツの日','2026-11-03':'文化の日','2026-11-23':'勤労感謝の日'};
+  const days=Array.from({length:count},(_,i)=>{const day=i+1,date=data.month+'-'+String(day).padStart(2,'0'),weekdayIndex=new Date(date+'T12:00:00').getDay();return {day,date,weekday:weekdays[weekdayIndex],weekdayIndex,holiday:holidays[date]||''};});
   $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';
-  $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small></th>').join('')+'</tr>';
+  $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.holiday?'holiday ':d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small>'+(d.holiday?'<em>'+d.holiday+'</em>':'')+'</th>').join('')+'</tr>';
   const counts='<tr class="shift-count-row"><th>出勤</th>'+days.map(d=>'<td>'+data.shifts.filter(x=>x.date===d.date).length+'人</td>').join('')+'</tr>';
-  const castRows=data.casts.map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?shift.hours+'h':'＋';const cls=(shift?'has-shift ':'')+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(&quot;'+c.id+'&quot;,&quot;'+d.date+'&quot;)">'+label+'</button></td>';}).join('')+'</tr>').join('');
+  const castRows=data.casts.map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?(shift.schedule||shift.hours+'h'):'＋';const cls=(shift?'has-shift ':'')+(d.holiday?'holiday ':d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(&quot;'+c.id+'&quot;,&quot;'+d.date+'&quot;)">'+label+'</button></td>';}).join('')+'</tr>').join('');
   $('#shiftTableBody').innerHTML=counts+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
 }
 window.editShiftCell=(castId,date)=>{
   const existing=data.shifts.find(x=>x.castId===castId&&x.date===date);
-  const answer=prompt('勤務時間を入力してください（例：8、8.5）\\n空欄にすると削除します。',existing?existing.hours:'');
+  const answer=prompt('勤務時間・メモを自由に入力してください（例：8、8-12.5、×、休み）\\n空欄にすると削除します。',existing?(existing.schedule||existing.hours):'');
   if(answer===null)return;
-  const hours=Number(answer);
-  if(answer.trim()===''){data.shifts=data.shifts.filter(x=>!(x.castId===castId&&x.date===date));}
-  else if(!Number.isFinite(hours)||hours<0){alert('勤務時間を数字で入力してください。');return;}
-  else if(existing){existing.hours=hours;}
-  else{data.shifts.push({date,castId,hours,advance:0});}
+  const value=answer.trim();
+  if(value===''){data.shifts=data.shifts.filter(x=>!(x.castId===castId&&x.date===date));}
+  else{const numeric=Number(value);if(existing){existing.schedule=value;if(Number.isFinite(numeric)&&numeric>=0)existing.hours=numeric;}else{data.shifts.push({date,castId,hours:Number.isFinite(numeric)&&numeric>=0?numeric:0,schedule:value,advance:0});}}
   save();render();
 };
 function renderExpenses(){const m={};data.expenses.forEach(x=>m[x.category]=(m[x.category]||0)+Number(x.amount));$('#expenseSummary').innerHTML=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>`<div class="category-card"><p>${x[0]}</p><strong>${yen(x[1])}</strong></div>`).join('')||'<div class="category-card"><p>支出を入力するとカテゴリ別に集計されます</p><strong>¥0</strong></div>';
