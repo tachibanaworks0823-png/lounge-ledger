@@ -43,7 +43,7 @@ function calcCast(cast){
   return {hours,advance,nominated,main,companion,drink,bottle,back,hourly,gross,deductions,payout:Math.max(0,gross-deductions-advance)};
 }
 function totals(){const sales=data.slips.reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
-function render(){ renderDashboard();renderSlips();renderCasts();renderExpenses();renderSettings(); }
+function render(){ renderDashboard();renderSlips();renderCasts();renderShifts();renderExpenses();renderSettings(); }
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
@@ -94,6 +94,28 @@ function renderSlips(){
   }).join('')||empty(7,'伝票はまだありません');
 }
 function renderCasts(){ $('#castTable').innerHTML=data.casts.map(c=>{const x=calcCast(c);return `<tr><td><b>${c.name}</b><br><small>時給 ${yen(c.hourly)}</small></td><td>${yen(x.nominated)}</td><td>${x.main}本 / ${x.companion}本</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.hourly)}</td><td>${yen(x.back)}</td><td>${yen(x.deductions+x.advance)}</td><td><b>${yen(x.payout)}</b></td><td><button class="text-button" onclick="removeCast('${c.id}')">削除</button></td></tr>`}).join('')||empty(9,'キャストはまだいません'); }
+function renderShifts(){
+  const [year,month]=data.month.split('-').map(Number);
+  const count=new Date(year,month,0).getDate();
+  const weekdays=['日','月','火','水','木','金','土'];
+  const days=Array.from({length:count},(_,i)=>{const day=i+1,date=data.month+'-'+String(day).padStart(2,'0'),weekdayIndex=new Date(date+'T12:00:00').getDay();return {day,date,weekday:weekdays[weekdayIndex],weekdayIndex};});
+  $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';
+  $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small></th>').join('')+'</tr>';
+  const counts='<tr class="shift-count-row"><th>出勤</th>'+days.map(d=>'<td>'+data.shifts.filter(x=>x.date===d.date).length+'人</td>').join('')+'</tr>';
+  const castRows=data.casts.map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?shift.hours+'h':'＋';const cls=(shift?'has-shift ':'')+(d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(\\''+c.id+'\\',\\''+d.date+'\\')">'+label+'</button></td>';}).join('')+'</tr>').join('');
+  $('#shiftTableBody').innerHTML=counts+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
+}
+window.editShiftCell=(castId,date)=>{
+  const existing=data.shifts.find(x=>x.castId===castId&&x.date===date);
+  const answer=prompt('勤務時間を入力してください（例：8、8.5）\\n空欄にすると削除します。',existing?existing.hours:'');
+  if(answer===null)return;
+  const hours=Number(answer);
+  if(answer.trim()===''){data.shifts=data.shifts.filter(x=>!(x.castId===castId&&x.date===date));}
+  else if(!Number.isFinite(hours)||hours<0){alert('勤務時間を数字で入力してください。');return;}
+  else if(existing){existing.hours=hours;}
+  else{data.shifts.push({date,castId,hours,advance:0});}
+  save();render();
+};
 function renderExpenses(){const m={};data.expenses.forEach(x=>m[x.category]=(m[x.category]||0)+Number(x.amount));$('#expenseSummary').innerHTML=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>`<div class="category-card"><p>${x[0]}</p><strong>${yen(x[1])}</strong></div>`).join('')||'<div class="category-card"><p>支出を入力するとカテゴリ別に集計されます</p><strong>¥0</strong></div>';
 $('#expenseTable').innerHTML=data.expenses.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${dateJP(x.date)}</td><td><span class="status">${x.category}</span></td><td>${x.company}</td><td>${x.note||'—'}</td><td>${yen(x.amount)}</td><td><button class="text-button" onclick="removeItem('expenses','${x.id}')">削除</button></td></tr>`).join('')||empty(6,'支出はまだありません');}
 function renderSettings(){ const labels={mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）',extension:'延長バック（1本）',drink:'ドリンクバック（1杯）',bottle:'ボトルバック（1本）',champagne:'シャンパンバック（1本）'};$('#backSettings').innerHTML=Object.entries(labels).map(([k,l])=>`<label class="setting-field">${l}<input data-setting="${k}" type="number" min="0" value="${data.settings[k]}"></label>`).join('');$('#deductionSettings').innerHTML=`<label class="setting-field">所得税（%）<input data-setting="taxRate" type="number" min="0" value="${data.settings.taxRate}"></label><label class="setting-field">厚生費（%）<input data-setting="welfareRate" type="number" min="0" value="${data.settings.welfareRate}"></label><label class="setting-field full">支出カテゴリ（カンマ区切り）<input id="categories" value="${data.settings.categories.join(',')}"></label>`;$('#castRateSettings').innerHTML=data.casts.map(c=>`<label class="cast-rate"><span>${c.name}<small> 基本時給</small></span><input data-hourly="${c.id}" type="number" min="0" value="${c.hourly}">円</label>`).join(''); }
@@ -130,7 +152,7 @@ function openForm(type){mode=type;$('#dialogKicker').textContent=type==='slip'?'
  const now=new Date().toISOString().slice(0,10);fields.querySelectorAll('input[type=date]').forEach(x=>x.value=now);if(type==='slip'){const dateField=fields.querySelector('input[name="date"]');if(dateField)dateField.value=businessDate();}showEntryDialog();
 }
 ['addSlip','dashboardAddSlip'].forEach(id=>$('#'+id).onclick=e=>{e.preventDefault();openForm('slip')});
-$('#sortSlipsDate').onclick=()=>{slipDateSort=slipDateSort==='asc'?'desc':'asc';renderSlips()};$('#addExpense').onclick=()=>openForm('expense');$('#addShift').onclick=()=>openForm('shift');$('#addCast').onclick=()=>openForm('cast');
+$('#sortSlipsDate').onclick=()=>{slipDateSort=slipDateSort==='asc'?'desc':'asc';renderSlips()};$('#addExpense').onclick=()=>openForm('expense');$('#addShift').onclick=()=>openForm('shift');$('#addShiftFromSchedule').onclick=()=>openForm('shift');$('#addCast').onclick=()=>openForm('cast');
 form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const x=Object.fromEntries(new FormData(form));if(mode==='slip'){data.slips.push({id:x.id,date:x.date,customerName:x.customerName,total:+x.total,card:x.payment==='カード'?+x.total:0,payment:x.payment,groups:1,guests:+x.guests,nominationType:x.nominationType,casts:[]})}if(mode==='expense'){const category=(x.newCategory||'').trim()||x.category;if((x.newCategory||'').trim()&&!data.settings.categories.includes(category))data.settings.categories.push(category);data.expenses.push({id:'E-'+Date.now(),date:x.date,category,company:x.company,note:x.note,amount:+x.amount})}if(mode==='shift'){data.shifts.push({date:x.date,castId:x.castId,hours:+x.hours,advance:+x.advance})}if(mode==='cast'){data.casts.push({id:'c-'+Date.now(),name:x.name,hourly:+x.hourly})}save();render();dialog.close();});
 window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;data.casts=data.casts.filter(x=>x.id!==id);save();render()};
 $('#saveSettings').onclick=()=>{document.querySelectorAll('[data-setting]').forEach(x=>data.settings[x.dataset.setting]=Number(x.value));data.settings.categories=$('#categories').value.split(',').map(x=>x.trim()).filter(Boolean);document.querySelectorAll('[data-hourly]').forEach(x=>{const c=data.casts.find(c=>c.id===x.dataset.hourly);if(c)c.hourly=Number(x.value)});save();render();alert('計算設定を保存しました。')};
