@@ -67,3 +67,10 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 
 .batch-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.batch-toolbar span{color:#d8bfca;font-size:13px}.daily-batch-row{grid-template-columns:repeat(8,minmax(78px,1fr))}.batch-cast-head{grid-column:1/-1;display:flex;align-items:end;gap:14px}.batch-cast-head label{flex:1}.batch-cast-head select{max-width:250px}.daily-detail-list{display:grid;gap:10px}.daily-detail-list article{display:grid;gap:6px;padding:14px;background:#19161a;border:1px solid #51404a;border-radius:12px}.daily-detail-list article>b{color:#fff}.daily-detail-list article>span{color:#d9c5ce;font-size:13px}.daily-detail-list article>div{display:flex;gap:8px}.compact-button{padding:7px 13px!important;font-size:13px!important}
 @media(max-width:780px){.batch-toolbar{align-items:stretch;flex-direction:column}.batch-toolbar .secondary-button{width:100%}.batch-cast-head{grid-column:1/-1}.batch-cast-head select{max-width:none}.daily-detail-list article>span{line-height:1.5}}
+
+
+/* Batch shift entry */
+.shift-batch-list{display:grid;gap:8px;max-height:58vh;overflow:auto;padding-right:3px}
+.shift-batch-row{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;padding:11px 13px;background:#19161a;border:1px solid #51404a;border-radius:11px}
+.shift-batch-row b{color:#fff}.shift-batch-row input{margin:0!important}
+@media(max-width:560px){.shift-batch-row{grid-template-columns:82px 1fr;gap:9px;padding:10px}.shift-batch-row input{font-size:13px!important}}
