@@ -54,3 +54,6 @@
 
 
 .shift-table .shift-special-row th{font-size:12px!important;font-weight:600!important}
+
+
+.shift-table .shift-special-row td button{justify-content:flex-start!important;text-align:left!important;padding-left:7px!important}
