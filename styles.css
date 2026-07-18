@@ -21,3 +21,11 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 /* Daily payroll input */
 #daily-input .info-banner{margin-bottom:22px}
 #daily-input .table-wrap{border-radius:16px}
+
+
+/* Desktop time picker */
+.desktop-time-picker{display:flex;align-items:center;gap:10px;background:#131115;border:1px solid #4a3d46;border-radius:11px;padding:5px 9px}
+.desktop-time-picker:focus-within{border-color:#d25288;box-shadow:0 0 0 3px #b9407433}
+.desktop-time-picker select{appearance:none!important;flex:1;min-width:0;border:0!important;background:#211c21!important;border-radius:8px!important;padding:10px 12px!important;text-align:center;font-weight:700;cursor:pointer;box-shadow:none!important}
+.desktop-time-picker span{font-size:20px;font-weight:700;color:#e7b9ca}
+@media(max-width:780px){.desktop-time-picker{display:none}}
