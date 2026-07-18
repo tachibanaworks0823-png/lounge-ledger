@@ -2,3 +2,23 @@
 
 /* Dark theme: shift */
 .shift-panel{background:linear-gradient(145deg,#201b20,#141214)!important;border-color:#40343c!important}.shift-hint{background:#321626!important;color:#edb4cb!important}.shift-table-wrap{background:#171519!important;border-color:#40343c!important}.shift-table th,.shift-table td{border-color:#4a3c46!important}.shift-table th{background:#211a20!important;color:#eedfe6!important}.shift-table td{background:#181519!important}.shift-table td button{color:#f5edf1!important}.shift-table .shift-count-row th,.shift-table .shift-count-row td{background:#241b21!important;color:#d8bcc9!important}.shift-table .has-shift{background:#421a2e!important}.shift-table .has-shift button{color:#ffd5e5!important}.shift-table .sunday,.shift-table .holiday{background:#4a1722!important;color:#ffd7dd!important}.shift-table .saturday{background:#182d42!important;color:#cadff5!important}.shift-table-wrap::-webkit-scrollbar-thumb{background:#714157}
+
+
+/* Shift table readability pass */
+.shift-panel{background:#242025!important;border-color:#675260!important}
+.shift-panel .panel-heading{background:#2b252b!important;border-color:#5e4b56!important}
+.shift-panel .panel-heading h2{color:#fff!important}.shift-panel .panel-heading p{color:#e1cbd5!important}
+.shift-table-wrap{background:#181519!important;border-color:#675260!important}
+.shift-table{background:#211c21!important}
+.shift-table th{background:#332a31!important;color:#fff!important;border-color:#5a4853!important;font-size:13px!important}
+.shift-table td{background:#262026!important;border-color:#54434e!important}
+.shift-table .shift-cast-name{background:#302831!important;color:#fff!important;font-size:14px!important}
+.shift-table .shift-count-row th,.shift-table .shift-count-row td{background:#40313a!important;color:#fff!important;font-weight:700!important}
+.shift-table td button{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;min-height:45px!important;padding:4px!important;border:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;font-size:14px!important;font-weight:800!important}
+.shift-table .empty-shift button{margin:8px auto!important;width:28px!important;height:28px!important;min-height:28px!important;border-radius:50%!important;background:#51404c!important;color:#fff!important;font-size:21px!important;line-height:1!important;box-shadow:0 2px 5px #0008!important}
+.shift-table .empty-shift button:hover{background:#c2487e!important;color:#fff!important;transform:scale(1.1)}
+.shift-table .has-shift{background:#5d203d!important}.shift-table .has-shift button{color:#fff!important;background:#76274e!important}
+.shift-table .saturday,.shift-table .saturday.shift-day-head{background:#214464!important;color:#e8f5ff!important}
+.shift-table .sunday,.shift-table .sunday.shift-day-head,.shift-table .holiday,.shift-table .holiday.shift-day-head{background:#652233!important;color:#fff0f3!important}
+.shift-table .shift-day-head em{color:#ffe6ec!important;font-weight:800!important}
+@media(min-width:781px){.shift-table{width:calc(88px + var(--shift-days) * 58px)!important}.shift-table th,.shift-table td{width:58px!important;min-width:58px!important;max-width:58px!important}.shift-table .shift-name-head,.shift-table .shift-cast-name{width:88px!important;min-width:88px!important;max-width:88px!important}}
