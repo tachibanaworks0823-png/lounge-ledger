@@ -32,3 +32,23 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 
 .auto-hours input{background:#261925!important;color:#ffbfd8!important;font-weight:800;letter-spacing:.03em}
 .auto-hours input[readonly]{cursor:not-allowed}
+
+
+/* Higher contrast for PC screens */
+@media (hover:hover) and (pointer:fine){
+  body{background:radial-gradient(1000px 600px at 88% -8%,#531733 0%,transparent 58%),linear-gradient(135deg,#121013,#1a1218 55%,#0e0d10)}
+  .main{background:#151216cc}
+  .topbar{background:#161217e8;border-color:#51404a}
+  .section-head h2,.topbar h1,.panel h2{color:#fff}
+  .section-head p,.description,.panel-heading p,.metric-card p,.metric-card small{color:#d2c1ca}
+  .panel,.metric-card,.category-card{background:linear-gradient(145deg,#292328,#1d191e);border-color:#5b4854;box-shadow:0 16px 38px #0006}
+  .table-wrap th,.daily-sales-table th{background:#2a2228!important;color:#f0dce6!important}
+  .table-wrap td,.daily-sales-table td{background:#211c21!important;color:#fff!important;border-color:#51404a!important}
+  .table-wrap tbody tr:hover td{background:#34232d!important}
+  .info-banner{background:#321d29;border-color:#75445b;color:#ead9e1}
+  input,select,textarea{background:#1a161a!important;border-color:#66505d!important;color:#fff!important}
+  .desktop-time-picker{background:#1a161a;border-color:#66505d}
+  .desktop-time-picker select{background:#30272e!important;color:#fff!important}
+  dialog{background:#211c21;border-color:#5e4a56}
+  .sidebar{border-color:#4b3b45}
+}
