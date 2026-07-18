@@ -56,3 +56,10 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 
 /* Higher contrast on every device */
 .main{background:#151216cc}.topbar{background:#161217e8;border-color:#51404a}.section-head p,.description,.panel-heading p,.metric-card p,.metric-card small{color:#d2c1ca}.panel,.metric-card,.category-card{background:linear-gradient(145deg,#292328,#1d191e);border-color:#5b4854;box-shadow:0 16px 38px #0006}.table-wrap th,.daily-sales-table th{background:#2a2228!important;color:#f0dce6!important}.table-wrap td,.daily-sales-table td{background:#211c21!important;color:#fff!important;border-color:#51404a!important}.table-wrap tbody tr:hover td{background:#34232d!important}.info-banner{background:#321d29;border-color:#75445b;color:#ead9e1}input,select,textarea{background:#1a161a!important;border-color:#66505d!important;color:#fff!important}.desktop-time-picker{background:#1a161a;border-color:#66505d}.desktop-time-picker select{background:#30272e!important;color:#fff!important}dialog{background:#211c21;border-color:#5e4a56}
+
+
+/* Daily batch entry */
+.daily-batch-list{display:grid;gap:10px;max-height:56vh;overflow:auto;padding-right:4px}
+.daily-batch-row{display:grid;grid-template-columns:80px repeat(9,minmax(76px,1fr));gap:8px;align-items:end;padding:12px;background:#19161a;border:1px solid #51404a;border-radius:12px}
+.daily-batch-row>b{align-self:center;color:#fff}.daily-batch-row small{display:block;margin:0 0 5px;color:#d7b9c7;font-size:11px}.daily-batch-row input,.daily-batch-row select{width:100%;min-width:0;padding:8px!important;border-radius:8px!important}.batch-time{display:flex;gap:3px;align-items:center}.batch-time select{padding:8px 4px!important;text-align:center}.batch-time span{color:#e7b9ca}.batch-hours{display:block;min-height:38px;padding:9px 8px;background:#321d2a;border:1px solid #75445b;border-radius:8px;color:#ffbfd8;font-weight:800;text-align:center}
+@media(max-width:780px){.daily-batch-row{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-batch-row>b{grid-column:1/-1}.daily-batch-list{max-height:60vh}.daily-batch-row label:last-child{grid-column:1/-1}}
