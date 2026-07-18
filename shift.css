@@ -22,3 +22,8 @@
 .shift-table .sunday,.shift-table .sunday.shift-day-head,.shift-table .holiday,.shift-table .holiday.shift-day-head{background:#652233!important;color:#fff0f3!important}
 .shift-table .shift-day-head em{color:#ffe6ec!important;font-weight:800!important}
 @media(min-width:781px){.shift-table{width:calc(88px + var(--shift-days) * 58px)!important}.shift-table th,.shift-table td{width:58px!important;min-width:58px!important;max-width:58px!important}.shift-table .shift-name-head,.shift-table .shift-cast-name{width:88px!important;min-width:88px!important;max-width:88px!important}}
+
+
+/* Minimal transparent add controls */
+.shift-table .empty-shift button{margin:0 auto!important;width:100%!important;height:100%!important;min-height:45px!important;border-radius:0!important;background:transparent!important;color:#bca5b2!important;box-shadow:none!important;font-size:24px!important;font-weight:400!important}
+.shift-table .empty-shift button:hover{background:#b33e742b!important;color:#fff!important;transform:none!important}
