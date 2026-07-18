@@ -18,6 +18,7 @@ const defaultData = {
   shifts: [
     { date:'2026-07-03',castId:'momo',hours:7.5,advance:5000 },{ date:'2026-07-04',castId:'momo',hours:7,advance:10000 },{ date:'2026-07-04',castId:'rina',hours:6,advance:5000 },{ date:'2026-07-10',castId:'rina',hours:7.5,advance:10000 },{ date:'2026-07-10',castId:'yui',hours:6,advance:5000 }
   ],
+  shiftSpecials: [],
   expenses: [
     {id:'E-1',date:'2026-07-03',category:'酒代',company:'○○酒販',note:'営業用酒類',amount:984},{id:'E-2',date:'2026-07-04',category:'食材',company:'スーパー',note:'フルーツ・軽食',amount:1329},{id:'E-3',date:'2026-07-10',category:'備品',company:'通販',note:'紙おしぼり',amount:2400}
   ],
@@ -25,7 +26,7 @@ const defaultData = {
 };
 function normalizeData(source){
   const value=source||{};
-  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],shifts:Array.isArray(value.shifts)?value.shifts:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
+  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
@@ -110,8 +111,9 @@ function renderShifts(){
   $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';$('.shift-table').style.setProperty('--shift-days',count);
   $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.holiday?'holiday ':d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small>'+(d.holiday?'<em>'+d.holiday+'</em>':'')+'</th>').join('')+'</tr>';
   const counts='<tr class="shift-count-row"><th>出勤</th>'+days.map(d=>'<td>'+data.shifts.filter(x=>x.date===d.date).length+'人</td>').join('')+'</tr>';
+  const specialRows=[['interview','面接'],['trial','体入']].map(([type,label])=>'<tr class="shift-special-row '+type+'"><th>'+label+'</th>'+days.map(d=>{const item=data.shiftSpecials.find(x=>x.type===type&&x.date===d.date);const value=item?.note||'';return '<td><button type="button" onclick="editShiftSpecial(&quot;'+type+'&quot;,&quot;'+d.date+'&quot;)">'+value+'</button></td>';}).join('')+'</tr>').join('');
   const castRows=sortedCasts().map(c=>'<tr><th class="shift-cast-name">'+c.name+'</th>'+days.map(d=>{const shift=data.shifts.find(x=>x.castId===c.id&&x.date===d.date);const label=shift?(shift.schedule||shift.hours+'h'):'';const cls=(shift?'has-shift ':'empty-shift ')+(d.holiday?'holiday ':d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'');return '<td class="'+cls+'"><button type="button" onclick="editShiftCell(&quot;'+c.id+'&quot;,&quot;'+d.date+'&quot;)">'+label+'</button></td>';}).join('')+'</tr>').join('');
-  $('#shiftTableBody').innerHTML=counts+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
+  $('#shiftTableBody').innerHTML=counts+specialRows+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
 }
 window.editShiftCell=(castId,date)=>{
   const existing=data.shifts.find(x=>x.castId===castId&&x.date===date);
@@ -120,6 +122,17 @@ window.editShiftCell=(castId,date)=>{
   const value=answer.trim();
   if(value===''){data.shifts=data.shifts.filter(x=>!(x.castId===castId&&x.date===date));}
   else{const numeric=Number(value);if(existing){existing.schedule=value;if(Number.isFinite(numeric)&&numeric>=0)existing.hours=numeric;}else{data.shifts.push({date,castId,hours:Number.isFinite(numeric)&&numeric>=0?numeric:0,schedule:value,advance:0});}}
+  save();render();
+};
+window.editShiftSpecial=(type,date)=>{
+  const existing=data.shiftSpecials.find(x=>x.type===type&&x.date===date);
+  const label=type==='interview'?'面接':'体入';
+  const answer=prompt(label+'の予定・人数を入力してください（例：1名、19:00、さくら）\n空欄にすると削除します。',existing?.note||'');
+  if(answer===null)return;
+  const note=answer.trim();
+  if(!note)data.shiftSpecials=data.shiftSpecials.filter(x=>!(x.type===type&&x.date===date));
+  else if(existing)existing.note=note;
+  else data.shiftSpecials.push({type,date,note});
   save();render();
 };
 function renderExpenses(){const m={};data.expenses.forEach(x=>m[x.category]=(m[x.category]||0)+Number(x.amount));$('#expenseSummary').innerHTML=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>`<div class="category-card"><p>${x[0]}</p><strong>${yen(x[1])}</strong></div>`).join('')||'<div class="category-card"><p>支出を入力するとカテゴリ別に集計されます</p><strong>¥0</strong></div>';
