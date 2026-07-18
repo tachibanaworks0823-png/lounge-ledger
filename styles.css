@@ -16,3 +16,8 @@ body{background:radial-gradient(900px 520px at 88% -10%,#3b1129 0%,transparent 5
 .table-wrap table,.table-wrap th,.table-wrap td{border-color:#3a3238}.table-wrap th{background:#1a171a;color:#c6abb8}.table-wrap td{background:#171519;color:#eee}.table-wrap tbody tr:hover td{background:#251c22}.status{background:#3a1b2a;color:#f4b1cc}.status.cash{background:#17372d;color:#9ce2c2}.empty{color:#a99aa3!important}
 input,select,textarea{background:#141216!important;color:#f7eff3!important;border-color:#4a3d46!important}input:focus,select:focus,textarea:focus{border-color:#d25288!important;box-shadow:0 0 0 3px #b9407433!important}input::placeholder,textarea::placeholder{color:#867983}select option{background:#171418;color:#fff}dialog{background:#1b171b;color:#fff;border-color:#4b3b46;box-shadow:0 24px 70px #000b}.dialog-head,.dialog-actions{border-color:#40353d}.close{color:#d4bdc9}.field{color:#c6b2bd}.auth-screen{background:radial-gradient(circle at 20% 10%,#4a1934,transparent 40%),#0e0d0f}.auth-card{background:#1c181d;border-color:#463743;color:#fff;box-shadow:0 26px 70px #0008}.auth-copy,.auth-message{color:#c7b6c0}.auth-form label{color:#d5c3cd}
 @media(max-width:780px){.sidebar{background:#141015}.topbar{background:#110f12}.top-actions{background:transparent}}
+
+
+/* Daily payroll input */
+#daily-input .info-banner{margin-bottom:22px}
+#daily-input .table-wrap{border-radius:16px}
