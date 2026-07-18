@@ -57,3 +57,10 @@
 
 
 .shift-table .shift-special-row td button{justify-content:flex-start!important;text-align:left!important;padding-left:7px!important}
+
+
+/* Lower-align shift table content */
+.shift-table th,.shift-table td{vertical-align:bottom!important}
+.shift-table td button{align-items:flex-end!important;padding-bottom:7px!important}
+.shift-table .empty-shift button{padding-bottom:7px!important}
+.shift-table .shift-cast-name,.shift-table .shift-name-head,.shift-table .shift-special-row th,.shift-table .shift-count-row th,.shift-table .shift-count-row td{padding-bottom:8px!important}
