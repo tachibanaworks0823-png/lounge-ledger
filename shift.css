@@ -45,3 +45,6 @@
 .shift-table .shift-special-row td button{min-height:42px!important;color:#f6d5e2!important;font-size:12px!important;font-weight:500!important}
 .shift-table .shift-special-row.interview th{border-top:2px solid #8b6679!important}.shift-table .shift-special-row.trial td,.shift-table .shift-special-row.trial th{border-bottom:2px solid #8b6679!important}
 .shift-table .shift-special-row td button:hover{background:#b33e742b!important;color:#fff!important}
+
+
+.shift-table .shift-cast-name{text-align:center!important}
