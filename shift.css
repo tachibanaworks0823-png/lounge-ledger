@@ -32,3 +32,8 @@
 /* Keep empty shift cells clean; reveal add control on interaction */
 .shift-table .empty-shift button{opacity:0!important;color:transparent!important}
 .shift-table .empty-shift:hover button,.shift-table .empty-shift:focus-within button{opacity:1!important;color:#fff!important}
+
+
+/* Calm, readable entered shift labels */
+.shift-table .has-shift button{font-size:12px!important;font-weight:500!important;letter-spacing:0!important}
+@media(max-width:560px){.shift-table .has-shift button{font-size:11px!important}}
