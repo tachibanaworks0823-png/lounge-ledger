@@ -28,7 +28,6 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 .desktop-time-picker:focus-within{border-color:#d25288;box-shadow:0 0 0 3px #b9407433}
 .desktop-time-picker select{appearance:none!important;flex:1;min-width:0;border:0!important;background:#211c21!important;border-radius:8px!important;padding:10px 12px!important;text-align:center;font-weight:700;cursor:pointer;box-shadow:none!important}
 .desktop-time-picker span{font-size:20px;font-weight:700;color:#e7b9ca}
-@media(max-width:780px){.desktop-time-picker{display:none}}
 
 
 .auto-hours input{background:#261925!important;color:#ffbfd8!important;font-weight:800;letter-spacing:.03em}
