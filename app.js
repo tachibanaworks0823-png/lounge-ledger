@@ -96,7 +96,7 @@ function renderSlips(){
 }
 function renderCasts(){ $('#castTable').innerHTML=sortedCasts().map(c=>{const x=calcCast(c);return `<tr><td><b>${c.name}</b><br><small>時給 ${yen(c.hourly)}</small></td><td>${yen(x.nominated)}</td><td>${x.main}本 / ${x.companion}本</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.hourly)}</td><td>${yen(x.back)}</td><td>${yen(x.deductions+x.advance)}</td><td><b>${yen(x.payout)}</b></td><td><button class="text-button" onclick="removeCast('${c.id}')">削除</button></td></tr>`}).join('')||empty(9,'キャストはまだいません'); }
 function renderCastManagement(){
-  $('#castManagementTable').innerHTML=sortedCasts().map(c=>'<tr><td><b>'+c.name+'</b></td><td><span class="status">'+(c.status||'在籍')+'</span></td><td>'+yen(c.hourly)+'</td><td>'+ (c.joinedDate?dateJP(c.joinedDate):'—')+'</td><td>'+ (c.phone||'—')+'</td><td>'+ (c.memo||'—')+'</td><td><button class="text-button" onclick="editCastProfile(\''+c.id+'\')">編集</button></td></tr>').join('')||empty(7,'キャストを追加してください');
+  $('#castManagementTable').innerHTML=sortedCasts().map(c=>'<tr><td><b>'+c.name+'</b></td><td><span class="status">'+(c.status||'在籍')+'</span></td><td>'+yen(c.hourly)+'</td><td>'+ (c.joinedDate?dateJP(c.joinedDate):'—')+'</td><td>'+ (c.phone||'—')+'</td><td>'+ (c.memo||'—')+'</td><td><button class="text-button" onclick="editCastProfile(\''+c.id+'\')">編集・詳細</button></td></tr>').join('')||empty(7,'キャストを追加してください');
 }
 window.editCastProfile=id=>openForm('cast',id);
 function renderShifts(){
