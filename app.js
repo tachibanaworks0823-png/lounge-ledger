@@ -135,7 +135,7 @@ document.querySelectorAll('[data-close-dialog]').forEach(button=>button.onclick=
 const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
 const optionalField=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input name="${name}" type="${type}"></label>`;
 const timeField=(label,name)=>{
-  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches)return optionalField(label,name,'time');
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches)return '<label class="field">'+label+'<input name="'+name+'" type="time" step="1800"></label>';
   const options=Array.from({length:24},(_,i)=>'<option value="'+String(i).padStart(2,'0')+'">'+String(i).padStart(2,'0')+'</option>').join('');
   const minutes=['00','30'].map(i=>'<option value="'+i+'">'+i+'</option>').join('');
   return '<label class="field time-picker-field">'+label+'<div class="desktop-time-picker" data-time-name="'+name+'"><select class="time-hour"><option value="">--</option>'+options+'</select><span>:</span><select class="time-minute"><option value="">--</option>'+minutes+'</select><input type="hidden" name="'+name+'"></div></label>';
