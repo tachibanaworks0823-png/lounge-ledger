@@ -99,3 +99,7 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
   #daily-input .daily-status-select{width:100%;padding:7px 3px!important;font-size:11px!important}
   #daily-input .compact-button{padding:8px 8px!important;font-size:12px!important}
 }
+
+
+#daily-input .daily-status-select{font-size:13px!important;font-weight:700!important}
+@media(max-width:560px){#daily-input .daily-status-select{font-size:12px!important;font-weight:700!important}}
