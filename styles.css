@@ -144,3 +144,6 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 #backSettings .daily-rate-grid{gap:9px}
 #backSettings .setting-field{gap:4px}
 #backSettings .setting-field input{padding:7px 9px!important;min-height:38px}
+
+
+#backSettings .setting-rate-section{grid-column:1/-1!important}
