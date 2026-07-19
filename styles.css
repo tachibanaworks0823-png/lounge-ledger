@@ -74,3 +74,15 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 .shift-batch-row{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;padding:11px 13px;background:#19161a;border:1px solid #51404a;border-radius:11px}
 .shift-batch-row b{color:#fff}.shift-batch-row input{margin:0!important}
 @media(max-width:560px){.shift-batch-row{grid-template-columns:82px 1fr;gap:9px;padding:10px}.shift-batch-row input{font-size:13px!important}}
+
+
+/* Compact daily input list on iPhone */
+@media(max-width:560px){
+  #daily-input .table-wrap{overflow-x:hidden}
+  #daily-input .table-wrap table{width:100%!important;min-width:0!important;table-layout:fixed}
+  #daily-input .table-wrap th,#daily-input .table-wrap td{padding:12px 8px!important;white-space:nowrap}
+  #daily-input .table-wrap th:nth-child(1),#daily-input .table-wrap td:nth-child(1){width:27%}
+  #daily-input .table-wrap th:nth-child(2),#daily-input .table-wrap td:nth-child(2){width:25%}
+  #daily-input .table-wrap th:nth-child(3),#daily-input .table-wrap td:nth-child(3){width:48%;text-align:center}
+  #daily-input .compact-button{padding:9px 13px!important;font-size:13px!important}
+}
