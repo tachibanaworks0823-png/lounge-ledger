@@ -86,3 +86,16 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
   #daily-input .table-wrap th:nth-child(3),#daily-input .table-wrap td:nth-child(3){width:48%;text-align:center}
   #daily-input .compact-button{padding:9px 13px!important;font-size:13px!important}
 }
+
+
+/* Daily status and full-month list */
+.daily-status-select{padding:7px 9px!important;border-radius:8px!important;font-size:13px!important;font-weight:700}
+@media(max-width:560px){
+  #daily-input .table-wrap th:nth-child(1),#daily-input .table-wrap td:nth-child(1){width:23%}
+  #daily-input .table-wrap th:nth-child(2),#daily-input .table-wrap td:nth-child(2){width:27%}
+  #daily-input .table-wrap th:nth-child(3),#daily-input .table-wrap td:nth-child(3){width:18%}
+  #daily-input .table-wrap th:nth-child(4),#daily-input .table-wrap td:nth-child(4){width:32%;text-align:center}
+  #daily-input .table-wrap th,#daily-input .table-wrap td{padding:10px 5px!important;font-size:12px}
+  #daily-input .daily-status-select{width:100%;padding:7px 3px!important;font-size:11px!important}
+  #daily-input .compact-button{padding:8px 8px!important;font-size:12px!important}
+}
