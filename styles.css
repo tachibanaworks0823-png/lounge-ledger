@@ -131,3 +131,8 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 /* Daily input rate settings */
 .setting-rate-section{border-top:1px solid #51404a;padding-top:18px;margin-top:18px}.setting-rate-section:first-child{border-top:0;padding-top:0;margin-top:0}.setting-rate-section h3{margin:0 0 12px;color:#fff;font-size:15px}.setting-rate-section h4{margin:15px 0 8px;color:#efbfd2;font-size:13px}.daily-rate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
 @media(max-width:560px){.daily-rate-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.setting-rate-section h3{font-size:14px}}
+
+
+/* Align daily rate groups cleanly with basic rates */
+.setting-rate-section.daily-rate-section{border-top:0!important;margin-top:0!important;padding-top:0!important}
+.setting-rate-section.daily-rate-section section:first-child h4{margin-top:0!important}
