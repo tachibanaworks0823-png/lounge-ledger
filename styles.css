@@ -147,3 +147,10 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 
 
 #backSettings .setting-rate-section{grid-column:1/-1!important}
+
+
+/* Compact fixed-width rate fields on larger screens */
+@media(min-width:561px){
+  #backSettings .daily-rate-grid{grid-template-columns:repeat(auto-fit,minmax(120px,150px))!important;justify-content:start!important;gap:10px!important}
+  #backSettings .setting-field input{max-width:150px!important}
+}
