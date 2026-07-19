@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
   <link rel="stylesheet" href="daily-ledger.css?v=11" />
   <link rel="stylesheet" href="shift.css?v=19" />
 </head>
@@ -84,13 +84,13 @@
 
       <section class="view" id="expenses"><div class="section-head"><div><p class="eyebrow">EXPENSES</p><h2>支出管理</h2><p class="description">支出を登録すると、カテゴリ別集計と営業残高に自動反映されます。</p></div><button class="primary-button" id="addExpense">＋ 支出を入力</button></div><div class="expense-summary" id="expenseSummary"></div><article class="panel table-panel"><div class="panel-heading"><div><h2>支出一覧</h2><p>カテゴリは設定から追加・変更できます。</p></div></div><div class="table-wrap"><table><thead><tr><th>日付</th><th>カテゴリ</th><th>会社名 / 支払先</th><th>内容</th><th>金額</th><th></th></tr></thead><tbody id="expenseTable"></tbody></table></div></article></section>
 
-      <section class="view" id="settings"><div class="section-head"><div><p class="eyebrow">CALCULATION SETTINGS</p><h2>計算設定</h2><p class="description">バック率・時給・控除率を変更すると、以後の給与計算に適用されます。</p></div><button class="primary-button" id="saveSettings">設定を保存</button></div><div class="settings-grid"><article class="panel"><div class="panel-heading"><div><h2>バック単価</h2><p>伝票で追加した実績に対する支給単価</p></div></div><div class="setting-fields" id="backSettings"></div></article><article class="panel"><div class="panel-heading"><div><h2>控除設定</h2><p>給与計算時に総支給から差し引く割合</p></div></div><div class="setting-fields" id="deductionSettings"></div></article></div><article class="panel setting-cast-panel"><div class="panel-heading"><div><h2>キャスト別の時給</h2><p>キャストごとに基本時給を設定します。</p></div></div><div id="castRateSettings" class="cast-rate-settings"></div></article></section>
+      <section class="view" id="settings"><div class="section-head"><div><p class="eyebrow">CALCULATION SETTINGS</p><h2>計算設定</h2><p class="description">バック率・時給・控除率を変更すると、以後の給与計算に適用されます。</p></div><button class="primary-button" id="saveSettings">設定を保存</button></div><div class="settings-grid"><article class="panel"><div class="panel-heading"><div><h2>バック単価</h2><p>伝票・日別打込みの実績に対する支給単価</p></div></div><div class="setting-fields" id="backSettings"></div></article><article class="panel"><div class="panel-heading"><div><h2>控除設定</h2><p>給与計算時に総支給から差し引く割合</p></div></div><div class="setting-fields" id="deductionSettings"></div></article></div><article class="panel setting-cast-panel"><div class="panel-heading"><div><h2>キャスト別の時給</h2><p>キャストごとに基本時給を設定します。</p></div></div><div id="castRateSettings" class="cast-rate-settings"></div></article></section>
     </main>
   </div>
   <div class="overlay" id="overlay"></div>
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button type="button" class="close" data-close-dialog aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button type="button" class="text-button delete-cast-button" id="deleteCastButton" onclick="deleteEditingCast()" hidden>削除</button><button type="button" class="secondary-button" data-close-dialog>キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=57"></script>
+  <script src="app.js?v=58"></script>
 </body>
 </html>
