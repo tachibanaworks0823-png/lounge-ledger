@@ -157,3 +157,8 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 
 
 .category-settings-panel{margin-top:17px}
+
+
+/* Clearly mark store holidays */
+#daily-input .daily-status-select.is-closed{background:#741f32!important;border-color:#e25d75!important;color:#fff4f6!important}
+#daily-input .daily-status-select.is-zero{background:#5b3e1b!important;border-color:#d49a45!important;color:#fff3d5!important}
