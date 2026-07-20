@@ -37,8 +37,29 @@ async function loadFromCloud(){ const {data:row,error}=await supabaseClient.from
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const sortedCasts = () => data.casts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));
 const dateJP = d => new Date(d+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
+const dailyBackKeys=['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle','mainChampagne','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle','companionChampagne'];
+function calcDailyInput(input){
+  const cast=data.casts.find(c=>c.id===input.castId);
+  const hours=Number(input.hours||0);
+  const hourly=hours*Number(cast?.hourly||0);
+  const back=Number(input.areaNomination||0)*Number(data.settings.areaNomination||0)
+    +Number(input.mainCount||0)*Number(data.settings.mainNomination||0)
+    +Number(input.companionCount||0)*Number(data.settings.companion||0)
+    +dailyBackKeys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(data.settings[key]||0),0);
+  const gross=hourly+back;
+  const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)
+    +Number(data.settings.welfarePerShift||0)+Number(input.deduction||0);
+  const advance=Number(input.advance||0);
+  return {hours,advance,back,hourly,gross,deductions,payout:Math.max(0,gross-deductions-advance)};
+}
 function calcCast(cast){
-  const slips=data.slips.flatMap(s=>s.casts.map(a=>({...a,date:s.date}))).filter(a=>a.castId===cast.id);
+  const dailyInputs=data.dailyInputs.filter(x=>x.castId===cast.id);
+  if(dailyInputs.length){
+    const values=dailyInputs.map(calcDailyInput);
+    const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
+    return {hours:sum('hours'),advance:sum('advance'),nominated:dailyInputs.reduce((n,x)=>n+Number(x.mainSales||0),0),main:dailyInputs.reduce((n,x)=>n+Number(x.mainCount||0),0),companion:dailyInputs.reduce((n,x)=>n+Number(x.companionCount||0),0),drink:0,bottle:0,back:sum('back'),hourly:sum('hourly'),gross:sum('gross'),deductions:sum('deductions'),payout:sum('payout')};
+  }
+  const slips=data.slips.flatMap(s=>(s.casts||[]).map(a=>({...a,date:s.date}))).filter(a=>a.castId===cast.id);
   const shifts=data.shifts.filter(x=>x.castId===cast.id); const hours=shifts.reduce((n,x)=>n+Number(x.hours),0); const advance=shifts.reduce((n,x)=>n+Number(x.advance),0);
   const nominated=slips.filter(x=>x.type==='本指名').reduce((n,x)=>n+Number(x.sales),0); const main=slips.filter(x=>x.type==='本指名').length; const companion=slips.filter(x=>x.type==='同伴').length;
   const drink=slips.reduce((n,x)=>n+Number(x.drink),0), bottle=slips.reduce((n,x)=>n+Number(x.bottle),0), champagne=slips.reduce((n,x)=>n+Number(x.champagne),0), extension=slips.reduce((n,x)=>n+Number(x.extension),0);
@@ -54,19 +75,22 @@ function dailyRows(){
   const weekdays=['日','月','火','水','木','金','土'];
   return Array.from({length:count},(_,i)=>{
     const date=data.month+'-'+String(i+1).padStart(2,'0');
-    const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date);
+    const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date);
     const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
     const groups=slips.reduce((n,x)=>n+Number(x.groups||0),0);
     const guests=slips.reduce((n,x)=>n+Number(x.guests||0),0);
-    const nominated=slips.reduce((n,x)=>n+x.casts.reduce((m,c)=>m+Number(c.sales||0),0),0);
+    const nominated=slips.reduce((n,x)=>n+(x.casts||[]).reduce((m,c)=>m+Number(c.sales||0),0),0);
     const expense=expenses.reduce((n,x)=>n+Number(x.amount||0),0);
-    const advance=shifts.reduce((n,x)=>n+Number(x.advance||0),0);
-    const hourly=shifts.reduce((n,x)=>n+Number(x.hours||0)*(data.casts.find(c=>c.id===x.castId)?.hourly||0),0);
-    const back=slips.reduce((n,slip)=>n+slip.casts.reduce((m,item)=>m+(item.type==='本指名'?Number(data.settings.mainNomination||0):0)+(item.type==='同伴'?Number(data.settings.companion||0):0)+Number(item.extension||0)*Number(data.settings.extension||0)+Number(item.drink||0)*Number(data.settings.drink||0)+Number(item.bottle||0)*Number(data.settings.bottle||0)+Number(item.champagne||0)*Number(data.settings.champagne||0),0),0);
-    const gross=hourly+back;
-    const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)+shifts.length*Number(data.settings.welfarePerShift||0);
-    const payroll=Math.max(0,gross-deductions-advance);
+    const legacyAdvance=shifts.reduce((n,x)=>n+Number(x.advance||0),0);
+    const legacyHourly=shifts.reduce((n,x)=>n+Number(x.hours||0)*(data.casts.find(c=>c.id===x.castId)?.hourly||0),0);
+    const legacyBack=slips.reduce((n,slip)=>n+(slip.casts||[]).reduce((m,item)=>m+(item.type==='本指名'?Number(data.settings.mainNomination||0):0)+(item.type==='同伴'?Number(data.settings.companion||0):0)+Number(item.extension||0)*Number(data.settings.extension||0)+Number(item.drink||0)*Number(data.settings.drink||0)+Number(item.bottle||0)*Number(data.settings.bottle||0)+Number(item.champagne||0)*Number(data.settings.champagne||0),0),0);
+    const legacyGross=legacyHourly+legacyBack;
+    const legacyDeductions=Math.round(legacyGross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)+shifts.length*Number(data.settings.welfarePerShift||0);
+    const dailyValues=dailyInputs.map(calcDailyInput);
+    const dailySum=key=>dailyValues.reduce((n,x)=>n+Number(x[key]||0),0);
+    const advance=dailyInputs.length?dailySum('advance'):legacyAdvance;
+    const payroll=dailyInputs.length?dailySum('payout'):Math.max(0,legacyGross-legacyDeductions-legacyAdvance);
     const cash=Math.max(0,sales-card);
     return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],sales,card,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
   });
