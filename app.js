@@ -137,7 +137,8 @@ function renderShifts(){
   const weekdays=['日','月','火','水','木','金','土'];
   const holidays={'2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日','2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日','2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日','2026-05-06':'振替休日','2026-07-20':'海の日','2026-08-11':'山の日','2026-09-21':'敬老の日','2026-09-22':'国民の休日','2026-09-23':'秋分の日','2026-10-12':'スポーツの日','2026-11-03':'文化の日','2026-11-23':'勤労感謝の日'};
   const days=Array.from({length:count},(_,i)=>{const day=i+1,date=data.month+'-'+String(day).padStart(2,'0'),weekdayIndex=new Date(date+'T12:00:00').getDay();return {day,date,monthDay:month+'/'+day,weekday:weekdays[weekdayIndex],weekdayIndex,holiday:holidays[date]||'',shopClosed:data.dailyStatuses.some(item=>item.date===date&&item.status==='店休')};});
-  const isEmployedOn=(cast,date)=>(!cast.joinedDate||cast.joinedDate<=date)&&(!cast.leavingDate||cast.leavingDate>=date);
+  const employmentDate=value=>String(value||'').replace(/\//g,'-');
+  const isEmployedOn=(cast,date)=>{const joined=employmentDate(cast.joinedDate),leaving=employmentDate(cast.leavingDate);return (!joined||joined<=date)&&(!leaving||leaving>=date);};
   const visibleCasts=sortedCasts().filter(c=>days.some(d=>isEmployedOn(c,d.date)));
   $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';$('.shift-table').style.setProperty('--shift-days',count);
   $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th class="shift-day-head '+(d.shopClosed?'shop-closed ':d.holiday?'holiday ':d.weekdayIndex===0?'sunday':d.weekdayIndex===6?'saturday':'')+'">'+d.day+'<small>('+d.weekday+')</small>'+(d.holiday?'<em>'+d.holiday+'</em>':'')+'</th>').join('')+'</tr>';
