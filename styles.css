@@ -198,3 +198,8 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Cast document checklist status */
 .cast-check-status{display:inline-flex;align-items:center;justify-content:center;min-width:70px;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}.cast-check-status.complete{background:#163d30;color:#8de0b9;border:1px solid #2c7a5a}.cast-check-status.incomplete{background:#4a1d2c;color:#ffc4d8;border:1px solid #a84066}
+
+
+/* Evenly align the three emergency-contact fields */
+.cast-contact-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}.cast-contact-row .field{width:100%;min-width:0}.cast-contact-row .field input{width:100%;box-sizing:border-box}
+@media(max-width:560px){.cast-contact-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}}
