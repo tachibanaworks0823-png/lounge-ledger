@@ -181,3 +181,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Cast profile form */
 .cast-form-section{margin:0 0 2px;padding:0 0 10px;border-bottom:1px solid #4a3d46}.cast-form-section h3,.cast-checklist h3{margin:0;color:#f4c3d6;font-size:14px;letter-spacing:.06em}.cast-age{display:block;margin-top:5px;color:#ed9cbb;font-size:12px;font-weight:700}.cast-checklist{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:2px;padding:14px 15px;border:1px solid #55424e;border-radius:10px;background:#181519}.cast-checklist h3{width:100%;margin-bottom:1px}.cast-checklist label{display:flex;align-items:center;gap:7px;color:#f1e5eb;font-size:13px;font-weight:600;cursor:pointer}.cast-checklist input{width:17px!important;height:17px!important;margin:0!important;accent-color:#c6497e;cursor:pointer}
+
+
+/* Keep paired cast fields aligned when one field has an age note */
+.form-fields .field{align-self:start;align-content:start}
