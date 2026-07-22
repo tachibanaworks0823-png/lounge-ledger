@@ -207,3 +207,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Cast list: separate active and retired members */
 .cast-list-group{margin-top:22px}.cast-list-group+.cast-list-group{margin-top:28px;padding-top:20px;border-top:1px solid rgba(186,128,154,.25)}.cast-list-group h3{margin:0 0 10px;font-size:16px;color:#f5dbe6}.cast-list-group:last-child h3{color:#e8a2b8}
+
+
+/* Keep cast names visible while scrolling the cast list */
+.cast-list-group .table-wrap th:first-child,.cast-list-group .table-wrap td:first-child{position:-webkit-sticky;position:sticky;left:0;min-width:92px;z-index:2;background:#211b20!important;box-shadow:2px 0 0 #4a3c46}.cast-list-group .table-wrap th:first-child{z-index:3;background:#2b2229!important}.cast-list-group .table-wrap td:first-child{font-weight:700}@media(max-width:560px){.cast-list-group .table-wrap th:first-child,.cast-list-group .table-wrap td:first-child{min-width:76px}}
