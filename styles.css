@@ -189,3 +189,8 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Age inline with birth-date label */
 .birth-field>span{display:flex;align-items:center;justify-content:space-between;gap:8px}.birth-field .cast-age{display:inline;margin:0;color:#ed9cbb;font-size:12px;white-space:nowrap}
+
+
+/* Compact two-column cast profile form on iPhone */
+.cast-contact-row{display:grid;grid-template-columns:1fr 1fr .62fr;gap:13px;align-items:start}.cast-contact-row .field{min-width:0}.age-field .cast-age{display:flex;align-items:center;min-height:42px;margin:0;padding:10px;border:1px solid #66505d;border-radius:7px;background:#1a161a;color:#ed9cbb;font:700 13px inherit}.birth-field .cast-age{display:none}
+@media(max-width:560px){.form-fields.cast-profile-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:16px!important}.form-fields.cast-profile-fields>.full{grid-column:1/-1}.cast-contact-row{grid-template-columns:1.12fr 1.12fr .66fr;gap:6px}.cast-contact-row .field{font-size:10px}.cast-contact-row .field input{min-width:0;padding:9px 5px!important;font-size:12px!important}.age-field .cast-age{min-height:40px;padding:9px 7px;font-size:12px!important}}
