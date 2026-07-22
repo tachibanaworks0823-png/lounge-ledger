@@ -122,3 +122,9 @@
 
 /* Keep the sticky attendance label below the app navigation */
 .shift-table .shift-count-row>th{z-index:4!important}
+
+
+/* Simplified shift colours: only shop-closed in rows, Fri/Sat in header */
+.shift-table .shift-day-head.friday-saturday{background:#214464!important;color:#e8f5ff!important}
+.shift-table .shift-day-head.friday-saturday small{color:#c9e0f4!important}
+.shift-table .shift-day-head em{color:#d9c7d1!important}
