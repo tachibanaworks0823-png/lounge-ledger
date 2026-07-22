@@ -172,3 +172,8 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 .panel,.metric-card,.category-card{box-shadow:0 18px 44px #0008,0 1px 0 #ffffff0a inset!important}
 .sidebar{background:linear-gradient(180deg,#171218 0%,#0d0d11 55%,#10131a 100%)!important}
 @media(max-width:780px){body{background-image:radial-gradient(560px 410px at -24% 0%,#293a5055 0%,transparent 64%),radial-gradient(520px 420px at 118% 4%,#6a1d4d63 0%,transparent 62%),linear-gradient(145deg,#090a0d,#141016 54%,#0a0c10)!important}.main{background:linear-gradient(155deg,#121015dc,#100e14c4 60%,#0c1015d1)!important}.topbar{background:linear-gradient(90deg,#151218ee,#191018e8)!important}}
+
+
+/* Native month picker in the dark header */
+.month-pill[type="month"]{min-width:142px;color-scheme:dark;cursor:pointer}
+@media(max-width:560px){.month-pill[type="month"]{min-width:132px;padding:9px 8px!important;font-size:12px!important}}
