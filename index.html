@@ -78,7 +78,7 @@
       </section>
 
       <section class="view" id="shifts">
-        <div class="section-head"><div><p class="eyebrow">MONTHLY SHIFT</p><h2>シフト</h2><p class="description">日付のマスを押すと、勤務時間を直接入力できます。</p></div><div class="button-row"><button class="primary-button" id="addShiftBatch" type="button">＋ まとめて入力</button></div></div>
+        <div class="section-head"><div><p class="eyebrow">MONTHLY SHIFT</p><h2>シフト</h2><p class="description">日付のマスを押すと、勤務時間を直接入力できます。</p></div><div class="button-row"><button class="primary-button" id="addShiftBatch" type="button">個別一括入力</button></div></div>
         <article class="panel shift-panel"><div class="panel-heading"><div><h2 id="shiftMonthTitle">月間シフト表</h2><p>キャストごとの勤務予定を管理</p></div><span class="shift-hint">マスをタップして入力</span></div><div class="shift-table-wrap"><table class="shift-table"><thead id="shiftTableHead"></thead><tbody id="shiftTableBody"></tbody></table></div></article>
       </section>
 
@@ -91,6 +91,6 @@
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button type="button" class="close" data-close-dialog aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button type="button" class="text-button delete-cast-button" id="deleteCastButton" onclick="deleteEditingCast()" hidden>削除</button><button type="button" class="secondary-button" data-close-dialog>キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=63"></script>
+  <script src="app.js?v=64"></script>
 </body>
 </html>
