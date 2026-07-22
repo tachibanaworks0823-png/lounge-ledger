@@ -73,3 +73,11 @@
 /* Keep the attendance total label visible while scrolling horizontally */
 .shift-table .shift-count-row th{position:sticky!important;left:0!important;z-index:4!important;min-width:88px!important;box-sizing:border-box!important}
 @media(max-width:560px){.shift-table .shift-count-row th{min-width:74px!important}}
+
+
+/* Shop-closed days */
+.shop-closed-button{border:1px solid #a84357;background:#3e2029;color:#ffdce3;border-radius:10px;padding:11px 16px;font:700 14px inherit;cursor:pointer;transition:.15s}
+.shop-closed-button:hover{background:#7a293b;border-color:#d4647a;color:#fff}
+.shift-table .shop-closed,.shift-table .shop-closed.shift-day-head{background:#5d1e2b!important;color:#ffe5ea!important}
+.shift-table .shift-count-row td.shop-closed{background:#742536!important;color:#fff1f4!important;font-weight:800!important}
+.shift-table .shop-closed button{opacity:0!important;pointer-events:none!important}
