@@ -185,3 +185,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Keep paired cast fields aligned when one field has an age note */
 .form-fields .field{align-self:start;align-content:start}
+
+
+/* Age inline with birth-date label */
+.birth-field>span{display:flex;align-items:center;justify-content:space-between;gap:8px}.birth-field .cast-age{display:inline;margin:0;color:#ed9cbb;font-size:12px;white-space:nowrap}
