@@ -69,3 +69,7 @@
 /* Keep interview / trial labels visible while scrolling horizontally */
 .shift-table .shift-special-row th{position:sticky!important;left:0!important;z-index:4!important;min-width:88px!important;box-sizing:border-box!important}
 @media(max-width:560px){.shift-table .shift-special-row th{min-width:74px!important}}
+
+/* Keep the attendance total label visible while scrolling horizontally */
+.shift-table .shift-count-row th{position:sticky!important;left:0!important;z-index:4!important;min-width:88px!important;box-sizing:border-box!important}
+@media(max-width:560px){.shift-table .shift-count-row th{min-width:74px!important}}
