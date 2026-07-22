@@ -104,3 +104,8 @@
 .cast-shift-days{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 .cast-shift-day b{padding:0 5px;white-space:nowrap;font-size:13px}
 @media(max-width:560px){.cast-shift-day b{font-size:12px;padding:0 3px}}
+
+
+/* Reliable sticky attendance label on iPhone/Safari */
+.shift-table .shift-count-row>th{position:-webkit-sticky!important;position:sticky!important;left:0!important;z-index:10!important;width:88px!important;min-width:88px!important;max-width:88px!important;background:#40313a!important;box-shadow:2px 0 0 #5a4853!important}
+@media(max-width:560px){.shift-table .shift-count-row>th{width:74px!important;min-width:74px!important;max-width:74px!important}}
