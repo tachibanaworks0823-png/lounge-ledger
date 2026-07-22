@@ -98,3 +98,9 @@
 
 /* Mobile override: match special-entry typography to entered shifts exactly */
 @media(max-width:560px){.shift-table .shift-special-row td button{font-size:11px!important;font-weight:500!important;line-height:1!important;letter-spacing:0!important}}
+
+
+/* Give entered schedule values more horizontal room in share sheets */
+.cast-shift-days{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.cast-shift-day b{padding:0 5px;white-space:nowrap;font-size:13px}
+@media(max-width:560px){.cast-shift-day b{font-size:12px;padding:0 3px}}
