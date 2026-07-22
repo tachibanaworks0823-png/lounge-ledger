@@ -162,3 +162,13 @@ input,select,textarea{background:#141216!important;color:#f7eff3!important;borde
 /* Clearly mark store holidays */
 #daily-input .daily-status-select.is-closed{background:#741f32!important;border-color:#e25d75!important;color:#fff4f6!important}
 #daily-input .daily-status-select.is-zero{background:#5b3e1b!important;border-color:#d49a45!important;color:#fff3d5!important}
+
+
+/* Refined midnight backdrop: deep black with layered lounge lighting */
+html,body{min-height:100%;background-color:#0a0b0e}
+body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transparent 62%),radial-gradient(900px 680px at 104% -12%,#6e1f4a66 0%,transparent 60%),radial-gradient(700px 500px at 54% 108%,#3420474d 0%,transparent 66%),linear-gradient(118deg,#090a0d 0%,#121015 43%,#0c0b10 72%,#090b0e 100%)!important;background-attachment:fixed!important}
+.main{background:linear-gradient(105deg,#111015cf 0%,#151016b8 48%,#0e1014a8 100%)!important;box-shadow:inset 1px 0 #ffffff08}
+.topbar{background:linear-gradient(90deg,#161217e8,#1c111be0 58%,#12151be0)!important;backdrop-filter:blur(16px)}
+.panel,.metric-card,.category-card{box-shadow:0 18px 44px #0008,0 1px 0 #ffffff0a inset!important}
+.sidebar{background:linear-gradient(180deg,#171218 0%,#0d0d11 55%,#10131a 100%)!important}
+@media(max-width:780px){body{background-image:radial-gradient(560px 410px at -24% 0%,#293a5055 0%,transparent 64%),radial-gradient(520px 420px at 118% 4%,#6a1d4d63 0%,transparent 62%),linear-gradient(145deg,#090a0d,#141016 54%,#0a0c10)!important}.main{background:linear-gradient(155deg,#121015dc,#100e14c4 60%,#0c1015d1)!important}.topbar{background:linear-gradient(90deg,#151218ee,#191018e8)!important}}
