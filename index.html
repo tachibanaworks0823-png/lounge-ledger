@@ -48,7 +48,7 @@
       <header class="topbar">
         <button class="menu-button" id="menuButton" aria-label="メニューを開く">☰</button>
         <div><p class="eyebrow" id="todayLabel"></p><h1 id="pageTitle">7月の営業状況</h1></div>
-        <div class="top-actions"><button class="month-pill" id="monthButton">2026年 7月 ▾</button><span class="profile">管</span><button class="logout-button" id="logoutButton">ログアウト</button></div>
+        <div class="top-actions"><input class="month-pill" id="monthButton" type="month" aria-label="表示する年月を選択"><span class="profile">管</span><button class="logout-button" id="logoutButton">ログアウト</button></div>
       </header>
 
       <section class="view active" id="dashboard">
@@ -91,6 +91,6 @@
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button type="button" class="close" data-close-dialog aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button type="button" class="text-button delete-cast-button" id="deleteCastButton" onclick="deleteEditingCast()" hidden>削除</button><button type="button" class="secondary-button" data-close-dialog>キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=71"></script>
+  <script src="app.js?v=72"></script>
 </body>
 </html>
