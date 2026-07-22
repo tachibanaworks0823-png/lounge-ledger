@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=25" />
   <link rel="stylesheet" href="daily-ledger.css?v=11" />
-  <link rel="stylesheet" href="shift.css?v=22" />
+  <link rel="stylesheet" href="shift.css?v=23" />
 </head>
 <body>
   <section class="auth-screen" id="authScreen" aria-live="polite">
@@ -79,7 +79,7 @@
 
       <section class="view" id="shifts">
         <div class="section-head"><div><p class="eyebrow">MONTHLY SHIFT</p><h2>シフト</h2><p class="description">日付のマスを押すと、勤務時間を直接入力できます。</p></div><div class="button-row"><button class="shop-closed-button" id="addShopClosed" type="button">店休</button><button class="primary-button" id="addShiftBatch" type="button">個別一括入力</button></div></div>
-        <article class="panel shift-panel"><div class="panel-heading"><div><h2 id="shiftMonthTitle">月間シフト表</h2><p>キャストごとの勤務予定を管理</p></div><span class="shift-hint">マスをタップして入力</span></div><div class="shift-table-wrap"><table class="shift-table"><thead id="shiftTableHead"></thead><tbody id="shiftTableBody"></tbody></table></div></article>
+        <article class="panel shift-panel"><div class="panel-heading"><div><h2 id="shiftMonthTitle">月間シフト表</h2><p>キャストごとの勤務予定を管理</p></div><span class="shift-hint">マスをタップして入力</span></div><div class="shift-table-wrap"><table class="shift-table"><thead id="shiftTableHead"></thead><tbody id="shiftTableBody"></tbody></table></div></article><section class="shift-cast-summary"><h3>キャスト別シフト確認</h3><div class="shift-cast-cards" id="shiftCastSummary"></div></section>
       </section>
 
       <section class="view" id="expenses"><div class="section-head"><div><p class="eyebrow">EXPENSES</p><h2>支出管理</h2><p class="description">支出を登録すると、カテゴリ別集計と営業残高に自動反映されます。</p></div><button class="primary-button" id="addExpense">＋ 支出を入力</button></div><div class="expense-summary" id="expenseSummary"></div><article class="panel table-panel"><div class="panel-heading"><div><h2>支出一覧</h2><p>カテゴリは設定から追加・変更できます。</p></div></div><div class="table-wrap"><table><thead><tr><th>日付</th><th>カテゴリ</th><th>会社名 / 支払先</th><th>内容</th><th>金額</th><th></th></tr></thead><tbody id="expenseTable"></tbody></table></div></article></section>
@@ -91,6 +91,6 @@
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button type="button" class="close" data-close-dialog aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button type="button" class="text-button delete-cast-button" id="deleteCastButton" onclick="deleteEditingCast()" hidden>削除</button><button type="button" class="secondary-button" data-close-dialog>キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=69"></script>
+  <script src="app.js?v=70"></script>
 </body>
 </html>
