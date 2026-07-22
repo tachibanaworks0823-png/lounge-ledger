@@ -137,3 +137,7 @@
 /* Non-attendance entries are visible but not highlighted as work shifts */
 .shift-table .excluded-shift:not(.shop-closed){background:#262026!important}.shift-table .excluded-shift button{background:transparent!important;color:#c8adb9!important;font-size:12px!important;font-weight:500!important}
 @media(max-width:560px){.shift-table .excluded-shift button{font-size:11px!important}}
+
+
+/* iPhone: avoid nested vertical scrolling and keep the shift grid aligned left */
+@media(max-width:560px){.shift-panel{overflow:visible!important}.shift-table-wrap{max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;margin:0!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x pan-y}.shift-table{margin:0!important;transform:none!important}.shift-table .shift-name-head,.shift-table .shift-cast-name,.shift-table .shift-special-row th,.shift-table .shift-count-row th{left:0!important}}
