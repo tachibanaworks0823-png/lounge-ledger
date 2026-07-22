@@ -132,3 +132,8 @@
 
 /* Shop-closed colour also applies to interview/trial rows */
 .shift-table .shift-special-row td.shop-closed{background:#5d1e2b!important;color:#ffe5ea!important}
+
+
+/* Non-attendance entries are visible but not highlighted as work shifts */
+.shift-table .excluded-shift:not(.shop-closed){background:#262026!important}.shift-table .excluded-shift button{background:transparent!important;color:#c8adb9!important;font-size:12px!important;font-weight:500!important}
+@media(max-width:560px){.shift-table .excluded-shift button{font-size:11px!important}}
