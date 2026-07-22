@@ -141,7 +141,13 @@ function renderShifts(){
   $('#shiftTableBody').innerHTML=counts+specialRows+(castRows||'<tr><td class="empty" colspan="'+(count+1)+'">キャストを追加してください</td></tr>');
   const periodGrid=(currentCast,title,periodDays)=>'<section class="cast-shift-period"><h4>'+title+'</h4><div class="cast-shift-days">'+periodDays.map(d=>{const shift=data.shifts.find(item=>item.castId===currentCast.id&&item.date===d.date);const label=d.shopClosed?'店休':(shift?(shift.schedule||shift.hours+'h'):'');const cls=(label?'has-value ':'')+(d.shopClosed?'shop-closed ':d.weekdayIndex===0?'sunday ':d.weekdayIndex===6?'saturday ':'');return '<div class="cast-shift-day '+cls+'"><span>'+d.monthDay+'（'+d.weekday+'）</span><b>'+label+'</b></div>';}).join('')+'</div></section>';
   const scheduleCasts=sortedCasts().filter(c=>data.shifts.some(item=>item.castId===c.id));
-  $('#shiftCastSummary').innerHTML=scheduleCasts.map(c=>{return '<article class="cast-shift-card"><h3>'+c.name+'</h3>'+periodGrid(c,'前期　1日〜16日',days.slice(0,16))+periodGrid(c,'後期　17日〜末日',days.slice(16))+'</article>';}).join('')||'<p class="cast-shift-empty">シフトを入力すると、ここにキャスト別の確認表が表示されます。</p>';
+  if(!scheduleCasts.length){$('#shiftCastSummary').innerHTML='<p class="cast-shift-empty">シフトを入力すると、ここに個別送信用のシフト表が表示されます。</p>';}
+  else{
+    const selectedId=scheduleCasts.some(c=>c.id===window.shiftSummaryCastId)?window.shiftSummaryCastId:scheduleCasts[0].id;
+    const currentCast=scheduleCasts.find(c=>c.id===selectedId);
+    $('#shiftCastSummary').innerHTML='<label class="shift-cast-picker">送るキャストを選択<select id="shiftSummaryCast">'+scheduleCasts.map(c=>'<option value="'+c.id+'"'+(c.id===selectedId?' selected':'')+'>'+c.name+'</option>').join('')+'</select></label><article class="cast-shift-card"><h3>'+currentCast.name+'</h3>'+periodGrid(currentCast,'前期　1日〜16日',days.slice(0,16))+periodGrid(currentCast,'後期　17日〜末日',days.slice(16))+'</article>';
+    $('#shiftSummaryCast').onchange=e=>{window.shiftSummaryCastId=e.target.value;renderShifts();};
+  }
 }
 window.editShiftCell=(castId,date)=>{
   const existing=data.shifts.find(x=>x.castId===castId&&x.date===date);
