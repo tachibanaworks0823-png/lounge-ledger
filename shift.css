@@ -114,3 +114,7 @@
 /* More breathing room for entered shift values in share sheets */
 .cast-shift-day b{min-height:48px!important}
 @media(max-width:560px){.cast-shift-day b{min-height:44px!important}}
+
+
+/* Dates outside a cast's employment period */
+.shift-table td.outside-employment{background:#171419!important;opacity:.48;pointer-events:none}
