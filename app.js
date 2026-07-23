@@ -138,7 +138,7 @@ function renderCastManagement(){
   $('#castManagementActiveTable').innerHTML=active.map(c=>row(c,false,true)).join('')||empty(7,'在籍キャストはいません');
   $('#castManagementRetiredTable').innerHTML=retired.map(c=>row(c,true)).join('')||empty(6,'退店キャストはいません');
 }
-window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEach(button=>{const active=button.dataset.castListTab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});document.querySelectorAll('[data-cast-list-panel]').forEach(panel=>{const active=panel.dataset.castListPanel===tab;panel.hidden=!active;panel.classList.toggle('active',active);});};
+window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEach(button=>{const active=button.dataset.castListTab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});document.querySelectorAll('[data-cast-list-panel]').forEach(panel=>{const active=panel.dataset.castListPanel===tab;panel.hidden=!active;panel.classList.toggle('active',active);});const addCastButton=$('#addCastProfile');if(addCastButton)addCastButton.hidden=tab!=='active';};
 
 function renderApplications(){
   const fullDate=value=>value?dateKey(value).replace(/-/g,'/'):'—';
