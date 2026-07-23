@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=38" />
+  <link rel="stylesheet" href="styles.css?v=39" />
   <link rel="stylesheet" href="daily-ledger.css?v=11" />
   <link rel="stylesheet" href="shift.css?v=35" />
 </head>
@@ -91,6 +91,6 @@
   <dialog id="entryDialog"><form method="dialog" id="entryForm"><div class="dialog-head"><div><p class="eyebrow" id="dialogKicker"></p><h2 id="dialogTitle">登録</h2></div><button type="button" class="close" data-close-dialog aria-label="閉じる">×</button></div><div class="form-fields" id="formFields"></div><div class="dialog-actions"><button type="button" class="text-button delete-cast-button" id="deleteCastButton" onclick="deleteEditingCast()" hidden>削除</button><button type="button" class="text-button delete-cast-button" id="deleteApplicationButton" onclick="deleteEditingApplication()" hidden>削除</button><button type="button" class="secondary-button" data-close-dialog>キャンセル</button><button class="primary-button" value="save">保存する</button></div></form></dialog><dialog id="mediaOrderDialog" class="media-order-dialog"><div class="dialog-head"><div><p class="eyebrow">APPLICATION MEDIA</p><h2>媒体の並び替え</h2></div><button type="button" class="close" id="cancelMediaOrder" aria-label="閉じる">×</button></div><div class="media-order-body"><p>上下ボタンで表示順を変更できます。</p><div id="mediaOrderList" class="media-order-list"></div></div><div class="dialog-actions"><button type="button" class="secondary-button" id="cancelMediaOrderFooter" onclick="document.getElementById('cancelMediaOrder').click()">キャンセル</button><button type="button" class="primary-button" id="saveMediaOrder">保存する</button></div></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=114"></script>
+  <script src="app.js?v=115"></script>
 </body>
 </html>
