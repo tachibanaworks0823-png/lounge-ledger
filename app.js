@@ -143,7 +143,7 @@ window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEa
 function renderApplications(){
   const fullDate=value=>value?dateKey(value).replace(/-/g,'/'):'—';
   const currentYear=String(new Date().getFullYear());
-  const years=[...new Set([...Array.from({length:6},(_,index)=>String(new Date().getFullYear()-index)),...data.applications.map(item=>String(item.applicationDate||'').slice(0,4)).filter(year=>/^\d{4}$/.test(year))])].sort((a,b)=>Number(b)-Number(a));
+  const years=[...new Set([currentYear,...data.applications.map(item=>String(item.applicationDate||'').slice(0,4)).filter(year=>/^\d{4}$/.test(year))])].sort((a,b)=>Number(b)-Number(a));
   if(!window.applicationYearFilter)window.applicationYearFilter=currentYear;
   if(!window.applicationStatsYearFilter)window.applicationStatsYearFilter=currentYear;
   if(!window.applicationStatsMonthFilter)window.applicationStatsMonthFilter='all';
