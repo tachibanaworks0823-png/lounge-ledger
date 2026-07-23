@@ -143,14 +143,29 @@ window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEa
 function renderApplications(){
   const fullDate=value=>value?dateKey(value).replace(/-/g,'/'):'—';
   const currentYear=String(new Date().getFullYear());
-  if(!window.applicationYearFilter)window.applicationYearFilter=currentYear;
   const years=[...new Set([...Array.from({length:6},(_,index)=>String(new Date().getFullYear()-index)),...data.applications.map(item=>String(item.applicationDate||'').slice(0,4)).filter(year=>/^\d{4}$/.test(year))])].sort((a,b)=>Number(b)-Number(a));
+  if(!window.applicationYearFilter)window.applicationYearFilter=currentYear;
+  if(!window.applicationStatsYearFilter)window.applicationStatsYearFilter=currentYear;
+  if(!window.applicationStatsMonthFilter)window.applicationStatsMonthFilter='all';
   const selector=$('#applicationYearFilter');
   if(selector){selector.innerHTML='<option value="all">すべて</option>'+years.map(year=>'<option value="'+year+'">'+year+'年</option>').join('');selector.value=window.applicationYearFilter;}
+  const statsYear=$('#applicationStatsYear');
+  const statsMonth=$('#applicationStatsMonth');
+  if(statsYear){statsYear.innerHTML='<option value="all">すべて</option>'+years.map(year=>'<option value="'+year+'">'+year+'年</option>').join('');statsYear.value=window.applicationStatsYearFilter;}
+  if(statsMonth){statsMonth.innerHTML='<option value="all">すべての月</option>'+Array.from({length:12},(_,index)=>'<option value="'+String(index+1).padStart(2,'0')+'">'+(index+1)+'月</option>').join('');statsMonth.value=window.applicationStatsMonthFilter;}
+  const selected=data.applications.filter(item=>{
+    const date=String(item.applicationDate||'');
+    return (window.applicationStatsYearFilter==='all'||date.slice(0,4)===window.applicationStatsYearFilter)&&(window.applicationStatsMonthFilter==='all'||date.slice(5,7)===window.applicationStatsMonthFilter);
+  });
+  const mediaCounts=selected.reduce((counts,item)=>{const media=item.media||'未設定';counts[media]=(counts[media]||0)+1;return counts;},{});
+  const mediaRows=Object.entries(mediaCounts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'ja')).map(([media,count])=>'<div class="application-media-stat"><span>'+media+'</span><strong>'+count+'件</strong></div>').join('');
+  $('#applicationStatsTotal').textContent='応募合計 '+selected.length+'件';
+  $('#applicationMediaStats').innerHTML=mediaRows||'<p class="application-stats-empty">この期間の応募はありません</p>';
   const rows=data.applications.filter(item=>window.applicationYearFilter==='all'||String(item.applicationDate||'').slice(0,4)===window.applicationYearFilter).slice().sort((a,b)=>String(b.applicationDate||'').localeCompare(String(a.applicationDate||''))).map(item=>'<tr><td><button class="text-button" onclick="editApplication(\''+item.id+'\')">編集</button></td><td>'+fullDate(item.applicationDate)+'</td><td><span class="application-status '+(item.status==='面接待ち'?'is-interview-waiting':item.status==='入店'?'is-joined':'')+'">'+(item.status||'—')+'</span></td><td>'+(item.recruitmentName||'—')+'</td><td>'+((item.age!==undefined&&item.age!==null&&item.age!=='')?item.age+'歳':castAge(item.birthday))+'</td><td>'+(item.media||'—')+'</td><td>'+fullDate(item.preferredInterviewDate)+'</td><td>'+fullDate(item.confirmedInterviewDate)+'</td><td>'+(item.interviewTime||'—')+'</td><td>'+(item.reschedule||'—')+'</td><td>'+(item.note||'—')+'</td></tr>').join('');
   $('#applicationsTable').innerHTML=rows||empty(11,'この年度の応募情報はありません');
 }
 window.setApplicationYearFilter=value=>{window.applicationYearFilter=value;renderApplications();};
+window.setApplicationStatsFilter=(type,value)=>{if(type==='year')window.applicationStatsYearFilter=value;else window.applicationStatsMonthFilter=value;renderApplications();};
 window.openApplicationForm=()=>openForm('application');window.editApplication=id=>openForm('application',id);
 
 window.copyCastAddress=async id=>{const cast=data.casts.find(c=>c.id===id);const address=cast?.address||'';if(!address)return;try{await navigator.clipboard.writeText(address);alert('住所をコピーしました。');}catch(_error){const area=document.createElement('textarea');area.value=address;document.body.append(area);area.select();document.execCommand('copy');area.remove();alert('住所をコピーしました。');}};
