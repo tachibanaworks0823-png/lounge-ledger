@@ -144,8 +144,8 @@ function renderApplications(){
   const fullDate=value=>value?dateKey(value).replace(/-/g,'/'):'—';
   const currentYear=String(new Date().getFullYear());
   const years=[...new Set([currentYear,...data.applications.map(item=>String(item.applicationDate||'').slice(0,4)).filter(year=>/^\d{4}$/.test(year))])].sort((a,b)=>Number(b)-Number(a));
-  if(!window.applicationYearFilter)window.applicationYearFilter=currentYear;
-  if(!window.applicationStatsYearFilter)window.applicationStatsYearFilter=currentYear;
+  if(!window.applicationYearFilter||!years.includes(window.applicationYearFilter))window.applicationYearFilter=currentYear;
+  if(!window.applicationStatsYearFilter||!years.includes(window.applicationStatsYearFilter))window.applicationStatsYearFilter=currentYear;
   if(!window.applicationStatsMonthFilter)window.applicationStatsMonthFilter='all';
   const selector=$('#applicationYearFilter');
   if(selector){selector.innerHTML='<option value="all">すべて</option>'+years.map(year=>'<option value="'+year+'">'+year+'年</option>').join('');selector.value=window.applicationYearFilter;}
