@@ -142,8 +142,8 @@ window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEa
 
 function renderApplications(){
   const fullDate=value=>value?dateKey(value).replace(/-/g,'/'):'—';
-  const rows=data.applications.slice().sort((a,b)=>String(b.applicationDate||'').localeCompare(String(a.applicationDate||''))).map(item=>'<tr><td>'+fullDate(item.applicationDate)+'</td><td><span class="application-status '+(item.status==='面接待ち'?'is-interview-waiting':'')+'">'+(item.status||'—')+'</span></td><td>'+(item.media||'—')+'</td><td>'+(item.recruitmentName||'—')+'</td><td>'+fullDate(item.birthday)+'</td><td>'+((item.age!==undefined&&item.age!==null&&item.age!=='')?item.age+'歳':castAge(item.birthday))+'</td><td>'+(item.phone||'—')+'</td><td>'+(item.email||'—')+'</td><td>'+fullDate(item.preferredInterviewDate)+'</td><td>'+fullDate(item.confirmedInterviewDate)+'</td><td>'+(item.interviewTime||'—')+'</td><td>'+(item.reschedule||'—')+'</td><td>'+(item.note||'—')+'</td><td><button class="text-button" onclick="editApplication(\''+item.id+'\')">編集</button></td></tr>').join('');
-  $('#applicationsTable').innerHTML=rows||empty(14,'応募情報はまだありません');
+  const rows=data.applications.slice().sort((a,b)=>String(b.applicationDate||'').localeCompare(String(a.applicationDate||''))).map(item=>'<tr><td>'+fullDate(item.applicationDate)+'</td><td><span class="application-status '+(item.status==='面接待ち'?'is-interview-waiting':'')+'">'+(item.status||'—')+'</span></td><td>'+(item.media||'—')+'</td><td>+(item.recruitmentName||'—')+'</td><td>'+((item.age!==undefined&&item.age!==null&&item.age!=='')?item.age+'歳':castAge(item.birthday))+'</td><td>'+fullDate(item.preferredInterviewDate)+'</td><td>'+fullDate(item.confirmedInterviewDate)+'</td><td>'+(item.interviewTime||'—')+'</td><td>'+(item.reschedule||'—')+'</td><td>'+(item.note||'—')+'</td><td><button class="text-button" onclick="editApplication(\''+item.id+'\')">編集</button></td></tr>').join('');
+  $('#applicationsTable').innerHTML=rows||empty(11,'応募情報はまだありません');
 }
 window.openApplicationForm=()=>openForm('application');window.editApplication=id=>openForm('application',id);
 
