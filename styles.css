@@ -215,3 +215,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* Cast list tabs */
 .cast-list-tabs{display:flex;gap:8px;margin:20px 0 14px;border-bottom:1px solid rgba(186,128,154,.25)}.cast-list-tab{position:relative;border:0;background:transparent;color:#b9a1ad;padding:8px 12px 11px;font:700 14px inherit;cursor:pointer}.cast-list-tab:after{content:"";position:absolute;right:12px;bottom:-1px;left:12px;height:2px;border-radius:2px;background:transparent}.cast-list-tab.active{color:#ffd3e2}.cast-list-tab.active:after{background:#e04c87}.cast-list-group{margin-top:0!important}.cast-list-group[hidden]{display:none!important}.cast-list-group+.cast-list-group{margin-top:0!important;padding-top:0!important;border-top:0!important}@media(max-width:560px){.cast-list-tabs{margin-top:15px}.cast-list-tab{font-size:13px;padding:7px 10px 10px}}
+
+
+/* Application list in cast management */
+.application-list-actions{display:flex;justify-content:flex-end;margin:0 0 14px}.application-list-actions .primary-button{padding:9px 12px}@media(max-width:560px){.application-list-actions{margin-bottom:10px}.application-list-actions .primary-button{font-size:11px}}
