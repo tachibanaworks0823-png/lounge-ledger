@@ -137,6 +137,8 @@ function renderCastManagement(){
   $('#castManagementActiveTable').innerHTML=active.map(row).join('')||empty(7,'在籍キャストはいません');
   $('#castManagementRetiredTable').innerHTML=retired.map(row).join('')||empty(7,'退店キャストはいません');
 }
+window.selectCastListTab=tab=>{document.querySelectorAll('.cast-list-tab').forEach(button=>{const active=button.textContent.trim()===(tab==='active'?'在籍':'退店');button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});document.querySelectorAll('[data-cast-list-panel]').forEach(panel=>{const active=panel.dataset.castListPanel===tab;panel.hidden=!active;panel.classList.toggle('active',active);});};
+
 window.copyCastAddress=async id=>{const cast=data.casts.find(c=>c.id===id);const address=cast?.address||'';if(!address)return;try{await navigator.clipboard.writeText(address);alert('住所をコピーしました。');}catch(_error){const area=document.createElement('textarea');area.value=address;document.body.append(area);area.select();document.execCommand('copy');area.remove();alert('住所をコピーしました。');}};
 window.editCastProfile=id=>openForm('cast',id);window.updateDailyStatus=(date,status)=>{const item=data.dailyStatuses.find(x=>x.date===date);if(item)item.status=status;else data.dailyStatuses.push({date,status});save();renderDailyInputs();};window.editDailyInput=id=>{if(dialog.open)closeEntryDialog();openForm('dailyInput',id);};window.openDailyDateDetails=date=>openForm('dailyDetails',date);
 function renderShifts(){
