@@ -65,7 +65,7 @@ function calcCast(cast){
     const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
     return {hours:sum('hours'),advance:sum('advance'),nominated:dailyInputs.reduce((n,x)=>n+Number(x.mainSales||0),0),main:dailyInputs.reduce((n,x)=>n+Number(x.mainCount||0),0),companion:dailyInputs.reduce((n,x)=>n+Number(x.companionCount||0),0),drink:0,bottle:0,back:sum('back'),hourly:sum('hourly'),gross:sum('gross'),deductions:sum('deductions'),payout:sum('payout')};
   }
-  const slips=data.slips.filter(s=>isSelectedMonth(s.date)).flatMap(s=>(s.casts||[]).map(a=>({...a,date:s.date}))).filter(a=>a.castId===cast.id);
+  const slips=data.slips.filter(s=>isSelectedMonth(s.date)&&!isUnsettledSlip(s)).flatMap(s=>(s.casts||[]).map(a=>({...a,date:s.date}))).filter(a=>a.castId===cast.id);
   const shifts=data.shifts.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date)); const hours=shifts.reduce((n,x)=>n+Number(x.hours),0); const advance=shifts.reduce((n,x)=>n+Number(x.advance),0);
   const nominated=slips.filter(x=>x.type==='本指名').reduce((n,x)=>n+Number(x.sales),0); const main=slips.filter(x=>x.type==='本指名').length; const companion=slips.filter(x=>x.type==='同伴').length;
   const drink=slips.reduce((n,x)=>n+Number(x.drink),0), bottle=slips.reduce((n,x)=>n+Number(x.bottle),0), champagne=slips.reduce((n,x)=>n+Number(x.champagne),0), extension=slips.reduce((n,x)=>n+Number(x.extension),0);
@@ -73,7 +73,7 @@ function calcCast(cast){
   const hourly=hours*cast.hourly, gross=hourly+back; const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)+shifts.length*Number(data.settings.welfarePerShift||0);
   return {hours,advance,nominated,main,companion,drink,bottle,back,hourly,gross,deductions,payout:Math.max(0,gross-deductions-advance)};
 }
-function totals(){const sales=data.slips.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
+function totals(){const sales=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
 function render(){ updateMonthUi();renderDashboard();renderSlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
 function dailyRows(){
@@ -82,7 +82,7 @@ function dailyRows(){
   const weekdays=['日','月','火','水','木','金','土'];
   return Array.from({length:count},(_,i)=>{
     const date=data.month+'-'+String(i+1).padStart(2,'0');
-    const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date);
+    const slips=data.slips.filter(x=>x.date===date&&!isUnsettledSlip(x)), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date);
     const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
     const receivable=slips.reduce((n,x)=>n+Number(x.receivable||0),0);
@@ -104,7 +104,7 @@ function dailyRows(){
   });
 }
 function renderDashboard(){
-  const t=totals(),slips=data.slips.filter(x=>isSelectedMonth(x.date)),expenses=data.expenses.filter(x=>isSelectedMonth(x.date)); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
+  const t=totals(),slips=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)),expenses=data.expenses.filter(x=>isSelectedMonth(x.date)); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
   const rows=dailyRows(), activeRows=rows.filter(x=>x.sales||x.expense);
   $('#dailyLedgerTotal').textContent=yen(t.sales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
@@ -319,6 +319,9 @@ function slipPaymentSummary(slip){
 function slipPaymentCashOnly(slip){
   const lines=slipPaymentLines(slip).filter(item=>item.amount>0);
   return lines.length>0&&lines.every(item=>paymentMethodCategory(item.method)==='cash');
+}
+function isUnsettledSlip(slip){
+  return Number(slip?.receivable||0)>0||slipPaymentLines(slip).some(item=>item.amount>0&&paymentMethodCategory(item.method)==='receivable');
 }
 function slipPaymentRow(line={},canRemove=false){
   const selected=String(line.method||'');
