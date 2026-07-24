@@ -320,7 +320,7 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
    $('#dialogTitle').textContent='伝票を入力';
    fields.innerHTML=optionalField('日付','date','date')+
    '<label class="field full">顧客名<input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+customerHistoryManager()+
-   optionalField('伝票番号','id','text')+optionalField('売上','total','number')+
+   '<label class="field">伝票番号<input name="id" type="text" autocomplete="off"></label>'+optionalField('売上','total','number')+
    '<label class="field">決済<select name="payment"><option value="" selected>選択してください</option>'+paymentMethodOptions()+'<option value="__new__">＋ 決済方法を追加</option></select></label>'+
    '<div class="payment-method-adder full" id="newPaymentMethodFields" hidden><p>新しい決済方法</p><label>名称<input name="newPaymentName" placeholder="例：PayPay"></label><label>売上区分<select name="newPaymentCategory"><option value="card">カード扱い</option><option value="cash">現金扱い</option></select></label></div>'+
    optionalField('客数','guests','number')+
