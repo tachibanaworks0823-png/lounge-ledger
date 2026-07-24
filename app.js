@@ -222,7 +222,7 @@ function renderSettings(){ const labels={mainNomination:'本指名バック（1�
 const empty=(n,text)=>`<tr><td colspan="${n}" class="empty">${text}</td></tr>`;
 function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
-const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, mediaOrderDraft=[];
+const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, mediaOrderDraft=[];
 function showEntryDialog(){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
 function closeEntryDialog(){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
 function renderMediaOrderList(){mediaOrderList.innerHTML=mediaOrderDraft.map((name,index)=>'<div class="media-order-row"><span>'+name+'</span><div><button type="button" onclick="moveApplicationMedia('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveApplicationMedia('+index+',1)" '+(index===mediaOrderDraft.length-1?'disabled':'')+'>↓</button></div></div>').join('')||'<p class="media-order-empty">媒体がありません。</p>';}
@@ -234,6 +234,7 @@ function closePaymentMethodDialog(){if(typeof paymentMethodDialog.close==='funct
 window.openPaymentMethodDialog=()=>{paymentMethodForm.reset();if(typeof paymentMethodDialog.showModal==='function')paymentMethodDialog.showModal();else paymentMethodDialog.setAttribute('open','');};
 $('#closePaymentMethodDialog').onclick=closePaymentMethodDialog;
 $('#cancelPaymentMethodDialog').onclick=closePaymentMethodDialog;
+$('#closeCustomerHistoryDialog').onclick=()=>{if(typeof customerHistoryDialog.close==='function')customerHistoryDialog.close();else customerHistoryDialog.removeAttribute('open');};
 paymentMethodForm.addEventListener('submit',event=>{event.preventDefault();const value=Object.fromEntries(new FormData(paymentMethodForm)),name=(value.name||'').trim();if(!name){return;}const category=value.category||'card';if(!paymentMethods().some(item=>item.name===name))data.settings.paymentMethods.push({name,category});save();const payment=fields.querySelector('[name="payment"]');if(payment){payment.innerHTML='<option value="" selected>選択してください</option>'+paymentMethodOptions();payment.value=name;}closePaymentMethodDialog();});
 document.querySelectorAll('[data-close-dialog]').forEach(button=>button.onclick=closeEntryDialog);
 const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
@@ -282,27 +283,25 @@ function bindPaymentMethodAdder(){
   const toggle=()=>adder.hidden=select.value!=='__new__';
   select.onchange=toggle;toggle();
 }
+function allCustomerNames(){return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))];}
 function customerNames(){
   const hidden=data.settings.hiddenCustomerNames||[];
-  return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))].filter(name=>!hidden.includes(name));
+  return allCustomerNames().filter(name=>!hidden.includes(name));
 }
 function customerOptions(){
   return customerNames().map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');
 }
-function customerHistoryManager(){
-  const chips=customerNames().map(name=>'<button type="button" class="history-chip" data-customer-history="'+encodeURIComponent(name)+'">'+name+' <b>×</b></button>').join('')||'<small>表示中の履歴はありません</small>';
-  return '<details class="customer-history full"><summary>顧客名の履歴を管理 <small>×で候補から削除できます</small></summary><div class="customer-history-chips">'+chips+'</div></details>';
+function renderCustomerHistoryList(){
+  customerHistoryList.innerHTML=customerNames().map(name=>'<button type="button" class="history-chip" onclick="hideCustomerHistoryName(\''+encodeURIComponent(name)+'\')">'+name+' <b>×</b></button>').join('')||'<small>表示中の履歴はありません</small>';
 }
-function bindCustomerHistoryButtons(){
-  fields.querySelectorAll('[data-customer-history]').forEach(button=>button.onclick=()=>{
-    const name=decodeURIComponent(button.dataset.customerHistory);
-    if(!data.settings.hiddenCustomerNames.includes(name))data.settings.hiddenCustomerNames.push(name);
-    save();
-    button.remove();
-    const list=$('#customerHistory');if(list)list.innerHTML=customerOptions();
-    const chips=fields.querySelector('.customer-history-chips');if(chips&&!chips.children.length)chips.innerHTML='<small>表示中の履歴はありません</small>';
-  });
-}
+window.openCustomerHistoryDialog=()=>{renderCustomerHistoryList();if(typeof customerHistoryDialog.showModal==='function')customerHistoryDialog.showModal();else customerHistoryDialog.setAttribute('open','');};
+window.hideCustomerHistoryName=encoded=>{
+  const name=decodeURIComponent(encoded);
+  if(!data.settings.hiddenCustomerNames.includes(name))data.settings.hiddenCustomerNames.push(name);
+  save();
+  const list=$('#customerHistory');if(list)list.innerHTML=customerOptions();
+  renderCustomerHistoryList();
+};
 function payeeOptions(){return (data.settings.payeeHistory||[]).map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');}
 function expenseHistoryManager(){const chips=(items,type)=>items.map((name,index)=>'<button type="button" class="history-chip" data-history-type="'+type+'" data-history-index="'+index+'">'+name+' <b>×</b></button>').join('')||'<small>まだ履歴はありません</small>';return '<div class="expense-history full"><p>過去の履歴 <small>×で個別に削除できます</small></p><div class="history-group"><span>カテゴリ</span><div>'+chips(data.settings.categories,'category')+'</div></div><div class="history-group"><span>会社名・支払先</span><div>'+chips(data.settings.payeeHistory||[],'payee')+'</div></div></div>';}
 function bindExpenseHistoryButtons(){fields.querySelectorAll('[data-history-type]').forEach(button=>button.onclick=()=>{const type=button.dataset.historyType,index=Number(button.dataset.historyIndex);const list=type==='category'?data.settings.categories:data.settings.payeeHistory;list.splice(index,1);save();openForm('expense');});}
@@ -325,8 +324,8 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
    $('#dialogTitle').textContent='伝票を入力';
    fields.innerHTML=optionalField('日付','date','date')+
    '<label class="field">伝票番号<input name="id" type="text" autocomplete="off"></label>'+
-   '<label class="field">顧客名<input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
-   optionalField('客数','guests','number')+customerHistoryManager()+
+   '<label class="field customer-field"><span>顧客名<button type="button" class="payment-add-button customer-history-button" onclick="openCustomerHistoryDialog()">履歴</button></span><input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
+   optionalField('客数','guests','number')+
    optionalField('売上','total','number')+
    '<label class="field payment-field"><span>決済<button type="button" class="payment-add-button" onclick="openPaymentMethodDialog()" aria-label="決済方法を追加">＋</button></span><select name="payment"><option value="" selected>選択してください</option>'+paymentMethodOptions()+'</select></label>'+
    '<label class="field"><span>指名</span><select name="nominationType"><option value="" selected>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';bindCustomerHistoryButtons();
