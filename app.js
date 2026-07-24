@@ -124,7 +124,7 @@ function renderSlips(){
   $('#sortSlipsDate').textContent='日付 '+(slipDateSort==='asc'?'↑':'↓');
   const slips=data.slips.filter(x=>isSelectedMonth(x.date));
   $('#slipSummary').textContent=data.month.replace('-','年')+'月・'+slips.length+'件';
-  $('#slipTable').innerHTML=slips.slice().sort((a,b)=>a.date.localeCompare(b.date)*direction).map(s=>{
+  $('#slipTable').innerHTML=slips.slice().sort((a,b)=>{const dateOrder=a.date.localeCompare(b.date)*direction;return dateOrder||String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true})*direction;}).map(s=>{
     const payment=s.payment||(s.card?'カード':'現金');
     return '<tr><td>'+dateJP(s.date)+'</td><td>'+ (s.id||'—')+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td><span class="status '+(paymentMethodCategory(payment)==='card'?'':'cash')+'">'+payment+'</span></td><td><button class="text-button" onclick="removeItem(\'slips\',\''+s.id+'\')">削除</button></td></tr>';
   }).join('')||empty(7,'伝票はまだありません');
