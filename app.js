@@ -224,7 +224,12 @@ const empty=(n,text)=>`<tr><td colspan="${n}" class="empty">${text}</td></tr>`;
 function scrollShiftToToday(){
   const wrap=$('.shift-table-wrap'),today=$('.shift-day-head[data-shift-date="'+todayKey()+'"]'),nameHead=$('.shift-name-head');
   if(!wrap||!today||!nameHead||!$('#shifts').classList.contains('active'))return;
-  requestAnimationFrame(()=>{wrap.scrollLeft=Math.max(0,today.offsetLeft-nameHead.offsetWidth-6);});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const wrapBox=wrap.getBoundingClientRect(),todayBox=today.getBoundingClientRect(),nameBox=nameHead.getBoundingClientRect();
+    const delta=todayBox.left-(nameBox.right+12);
+    const maximum=Math.max(0,wrap.scrollWidth-wrap.clientWidth);
+    wrap.scrollLeft=Math.max(0,Math.min(maximum,wrap.scrollLeft+delta));
+  }));
 }
 function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});if(id==='shifts')scrollShiftToToday();}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
