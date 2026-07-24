@@ -24,11 +24,11 @@ const defaultData = {
   expenses: [
     {id:'E-1',date:'2026-07-03',category:'酒代',company:'○○酒販',note:'営業用酒類',amount:984},{id:'E-2',date:'2026-07-04',category:'食材',company:'スーパー',note:'フルーツ・軽食',amount:1329},{id:'E-3',date:'2026-07-10',category:'備品',company:'通販',note:'紙おしぼり',amount:2400}
   ],
-  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'] }
+  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[] }
 };
 function normalizeData(source){
   const value=source||{};
-  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
+  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
@@ -268,8 +268,26 @@ function businessDate(){
   if(d.getHours()<6)d.setDate(d.getDate()-1);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function customerNames(){
+  const hidden=data.settings.hiddenCustomerNames||[];
+  return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))].filter(name=>!hidden.includes(name));
+}
 function customerOptions(){
-  return [...new Set(data.slips.map(x=>x.customerName).filter(Boolean))].map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');
+  return customerNames().map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');
+}
+function customerHistoryManager(){
+  const chips=customerNames().map(name=>'<button type="button" class="history-chip" data-customer-history="'+encodeURIComponent(name)+'">'+name+' <b>×</b></button>').join('')||'<small>表示中の履歴はありません</small>';
+  return '<details class="customer-history full"><summary>顧客名の履歴を管理 <small>×で候補から削除できます</small></summary><div class="customer-history-chips">'+chips+'</div></details>';
+}
+function bindCustomerHistoryButtons(){
+  fields.querySelectorAll('[data-customer-history]').forEach(button=>button.onclick=()=>{
+    const name=decodeURIComponent(button.dataset.customerHistory);
+    if(!data.settings.hiddenCustomerNames.includes(name))data.settings.hiddenCustomerNames.push(name);
+    save();
+    button.remove();
+    const list=$('#customerHistory');if(list)list.innerHTML=customerOptions();
+    const chips=fields.querySelector('.customer-history-chips');if(chips&&!chips.children.length)chips.innerHTML='<small>表示中の履歴はありません</small>';
+  });
 }
 function payeeOptions(){return (data.settings.payeeHistory||[]).map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');}
 function expenseHistoryManager(){const chips=(items,type)=>items.map((name,index)=>'<button type="button" class="history-chip" data-history-type="'+type+'" data-history-index="'+index+'">'+name+' <b>×</b></button>').join('')||'<small>まだ履歴はありません</small>';return '<div class="expense-history full"><p>過去の履歴 <small>×で個別に削除できます</small></p><div class="history-group"><span>カテゴリ</span><div>'+chips(data.settings.categories,'category')+'</div></div><div class="history-group"><span>会社名・支払先</span><div>'+chips(data.settings.payeeHistory||[],'payee')+'</div></div></div>';}
@@ -292,11 +310,11 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
  if(type==='slip'){
    $('#dialogTitle').textContent='伝票を入力';
    fields.innerHTML=field('日付','date','date')+
-   '<label class="field full">顧客名<input required name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
+   '<label class="field full">顧客名<input required name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+customerHistoryManager()+
    field('伝票番号','id','text')+field('売上','total','number')+
    '<label class="field">決済<select required name="payment"><option value="" selected disabled>選択してください</option><option value="現金">現金</option><option value="カード">カード</option></select></label>'+
    field('客数','guests','number')+
-   '<label class="field"><span>指名</span><select required name="nominationType"><option value="" selected disabled>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';
+   '<label class="field"><span>指名</span><select required name="nominationType"><option value="" selected disabled>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';bindCustomerHistoryButtons();
  }
  if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+'<label class="field">カテゴリ<select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('新しい項目（必要なとき）','newCategory','text','full')+ '<label class="field">会社名・支払先<input required name="company" list="payeeHistory" autocomplete="off"></label><datalist id="payeeHistory">'+payeeOptions()+'</datalist>'+field('金額','amount','number')+field('内容（任意）','note','text','full')+expenseHistoryManager();bindExpenseHistoryButtons();}
  if(type==='dailyBatch'){ $('#dialogTitle').textContent='日別まとめ入力';const first=sortedCasts().find(c=>effectiveCastStatus(c)!=='退店')?.id||'';fields.innerHTML=field('日付','date','date')+'<label class="field">営業ステータス<select name="businessStatus"><option>営業</option><option>店休</option><option>キャスト0</option></select></label>'+'<div class="batch-toolbar full"><span>キャストを選択して入力してください</span><button type="button" class="secondary-button" onclick="addBatchCastRow()">＋ キャストを追加</button></div><div class="daily-batch-list full" id="batchCastList">'+batchCastRow(first)+'</div>'; }
