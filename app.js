@@ -222,7 +222,7 @@ function renderSettings(){ const labels={mainNomination:'本指名バック（1�
 const empty=(n,text)=>`<tr><td colspan="${n}" class="empty">${text}</td></tr>`;
 function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
-const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, mediaOrderDraft=[];
+const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), paymentMethodList=$('#paymentMethodList'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, mediaOrderDraft=[];
 function showEntryDialog(){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
 function closeEntryDialog(){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
 function renderMediaOrderList(){mediaOrderList.innerHTML=mediaOrderDraft.map((name,index)=>'<div class="media-order-row"><span>'+name+'</span><div><button type="button" onclick="moveApplicationMedia('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveApplicationMedia('+index+',1)" '+(index===mediaOrderDraft.length-1?'disabled':'')+'>↓</button></div></div>').join('')||'<p class="media-order-empty">媒体がありません。</p>';}
@@ -231,11 +231,21 @@ window.moveApplicationMedia=(index,direction)=>{const target=index+direction;if(
 $('#saveMediaOrder').onclick=()=>{data.settings.applicationMedia=[...mediaOrderDraft];save();if(typeof mediaOrderDialog.close==='function')mediaOrderDialog.close();else mediaOrderDialog.removeAttribute('open');};
 $('#cancelMediaOrder').onclick=()=>{if(typeof mediaOrderDialog.close==='function')mediaOrderDialog.close();else mediaOrderDialog.removeAttribute('open');};
 function closePaymentMethodDialog(){if(typeof paymentMethodDialog.close==='function')paymentMethodDialog.close();else paymentMethodDialog.removeAttribute('open');}
-window.openPaymentMethodDialog=()=>{paymentMethodForm.reset();if(typeof paymentMethodDialog.showModal==='function')paymentMethodDialog.showModal();else paymentMethodDialog.setAttribute('open','');};
+function refreshPaymentMethodSelect(selectedValue){
+  const payment=fields.querySelector('[name="payment"]');if(!payment)return;
+  const current=selectedValue??payment.value;
+  payment.innerHTML='<option value="" selected>選択してください</option>'+paymentMethodOptions();
+  payment.value=current;
+}
+function renderPaymentMethodList(){
+  paymentMethodList.innerHTML=paymentMethods().map((item,index)=>'<div class="payment-method-row"><span>'+item.name+'<small>'+ (item.category==='cash'?'現金扱い':'カード扱い')+'</small></span><div><button type="button" onclick="movePaymentMethod('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="movePaymentMethod('+index+',1)" '+(index===paymentMethods().length-1?'disabled':'')+'>↓</button></div></div>').join('');
+}
+window.openPaymentMethodDialog=()=>{paymentMethodForm.reset();renderPaymentMethodList();if(typeof paymentMethodDialog.showModal==='function')paymentMethodDialog.showModal();else paymentMethodDialog.setAttribute('open','');};
+window.movePaymentMethod=(index,direction)=>{const target=index+direction,list=data.settings.paymentMethods;if(target<0||target>=list.length)return;[list[index],list[target]]=[list[target],list[index]];save();refreshPaymentMethodSelect();renderPaymentMethodList();};
 $('#closePaymentMethodDialog').onclick=closePaymentMethodDialog;
 $('#cancelPaymentMethodDialog').onclick=closePaymentMethodDialog;
 $('#closeCustomerHistoryDialog').onclick=()=>{if(typeof customerHistoryDialog.close==='function')customerHistoryDialog.close();else customerHistoryDialog.removeAttribute('open');};
-paymentMethodForm.addEventListener('submit',event=>{event.preventDefault();const value=Object.fromEntries(new FormData(paymentMethodForm)),name=(value.name||'').trim();if(!name){return;}const category=value.category||'card';if(!paymentMethods().some(item=>item.name===name))data.settings.paymentMethods.push({name,category});save();const payment=fields.querySelector('[name="payment"]');if(payment){payment.innerHTML='<option value="" selected>選択してください</option>'+paymentMethodOptions();payment.value=name;}closePaymentMethodDialog();});
+paymentMethodForm.addEventListener('submit',event=>{event.preventDefault();const value=Object.fromEntries(new FormData(paymentMethodForm)),name=(value.name||'').trim();if(!name){return;}const category=value.category||'card';if(!paymentMethods().some(item=>item.name===name))data.settings.paymentMethods.push({name,category});save();refreshPaymentMethodSelect(name);paymentMethodForm.reset();renderPaymentMethodList();});
 document.querySelectorAll('[data-close-dialog]').forEach(button=>button.onclick=closeEntryDialog);
 const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
 const optionalField=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input name="${name}" type="${type}"></label>`;
