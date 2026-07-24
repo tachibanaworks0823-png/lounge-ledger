@@ -75,7 +75,7 @@ function calcCast(cast){
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
-function render(){ updateMonthUi();renderDashboard();renderSlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
+function render(){ updateMonthUi();renderDashboard();renderUnsettledSlips();renderSlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
@@ -120,15 +120,22 @@ function renderDashboard(){
     return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
   }).join('');
 }
+function slipTableRow(s){
+  const payment=slipPaymentSummary(s),unsettled=isUnsettledSlip(s),paymentLabel=unsettled?'未収あり　'+payment.replace(/^未収\s*/,''):payment;
+  const slipIndex=data.slips.indexOf(s);
+  return '<tr class="'+(unsettled?'unsettled-slip':'')+'"><td>'+dateJP(s.date)+'</td><td>'+ (s.id||'—')+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td><span class="status '+(unsettled?'unsettled-status ':slipPaymentCashOnly(s)?'cash':'')+'">'+paymentLabel+'</span></td><td><button class="text-button" onclick="editSlip('+slipIndex+')">編集</button></td></tr>';
+}
+function renderUnsettledSlips(){
+  const slips=data.slips.filter(isUnsettledSlip).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.id||'').localeCompare(String(a.id||''),'ja',{numeric:true}));
+  $('#unsettledSlipSummary').textContent='未収あり '+slips.length+'件（すべての年度）';
+  $('#unsettledSlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(7,'未収伝票はありません');
+}
 function renderSlips(){
   const direction=slipDateSort==='asc'?1:-1;
   $('#sortSlipsDate').textContent='日付 '+(slipDateSort==='asc'?'↑':'↓');
   const slips=data.slips.filter(x=>isSelectedMonth(x.date));
   $('#slipSummary').textContent=data.month.replace('-','年')+'月・'+slips.length+'件';
-  $('#slipTable').innerHTML=slips.slice().sort((a,b)=>{const dateOrder=a.date.localeCompare(b.date)*direction;return dateOrder||String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true})*direction;}).map(s=>{
-    const payment=slipPaymentSummary(s),unsettled=isUnsettledSlip(s),paymentLabel=unsettled?'未収あり　'+payment.replace(/^未収\s*/,''):payment;
-    const slipIndex=data.slips.indexOf(s);return '<tr class="'+(unsettled?'unsettled-slip':'')+'"><td>'+dateJP(s.date)+'</td><td>'+ (s.id||'—')+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td><span class="status '+(unsettled?'unsettled-status ':slipPaymentCashOnly(s)?'cash':'')+'">'+paymentLabel+'</span></td><td><button class="text-button" onclick="editSlip('+slipIndex+')">編集</button></td></tr>';
-  }).join('')||empty(7,'伝票はまだありません');
+  $('#slipTable').innerHTML=slips.slice().sort((a,b)=>{const dateOrder=a.date.localeCompare(b.date)*direction;return dateOrder||String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true})*direction;}).map(slipTableRow).join('')||empty(7,'伝票はまだありません');
 }
 function renderDailyInputs(){const [year,month]=data.month.split('-').map(Number),count=new Date(year,month,0).getDate(),grouped=new Map(),statuses=new Map(),inputs=data.dailyInputs.filter(x=>isSelectedMonth(x.date));inputs.forEach(x=>{if(!grouped.has(x.date))grouped.set(x.date,[]);grouped.get(x.date).push(x);});data.dailyStatuses.filter(x=>isSelectedMonth(x.date)).forEach(x=>statuses.set(x.date,x.status));const dates=Array.from({length:count},(_,i)=>data.month+'-'+String(i+1).padStart(2,'0')).sort((a,b)=>a.localeCompare(b)*(dailyInputDateSort==='asc'?1:-1));$('#dailyInputSummary').textContent=data.month.replace('-','年')+'月・'+inputs.length+'件';$('#sortDailyInputDate').textContent='日付 '+(dailyInputDateSort==='asc'?'↑':'↓');const options=status=>['営業','店休','キャスト0'].map(value=>'<option'+(status===value?' selected':'')+'>'+value+'</option>').join('');$('#dailyInputTable').innerHTML=dates.map(date=>{const entries=grouped.get(date)||[],status=statuses.get(date)||'営業',statusClass=status==='店休'?' is-closed':status==='キャスト0'?' is-zero':'';return '<tr><td><b>'+dateJP(date)+'</b></td><td><select class="daily-status-select'+statusClass+'" onchange="updateDailyStatus(\''+date+'\',this.value)">'+options(status)+'</select></td><td>'+entries.length+'人分</td><td><button class="primary-button compact-button" onclick="openDailyDateDetails(\''+date+'\')">詳細を見る</button></td></tr>';}).join('');}
 function renderCasts(){ $('#castTable').innerHTML=sortedCasts().map(c=>{const x=calcCast(c);return `<tr><td><b>${c.name}</b><br><small>時給 ${yen(c.hourly)}</small></td><td>${yen(x.nominated)}</td><td>${x.main}本 / ${x.companion}本</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.hourly)}</td><td>${yen(x.back)}</td><td>${yen(x.deductions+x.advance)}</td><td><b>${yen(x.payout)}</b></td><td><button class="text-button" onclick="removeCast('${c.id}')">削除</button></td></tr>`}).join('')||empty(9,'キャストはまだいません'); }
