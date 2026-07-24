@@ -120,8 +120,15 @@ function renderDashboard(){
     return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
   }).join('');
 }
+function unsettledPaymentLabel(slip){
+  const lines=slipPaymentLines(slip).filter(item=>item.amount>0);
+  const receivableFromLines=lines.filter(item=>paymentMethodCategory(item.method)==='receivable').reduce((sum,item)=>sum+Number(item.amount||0),0);
+  const receivable=Math.max(Number(slip?.receivable||0),receivableFromLines);
+  const paid=lines.filter(item=>paymentMethodCategory(item.method)!=='receivable').reduce((sum,item)=>sum+Number(item.amount||0),0);
+  return '未収残額 '+yen(receivable)+(paid>0?' / 入金分 '+yen(paid):'');
+}
 function slipTableRow(s){
-  const payment=slipPaymentSummary(s),unsettled=isUnsettledSlip(s),paymentLabel=unsettled?'未収あり　'+payment.replace(/^未収\s*/,''):payment;
+  const unsettled=isUnsettledSlip(s),paymentLabel=unsettled?unsettledPaymentLabel(s):slipPaymentSummary(s);
   const slipIndex=data.slips.indexOf(s);
   return '<tr class="'+(unsettled?'unsettled-slip':'')+'"><td>'+dateJP(s.date)+'</td><td>'+ (s.id||'—')+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td><span class="status '+(unsettled?'unsettled-status ':slipPaymentCashOnly(s)?'cash':'')+'">'+paymentLabel+'</span></td><td><button class="text-button" onclick="editSlip('+slipIndex+')">編集</button></td></tr>';
 }
