@@ -262,3 +262,9 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 .slip-payment-add{margin-top:8px;padding:0;border:0;background:transparent;color:#f8a3c6;font:700 12px inherit;cursor:pointer;text-align:left}
 .slip-payment-add:hover{color:#fff}
 @media(max-width:560px){.slip-payment-row{grid-template-columns:minmax(0,1fr) minmax(76px,.65fr) 24px;gap:5px}.slip-payment-remove{width:24px;height:24px}.slip-payment-add{font-size:11px}}
+
+
+/* iPhone：入力時の自動ズーム防止 */
+@media(max-width:560px){
+  input,select,textarea{font-size:16px!important}
+}
