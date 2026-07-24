@@ -268,3 +268,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 @media(max-width:560px){
   input,select,textarea{font-size:16px!important}
 }
+
+
+/* 顧客名履歴：PCは入力候補、スマホは専用プルダウン */
+@media(min-width:561px){.customer-history-picker-field{display:none!important}}
