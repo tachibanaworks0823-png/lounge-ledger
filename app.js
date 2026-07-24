@@ -324,11 +324,12 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
  if(type==='slip'){
    $('#dialogTitle').textContent='伝票を入力';
    fields.innerHTML=optionalField('日付','date','date')+
-   '<label class="field full">顧客名<input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+customerHistoryManager()+
-   '<label class="field">伝票番号<input name="id" type="text" autocomplete="off"></label>'+optionalField('売上','total','number')+
+   '<label class="field">伝票番号<input name="id" type="text" autocomplete="off"></label>'+
+   '<label class="field">顧客名<input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
+   optionalField('客数','guests','number')+customerHistoryManager()+
+   optionalField('売上','total','number')+
    '<label class="field payment-field"><span>決済<button type="button" class="payment-add-button" onclick="openPaymentMethodDialog()" aria-label="決済方法を追加">＋</button></span><select name="payment"><option value="" selected>選択してください</option>'+paymentMethodOptions()+'</select></label>'+
-   optionalField('客数','guests','number')+
-   '<label class="field"><span>指名</span><select name="nominationType"><option value="" selected>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';bindCustomerHistoryButtons();bindPaymentMethodAdder();
+   '<label class="field"><span>指名</span><select name="nominationType"><option value="" selected>選択してください</option><option value="本指名">本指名</option><option value="同伴">同伴</option><option value="場内">場内</option></select></label>';bindCustomerHistoryButtons();
  }
  if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';fields.innerHTML=field('支出日','date','date')+'<label class="field">カテゴリ<select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('新しい項目（必要なとき）','newCategory','text','full')+ '<label class="field">会社名・支払先<input required name="company" list="payeeHistory" autocomplete="off"></label><datalist id="payeeHistory">'+payeeOptions()+'</datalist>'+field('金額','amount','number')+field('内容（任意）','note','text','full')+expenseHistoryManager();bindExpenseHistoryButtons();}
  if(type==='dailyBatch'){ $('#dialogTitle').textContent='日別まとめ入力';const first=sortedCasts().find(c=>effectiveCastStatus(c)!=='退店')?.id||'';fields.innerHTML=field('日付','date','date')+'<label class="field">営業ステータス<select name="businessStatus"><option>営業</option><option>店休</option><option>キャスト0</option></select></label>'+'<div class="batch-toolbar full"><span>キャストを選択して入力してください</span><button type="button" class="secondary-button" onclick="addBatchCastRow()">＋ キャストを追加</button></div><div class="daily-batch-list full" id="batchCastList">'+batchCastRow(first)+'</div>'; }
