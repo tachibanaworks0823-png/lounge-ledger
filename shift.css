@@ -141,3 +141,9 @@
 
 /* iPhone: avoid nested vertical scrolling and keep the shift grid aligned left */
 @media(max-width:560px){.shift-panel{overflow:visible!important}.shift-table-wrap{max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;margin:0!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x pan-y}.shift-table{margin:0!important;transform:none!important}.shift-table .shift-name-head,.shift-table .shift-cast-name,.shift-table .shift-special-row th,.shift-table .shift-count-row th{left:0!important}}
+
+
+/* シフト表：固定列の下への前日データのはみ出し防止 */
+.shift-table tbody>tr>th{position:sticky!important;left:0;z-index:4!important}
+.shift-table .shift-count-row>th{background:#40313a!important}
+.shift-table .shift-special-row>th{background:#302831!important}
