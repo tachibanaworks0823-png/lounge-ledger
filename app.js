@@ -316,7 +316,7 @@ function slipPaymentRow(line={},canRemove=false){
 function syncSlipPaymentTotal(){
   const total=fields.querySelector('[name="total"]');if(!total)return;
   const sum=[...fields.querySelectorAll('.slip-payment-amount')].reduce((n,input)=>n+Number(input.value||0),0);
-  if(sum>0)total.value=sum;
+  total.value=sum||'';
 }
 function bindSlipPaymentRows(){
   fields.querySelectorAll('.slip-payment-row').forEach(row=>{
@@ -402,7 +402,7 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
    '<label class="field">伝票番号<input name="id" type="text" autocomplete="off"></label>'+
    '<label class="field customer-field"><span>顧客名<button type="button" class="payment-add-button customer-history-button" onclick="openCustomerHistoryDialog()" aria-label="顧客名履歴を管理">＋</button></span><input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
    optionalField('客数','guests','number')+
-   optionalField('売上','total','number')+
+   '<label class="field auto-total-field">売上<input name="total" type="number" readonly tabindex="-1" aria-label="決済内訳から自動計算される売上"></label>'+
    '<div class="field payment-breakdown-field"><span>決済<button type="button" class="payment-add-button" onclick="openPaymentMethodDialog()" aria-label="決済方法を追加">＋</button></span><div id="slipPaymentRows" class="slip-payment-rows"></div><button type="button" class="slip-payment-add" onclick="addSlipPaymentRow()">＋ 決済を追加</button></div>';
    if(slip){fields.querySelector('[name="date"]').value=slip.date||'';fields.querySelector('[name="id"]').value=slip.id||'';fields.querySelector('[name="customerName"]').value=slip.customerName||'';fields.querySelector('[name="guests"]').value=slip.guests||'';fields.querySelector('[name="total"]').value=slip.total||'';}
    renderSlipPaymentRows(slip?slipPaymentLines(slip):[{}]);
