@@ -272,3 +272,9 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* 顧客名履歴：PCは入力候補、スマホは専用プルダウン */
 @media(min-width:561px){.customer-history-picker-field{display:none!important}}
+
+
+/* 顧客名履歴：入力欄横のコンパクト操作 */
+.customer-history-open-button{margin-left:auto;padding:2px 7px;border:1px solid #80556b;border-radius:6px;background:#342630;color:#ffd9e8;font:700 11px inherit;cursor:pointer}
+.customer-history-open-button:hover{background:#702c4c}
+.customer-pick-list{display:grid;gap:7px}.customer-pick-option{width:100%;padding:12px;border:1px solid #65505e;border-radius:8px;background:#2a2228;color:#fff;text-align:left;font:600 14px inherit;cursor:pointer}.customer-pick-option:hover{background:#482c3b;border-color:#a55a7e}
