@@ -248,3 +248,17 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 .customer-history-button{width:20px;min-width:20px;padding:0;font-size:15px}.customer-history-list{display:grid;gap:8px}.customer-history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border:1px solid #584651;border-radius:8px;background:#2a2228}.customer-history-row>span{font-size:13px;font-weight:700}.customer-history-row>div{display:flex;gap:6px}.customer-history-row button{width:31px;height:29px;border:1px solid #755569;border-radius:6px;background:#382b35;color:#ffe4ef;font:700 16px inherit;cursor:pointer}.customer-history-row button:hover:not(:disabled){background:#8b2f5b}.customer-history-row button:disabled{opacity:.3;cursor:default}.customer-history-row .customer-history-remove{color:#ff9ec2}@media(max-width:560px){.customer-history-row{padding:8px 9px}}
 
 .payment-method-order{padding:0 20px 18px}.payment-method-order>p{margin:0 0 8px;color:#d8c1cc;font-size:12px;font-weight:700}.payment-method-list{display:grid;gap:7px}.payment-method-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px;border:1px solid #584651;border-radius:8px;background:#2a2228}.payment-method-row span{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:700}.payment-method-row small{color:#b69da9;font-size:11px;font-weight:500}.payment-method-row div{display:flex;gap:6px}.payment-method-row button{width:31px;height:29px;border:1px solid #755569;border-radius:6px;background:#382b35;color:#ffe4ef;font:700 16px inherit;cursor:pointer}.payment-method-row button:hover:not(:disabled){background:#8b2f5b}.payment-method-row button:disabled{opacity:.3;cursor:default}@media(max-width:560px){.payment-method-order{padding:0 16px 16px}}
+
+
+/* 伝票：複数決済 */
+.payment-breakdown-field{align-content:start}
+.payment-breakdown-field>span{display:flex;align-items:center;justify-content:space-between}
+.slip-payment-rows{display:grid;gap:7px;margin-top:8px}
+.slip-payment-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(86px,.72fr) 26px;gap:6px;align-items:center}
+.slip-payment-row select,.slip-payment-row input{width:100%;min-width:0}
+.slip-payment-row>span{display:block}
+.slip-payment-remove{width:26px;height:26px;padding:0;border:1px solid #80566e;border-radius:7px;background:#33262f;color:#ff9ec2;font:700 17px/1 inherit;cursor:pointer}
+.slip-payment-remove:hover{background:#702c4c}
+.slip-payment-add{margin-top:8px;padding:0;border:0;background:transparent;color:#f8a3c6;font:700 12px inherit;cursor:pointer;text-align:left}
+.slip-payment-add:hover{color:#fff}
+@media(max-width:560px){.slip-payment-row{grid-template-columns:minmax(0,1fr) minmax(76px,.65fr) 24px;gap:5px}.slip-payment-remove{width:24px;height:24px}.slip-payment-add{font-size:11px}}
