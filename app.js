@@ -24,7 +24,7 @@ const defaultData = {
   expenses: [
     {id:'E-1',date:'2026-07-03',category:'酒代',company:'○○酒販',note:'営業用酒類',amount:984},{id:'E-2',date:'2026-07-04',category:'食材',company:'スーパー',note:'フルーツ・軽食',amount:1329},{id:'E-3',date:'2026-07-10',category:'備品',company:'通販',note:'紙おしぼり',amount:2400}
   ],
-  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'}] }
+  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'},{name:'未収',category:'receivable'}] }
 };
 function normalizeData(source){
   const value=source||{};
@@ -85,6 +85,7 @@ function dailyRows(){
     const slips=data.slips.filter(x=>x.date===date), expenses=data.expenses.filter(x=>x.date===date), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date);
     const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
+    const receivable=slips.reduce((n,x)=>n+Number(x.receivable||0),0);
     const groups=slips.reduce((n,x)=>n+Number(x.groups||0),0);
     const guests=slips.reduce((n,x)=>n+Number(x.guests||0),0);
     const nominated=slips.reduce((n,x)=>n+(x.casts||[]).reduce((m,c)=>m+Number(c.sales||0),0),0);
@@ -98,8 +99,8 @@ function dailyRows(){
     const dailySum=key=>dailyValues.reduce((n,x)=>n+Number(x[key]||0),0);
     const advance=dailyInputs.length?dailySum('advance'):legacyAdvance;
     const payroll=dailyInputs.length?dailySum('payout'):Math.max(0,legacyGross-legacyDeductions-legacyAdvance);
-    const cash=Math.max(0,sales-card);
-    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],sales,card,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
+    const cash=Math.max(0,sales-card-receivable);
+    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],sales,card,receivable,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
   });
 }
 function renderDashboard(){
@@ -116,7 +117,7 @@ function renderDashboard(){
   $('#dailySalesTable').innerHTML=rows.map(x=>{
     const hasActivity=x.sales||x.expense||x.advance||x.payroll;
     const amount=n=>n?yen(n):'—';
-    return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
+    return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
   }).join('');
 }
 function renderSlips(){
@@ -251,7 +252,7 @@ function refreshPaymentMethodSelect(selectedValue){
   });
 }
 function renderPaymentMethodList(){
-  paymentMethodList.innerHTML=paymentMethods().map((item,index)=>'<div class="payment-method-row"><span>'+item.name+'<small>'+ (item.category==='cash'?'現金扱い':'カード扱い')+'</small></span><div><button type="button" onclick="movePaymentMethod('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="movePaymentMethod('+index+',1)" '+(index===paymentMethods().length-1?'disabled':'')+'>↓</button></div></div>').join('');
+  paymentMethodList.innerHTML=paymentMethods().map((item,index)=>'<div class="payment-method-row"><span>'+item.name+'<small>'+ (item.category==='cash'?'現金扱い':item.category==='receivable'?'未収扱い':'カード扱い')+'</small></span><div><button type="button" onclick="movePaymentMethod('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="movePaymentMethod('+index+',1)" '+(index===paymentMethods().length-1?'disabled':'')+'>↓</button></div></div>').join('');
 }
 window.openPaymentMethodDialog=()=>{paymentMethodForm.reset();renderPaymentMethodList();if(typeof paymentMethodDialog.showModal==='function')paymentMethodDialog.showModal();else paymentMethodDialog.setAttribute('open','');};
 window.movePaymentMethod=(index,direction)=>{const target=index+direction,list=data.settings.paymentMethods;if(target<0||target>=list.length)return;[list[index],list[target]]=[list[target],list[index]];save();refreshPaymentMethodSelect();renderPaymentMethodList();};
@@ -297,8 +298,13 @@ function businessDate(){
   if(d.getHours()<6)d.setDate(d.getDate()-1);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-function paymentMethods(){return data.settings.paymentMethods||defaultData.settings.paymentMethods;}
-function paymentMethodCategory(name){return paymentMethods().find(item=>item.name===name)?.category||(name==='現金'?'cash':'card');}
+function paymentMethods(){
+  const existing=Array.isArray(data.settings.paymentMethods)?data.settings.paymentMethods:[];
+  const missing=defaultData.settings.paymentMethods.filter(item=>!existing.some(current=>current.name===item.name));
+  if(missing.length)data.settings.paymentMethods=[...existing,...missing];
+  return data.settings.paymentMethods;
+}
+function paymentMethodCategory(name){return paymentMethods().find(item=>item.name===name)?.category||(name==='現金'?'cash':name==='未収'?'receivable':'card');}
 function paymentMethodOptions(){return paymentMethods().map(item=>'<option value="'+String(item.name).replace(/"/g,'&quot;')+'">'+item.name+'</option>').join('');}
 function slipPaymentLines(slip){
   if(Array.isArray(slip?.payments)&&slip.payments.length)return slip.payments.filter(item=>item?.method).map(item=>({method:item.method,amount:Number(item.amount||0)}));
@@ -434,8 +440,9 @@ form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.pre
   const paymentTotal=payments.reduce((sum,item)=>sum+Number(item.amount||0),0);
   const total=paymentTotal||manualTotal;
   const card=payments.reduce((sum,item)=>sum+(paymentMethodCategory(item.method)==='card'?Number(item.amount||0):0),0);
+  const receivable=payments.reduce((sum,item)=>sum+(paymentMethodCategory(item.method)==='receivable'?Number(item.amount||0):0),0);
   const payment=payments.length>1?'併用':(payments[0]?.method||'');
-  const record={id:x.id,date:x.date,customerName:x.customerName,total,card,payment,payments,groups:1,guests:+x.guests,casts:[]};
+  const record={id:x.id,date:x.date,customerName:x.customerName,total,card,receivable,payment,payments,groups:1,guests:+x.guests,casts:[]};
   if(editingSlipIndex!==null&&data.slips[editingSlipIndex])Object.assign(data.slips[editingSlipIndex],record);else data.slips.push(record)
 }if(mode==='dailyBatch'){const currentStatus=data.dailyStatuses.find(item=>item.date===x.date);if(currentStatus)currentStatus.status=x.businessStatus;else data.dailyStatuses.push({date:x.date,status:x.businessStatus});fields.querySelectorAll('.daily-batch-row').forEach(row=>{const value=cls=>row.querySelector(cls).value||'';const start=value('.batch-start-hour')&&value('.batch-start-minute')?value('.batch-start-hour')+':'+value('.batch-start-minute'):'';const end=value('.batch-end-hour')&&value('.batch-end-minute')?value('.batch-end-hour')+':'+value('.batch-end-minute'):'';const hours=calculateBatchHours(row);const advance=value('.batch-advance'),deduction=value('.batch-deduction'),area=value('.batch-area'),main=value('.batch-main'),companion=value('.batch-companion'),sales=value('.batch-sales'),back={};backInputKeys.forEach(key=>back[key]=+value('.batch-'+key));if(!start&&!end&&!advance&&!deduction&&!area&&!main&&!companion&&!sales&&!backInputKeys.some(key=>back[key]))return;data.dailyInputs.push({id:'DI-'+Date.now()+'-'+row.dataset.castId,date:x.date,castId:row.querySelector('.batch-cast-select').value,startTime:start,endTime:end,hours:+hours,advance:+advance,deduction:+deduction,areaNomination:+area,mainCount:+main,companionCount:+companion,mainSales:+sales,...back});});}if(mode==='dailyInput'){const record={id:editingDailyInputId||'DI-'+Date.now(),date:x.date,castId:x.castId,startTime:x.startTime,endTime:x.endTime,hours:+x.hours,advance:+x.advance,deduction:+x.deduction,areaNomination:+x.areaNomination,mainCount:+x.mainCount,companionCount:+x.companionCount,mainSales:+x.mainSales,...Object.fromEntries(backInputKeys.map(key=>[key,+(x[key]||0)]))};const existing=data.dailyInputs.find(item=>item.id===editingDailyInputId);if(existing)Object.assign(existing,record);else data.dailyInputs.push(record)}if(mode==='expense'){const category=(x.newCategory||'').trim()||x.category;if((x.newCategory||'').trim()&&!data.settings.categories.includes(category))data.settings.categories.push(category);if(!data.settings.payeeHistory.includes(x.company))data.settings.payeeHistory.push(x.company);data.expenses.push({id:'E-'+Date.now(),date:x.date,category,company:x.company,note:x.note,amount:+x.amount})}if(mode==='shiftBatch'){const castId=x.castId;fields.querySelectorAll('.shift-batch-row').forEach(row=>{const value=row.querySelector('.shift-batch-value').value.trim();if(!value)return;const date=row.dataset.date,numeric=Number(value),existing=data.shifts.find(item=>item.date===date&&item.castId===castId);const record={date,castId,hours:Number.isFinite(numeric)&&numeric>=0?numeric:0,schedule:value,advance:existing?.advance||0};if(existing)Object.assign(existing,record);else data.shifts.push(record);});}if(mode==='shopClosed'){const existing=data.dailyStatuses.find(item=>item.date===x.date);if(existing)existing.status='店休';else data.dailyStatuses.push({date:x.date,status:'店休'});}if(mode==='shift'){data.shifts.push({date:x.date,castId:x.castId,hours:+x.hours,advance:+x.advance})}if(mode==='application'){const record={applicationDate:x.applicationDate,media:x.media,recruitmentName:x.recruitmentName,birthday:x.birthday,age:x.age,phone:x.phone,email:x.email,preferredInterviewDate:x.preferredInterviewDate,confirmedInterviewDate:x.confirmedInterviewDate,interviewTime:x.interviewTime,reschedule:x.reschedule,status:x.status,note:x.note};const existing=data.applications.find(item=>item.id===editingApplicationId);if(existing)Object.assign(existing,record);else data.applications.push({id:'A-'+Date.now(),...record})}if(mode==='cast'){const profile={name:x.name,status:x.status,joinedDate:x.joinedDate,leavingDate:x.leavingDate,lastName:x.lastName,firstName:x.firstName,birthday:x.birthday,phone:x.phone,emergencyContact:x.emergencyContact,emergencyRelation:x.emergencyRelation,address:x.address,building:x.building,memo:x.memo,termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate)};const existing=data.casts.find(c=>c.id===editingCastId);if(existing)Object.assign(existing,profile);else data.casts.push({id:'c-'+Date.now(),hourly:0,...profile})}save();render();dialog.close();});
 window.editSlip=index=>openForm('slip',index);window.deleteEditingSlip=()=>{if(editingSlipIndex===null||!data.slips[editingSlipIndex])return;if(!confirm('この伝票を削除しますか？'))return;data.slips.splice(editingSlipIndex,1);save();render();closeEntryDialog();};window.deleteEditingApplication=()=>{if(!editingApplicationId)return;if(!confirm('この応募情報を削除しますか？'))return;data.applications=data.applications.filter(item=>item.id!==editingApplicationId);save();render();closeEntryDialog();};window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;data.casts=data.casts.filter(x=>x.id!==id);save();render()};window.deleteEditingCast=()=>{if(!editingCastId)return;if(!confirm('このキャストを削除しますか？ 関連する過去データは残ります。'))return;data.casts=data.casts.filter(x=>x.id!==editingCastId);save();render();closeEntryDialog();};
