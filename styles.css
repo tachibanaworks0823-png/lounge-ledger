@@ -291,3 +291,13 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 #slipTable tr.unsettled-slip td:first-child{box-shadow:inset 7px 0 #ff87aa!important}
 #slipTable tr.unsettled-slip td:nth-child(6){background:#791f42!important}
 #slipTable tr.unsettled-slip .unsettled-status{display:inline-flex;align-items:center;padding:7px 11px!important;background:#ff6f99!important;border:0!important;border-radius:7px!important;color:#2b0915!important;font-weight:800!important;box-shadow:0 2px 8px #16040b66}
+
+
+/* 未収伝票：月別一覧とは別に全期間を確認 */
+.unsettled-slip-panel{border-color:#b24b70!important;box-shadow:0 0 0 1px #d75a8433,0 16px 36px #16050d55!important}
+.unsettled-slip-panel .panel-heading{border-bottom-color:#804158!important}
+.unsettled-slip-panel .panel-heading h2{color:#ff9bb8!important}
+#unsettledSlipTable tr.unsettled-slip td{background:#641c36!important;border-color:#9d3d60!important;color:#fff!important;font-weight:700}
+#unsettledSlipTable tr.unsettled-slip td:first-child{box-shadow:inset 7px 0 #ff87aa!important}
+#unsettledSlipTable tr.unsettled-slip td:nth-child(6){background:#791f42!important}
+#unsettledSlipTable .unsettled-status{display:inline-flex;align-items:center;padding:7px 11px!important;background:#ff6f99!important;border:0!important;border-radius:7px!important;color:#2b0915!important;font-weight:800!important;box-shadow:0 2px 8px #16040b66}
