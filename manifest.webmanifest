@@ -1,0 +1,12 @@
+{
+  "name": "Lounge Ledger 店舗管理",
+  "short_name": "店舗管理",
+  "start_url": "/lounge-ledger/",
+  "scope": "/lounge-ledger/",
+  "display": "standalone",
+  "background_color": "#171217",
+  "theme_color": "#54233f",
+  "icons": [
+    { "src": "app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
