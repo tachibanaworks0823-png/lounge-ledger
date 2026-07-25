@@ -309,3 +309,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* 伝票番号・領収証 */
 .slip-number-rows{display:grid;gap:6px;margin-top:1px}.slip-number-row{display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:6px;align-items:center}.slip-number-row input{width:100%;min-width:0}.slip-number-remove{width:24px;height:24px;padding:0;border:1px solid #80566e;border-radius:7px;background:#33262f;color:#ff9ec2;font:700 17px/1 inherit;cursor:pointer}.slip-number-remove:hover{background:#702c4c}.slip-number-add{margin-top:7px;padding:0;border:0;background:transparent;color:#f8a3c6;font:700 12px inherit;cursor:pointer;text-align:left}.slip-number-add:hover{color:#fff}.receipt-list-check{width:18px!important;height:18px!important;min-height:18px!important;appearance:auto!important;-webkit-appearance:checkbox!important;opacity:1!important;accent-color:#e95e96!important;filter:none!important;border:0!important;background:transparent!important;box-shadow:none!important}@media(max-width:560px){.slip-number-row{grid-template-columns:minmax(0,1fr) 24px}.slip-number-add{font-size:12px}}
+
+
+/* 共通ヘッダー：画面をスクロールしても操作を固定 */
+.topbar{position:sticky;top:0;z-index:3;border-bottom:1px solid #51404a;box-shadow:0 10px 22px #05040655}
