@@ -147,3 +147,9 @@
 .shift-table tbody>tr>th{position:sticky!important;left:0;z-index:4!important}
 .shift-table .shift-count-row>th{background:#40313a!important}
 .shift-table .shift-special-row>th{background:#302831!important}
+
+
+/* iPhone：シフトを含むすべての入力時の自動拡大を防止 */
+@media(max-width:560px){
+  input,select,textarea{font-size:16px!important;-webkit-text-size-adjust:100%}
+}
