@@ -313,3 +313,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* 共通ヘッダー：画面をスクロールしても操作を固定 */
 .topbar{position:sticky;top:0;z-index:3;border-bottom:1px solid #51404a;box-shadow:0 10px 22px #05040655}
+
+
+/* 詳細画面の削除・非表示操作を左側で隣接 */
+.dialog-left-actions{display:flex;align-items:center;gap:12px;margin-right:auto}.dialog-left-actions .delete-cast-button{margin-right:0}.dialog-left-actions .cast-visibility-button{color:#e7a0bc;font-weight:700}.dialog-left-actions .cast-visibility-button:hover{color:#fff;background:#3a2632}
