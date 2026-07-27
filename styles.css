@@ -479,3 +479,14 @@ dialog textarea:focus{
   .cast-list-group .table-wrap th.cast-action-cell,
   .cast-list-group .table-wrap td.cast-action-cell{min-width:82px!important}
 }
+
+/* Cast list headers stay inside the table; only data cells are horizontally fixed */
+.cast-list-group .table-wrap thead th:first-child,
+.cast-list-group .table-wrap thead th:last-child,
+.cast-list-group .table-wrap thead th.cast-action-cell{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  z-index:auto!important;
+  box-shadow:none!important;
+}
