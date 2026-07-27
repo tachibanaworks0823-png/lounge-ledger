@@ -446,3 +446,36 @@ dialog textarea:focus{
   .cast-list-group .table-wrap td:last-child{min-width:72px}
 }
 
+
+
+/* Cast list: always show the original right-side 編集・詳細 column */
+.cast-list-group .table-wrap th.cast-action-cell,
+.cast-list-group .table-wrap td.cast-action-cell{
+  display:table-cell!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  right:0!important;
+  z-index:4!important;
+  min-width:88px!important;
+  padding-right:12px!important;
+  padding-left:12px!important;
+  text-align:right!important;
+  background:#211b20!important;
+  box-shadow:-2px 0 0 #4a3c46;
+}
+.cast-list-group .table-wrap th.cast-action-cell{
+  z-index:5!important;
+  background:#2b2229!important;
+}
+.cast-list-group .table-wrap td.cast-action-cell .text-button{
+  display:inline-block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  white-space:nowrap!important;
+}
+@media(max-width:560px){
+  .cast-list-group .table-wrap th.cast-action-cell,
+  .cast-list-group .table-wrap td.cast-action-cell{min-width:82px!important}
+}
