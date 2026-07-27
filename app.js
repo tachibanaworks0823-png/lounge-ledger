@@ -335,7 +335,7 @@ function renderShifts(){
   const isExcludedShift=value=>/[×✕☓]/.test(String(value||''))||String(value||'').includes('当欠')||String(value||'').includes('無欠')||String(value||'').includes('休');
   const employmentDate=value=>String(value||'').replace(/\//g,'-');
   const isEmployedOn=(cast,date)=>{const joined=employmentDate(cast.joinedDate),leaving=employmentDate(cast.leavingDate);return (!joined||joined<=date)&&(!leaving||leaving>=date);};
-  const visibleCasts=sortedCasts().filter(c=>days.some(d=>isEmployedOn(c,d.date)));
+  const visibleCasts=sortedCasts().filter(c=>!c.hidden&&effectiveCastStatus(c)!=='退店');
   $('#shiftMonthTitle').textContent=year+'年 '+month+'月 シフト表';$('.shift-table').style.setProperty('--shift-days',count);
   $('#shiftTableHead').innerHTML='<tr><th class="shift-name-head">キャスト</th>'+days.map(d=>'<th data-shift-date="'+d.date+'" class="shift-day-head '+(d.shopClosed?'shop-closed ':([5,6].includes(d.weekdayIndex)?'friday-saturday ':''))+'">'+d.day+'<small>('+d.weekday+')</small>'+(d.holiday?'<em>'+d.holiday+'</em>':'')+'</th>').join('')+'</tr>';
   const counts='<tr class="shift-count-row"><th>出勤</th>'+days.map(d=>{const castCount=data.shifts.filter(x=>{const cast=data.casts.find(c=>c.id===x.castId);return x.date===d.date&&cast&&isEmployedOn(cast,d.date)&&!isExcludedShift(x.schedule);}).length,specialCount=data.shiftSpecials.filter(x=>x.date===d.date&&x.note).length;return '<td class="'+(d.shopClosed?'shop-closed ':'')+'">'+(d.shopClosed?'店休':castCount+'人 ('+specialCount+')')+'</td>';}).join('')+'</tr>';
