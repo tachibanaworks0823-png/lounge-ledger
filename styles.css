@@ -354,3 +354,12 @@ dialog textarea:focus{
   border-color:#d25288!important;
   box-shadow:0 0 0 3px rgba(210,82,136,.18)!important;
 }
+
+
+/* iPhone：画面上端から引っ張って更新 */
+.pull-refresh-indicator{display:none}
+@media(max-width:780px){
+  .pull-refresh-indicator{display:flex;position:fixed;z-index:50;top:-46px;left:50%;transform:translateX(-50%);align-items:center;justify-content:center;min-width:132px;height:36px;padding:0 14px;border:1px solid #78576a;border-radius:0 0 14px 14px;background:#211820f5;color:#f3d9e5;font-size:12px;font-weight:700;box-shadow:0 8px 20px #0008;transition:top .18s ease;pointer-events:none}
+  .pull-refresh-indicator.is-pulling{top:0}
+  .pull-refresh-indicator.is-ready{border-color:#e25591;color:#fff;background:#7d2452}
+}
