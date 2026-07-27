@@ -78,18 +78,39 @@ async function saveToCloud(){
   lastCloudScore=score;
   localStorage.setItem(storageKey,JSON.stringify(data));
 }
+const isDemoPayload=value=>JSON.stringify(snapshotData(value))===JSON.stringify(snapshotData(defaultData));
 async function loadFromCloud(){
   cloudLoaded=false;
+  // クラウド読込で上書きする前に、この端末に残る以前の保存内容を退避する。
+  const localSnapshot=snapshotData(data);
+  const localScore=dataScore(localSnapshot);
+  const usableLocal=!isDemoPayload(localSnapshot)&&localScore>0;
   const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle();
-  if(error){showAuthMessage('データベース設定を確認してください。');render();return;}
-  if(row?.payload){
-    data=normalizeData(row.payload);
-    lastCloudScore=dataScore(snapshotData(data));
+  if(error){showAuthMessage('データを読み込めませんでした。通信を確認して再読み込みしてください。');return false;}
+  const cloudSnapshot=row?.payload?normalizeData(row.payload):null;
+  const cloudScore=cloudSnapshot?dataScore(snapshotData(cloudSnapshot)):0;
+  // クラウドが空で、この端末に実データが残っている場合だけ端末側を正として復元する。
+  if(usableLocal && cloudScore===0){
+    data=normalizeData(localSnapshot);
+    lastCloudScore=localScore;
+    cloudLoaded=true;
+    await saveToCloud();
+    showAuthMessage('端末内の保存データから復元しました。');
+    render();
+    return true;
+  }
+  if(cloudSnapshot){
+    data=cloudSnapshot;
+    lastCloudScore=cloudScore;
     localStorage.setItem(storageKey,JSON.stringify(data));
     archiveLocalSnapshot(data);
+  }else{
+    lastCloudScore=0;
+    showAuthMessage('クラウドの保存データが見つかりません。データ保護のため保存は行われません。');
   }
   cloudLoaded=true;
   render();
+  return true;
 }
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const sortedCasts = () => data.casts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));
@@ -569,7 +590,11 @@ async function initializeAuth(){
     if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;$('#authScreen').classList.remove('hidden');}
   });
 }
-async function setSignedIn(user){cloudUser=user;$('#authScreen').classList.add('hidden');await loadFromCloud();}
+async function setSignedIn(user){
+  cloudUser=user;
+  const loaded=await loadFromCloud();
+  if(loaded) $('#authScreen').classList.add('hidden');
+}
 $('#authForm').addEventListener('submit',async e=>{e.preventDefault();showAuthMessage('ログインしています…');const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');});
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
