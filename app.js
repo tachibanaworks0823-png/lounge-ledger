@@ -3,7 +3,7 @@ window.SUPABASE_PUBLISHABLE_KEY ??= 'sb_publishable_dppPYAR_cf23aziHH4g_tA_eMvEG
 
 const storageKey = 'lounge-ledger-v1';
 const supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
-let cloudUser = null, saveTimer = null, cloudLoaded = false, lastCloudScore = 0;
+let cloudUser = null, saveTimer = null, cloudLoaded = false, lastCloudScore = 0, authLoading = false;
 const defaultData = {
   month: '2026-07',
   casts: [
@@ -585,15 +585,19 @@ async function initializeAuth(){
   if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(session) await setSignedIn(session.user);
-  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
-    if(session && cloudUser?.id!==session.user.id) await setSignedIn(session.user);
-    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;$('#authScreen').classList.remove('hidden');}
+  supabaseClient.auth.onAuthStateChange((_event,session)=>{
+    // 認証イベント内でDB読込を待つと認証処理が止まるため、次の処理に分離する。
+    if(session && cloudUser?.id!==session.user.id) setTimeout(()=>setSignedIn(session.user),0);
+    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
   });
 }
 async function setSignedIn(user){
-  cloudUser=user;
-  const loaded=await loadFromCloud();
-  if(loaded) $('#authScreen').classList.add('hidden');
+  if(authLoading || (cloudUser?.id===user.id && cloudLoaded)) return;
+  cloudUser=user; authLoading=true;
+  try{
+    const loaded=await loadFromCloud();
+    if(loaded) $('#authScreen').classList.add('hidden');
+  }finally{authLoading=false;}
 }
 $('#authForm').addEventListener('submit',async e=>{e.preventDefault();showAuthMessage('ログインしています…');const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');});
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
