@@ -617,6 +617,22 @@ function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||
 }
 ['addSlip','dashboardAddSlip'].forEach(id=>$('#'+id).onclick=e=>{e.preventDefault();openForm('slip')});
 $('#sortSlipsDate').onclick=()=>{slipDateSort=slipDateSort==='asc'?'desc':'asc';renderSlips()};$('#sortDailyInputDate').onclick=()=>{dailyInputDateSort=dailyInputDateSort==='asc'?'desc':'asc';renderDailyInputs()};$('#addDailyInput').onclick=()=>openForm('dailyBatch');$('#addExpense').onclick=()=>openForm('expense');$('#addShift').onclick=()=>openForm('shift');$('#addShiftBatch').onclick=()=>openForm('shiftBatch');$('#addShopClosed').onclick=()=>openForm('shopClosed');$('#addCast').onclick=()=>openForm('cast');$('#addCastProfile').onclick=()=>openForm('cast');
+form.addEventListener('click',event=>{
+  const saveButton=event.target.closest?.('.primary-button[value="save"]');
+  if(!saveButton||mode!=='cast')return;
+  event.preventDefault();
+  event.stopPropagation();
+  try{
+    const x=Object.fromEntries(new FormData(form));
+    const profile={name:x._castEntryX9||'',status:x.status||'在籍',joinedDate:x.joinedDate||'',leavingDate:x.leavingDate||'',lastName:x.castIdentityA||'',firstName:x.castIdentityB||'',birthday:x.birthday||'',age:x.age||'',phone:x.phone||'',emergencyContact:x.emergencyContact||'',emergencyRelation:x.emergencyRelation||'',address:x.address||'',building:x.building||'',memo:x.memo||'',termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate)};
+    const existing=data.casts.find(c=>c.id===editingCastId);
+    if(existing)Object.assign(existing,profile);else data.casts.push({id:'c-'+Date.now(),hourly:0,...profile});
+    save();render();dialog.close();
+  }catch(error){
+    console.error('Cast save failed',error);
+    alert('保存に失敗しました。もう一度お試しください。');
+  }
+});
 form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const x=Object.fromEntries(new FormData(form));if(mode==='slip'){
   const manualTotal=Number(x.total||0);
   const payments=[...fields.querySelectorAll('.slip-payment-row')].map(row=>({method:row.querySelector('.slip-payment-method').value,amount:Number(row.querySelector('.slip-payment-amount').value||0)})).filter(item=>item.method);
