@@ -106,8 +106,23 @@ async function loadFromCloud(){
   const localSnapshot=snapshotData(data);
   const localScore=dataScore(localSnapshot);
   const usableLocal=!isDemoPayload(localSnapshot)&&localScore>0;
-  const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle();
-  if(error){showAuthMessage('データを読み込めませんでした。通信を確認して再読み込みしてください。');return false;}
+  let result;
+  try{
+    result=await Promise.race([
+      supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle(),
+      new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),12000))
+    ]);
+  }catch(error){
+    console.error('Cloud load failed',error);
+    showAuthMessage('データ読込で通信エラーになりました。再度ログインしてください。');
+    return false;
+  }
+  if(result?.timeout){
+    showAuthMessage('データ読込に時間がかかっています。通信を確認して再度ログインしてください。');
+    return false;
+  }
+  const {data:row,error}=result;
+  if(error){showAuthMessage('データを読み込めませんでした。通信を確認して再度ログインしてください。');return false;}
   const cloudSnapshot=row?.payload?normalizeData(row.payload):null;
   const cloudScore=cloudSnapshot?dataScore(snapshotData(cloudSnapshot)):0;
   // クラウドが空で、この端末に実データが残っている場合だけ端末側を正として復元する。
@@ -618,15 +633,28 @@ async function setSignedIn(user){
   try{
     const loaded=await loadFromCloud();
     if(loaded) $('#authScreen').classList.add('hidden');
+  }catch(error){
+    console.error('Sign-in data setup failed',error);
+    showAuthMessage('ログイン後のデータ準備に失敗しました。もう一度お試しください。');
   }finally{authLoading=false;}
 }
 $('#authForm').addEventListener('submit',async e=>{
   e.preventDefault();
   showAuthMessage('ログインしています…');
-  const {data:signInResult,error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});
-  if(error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
-  // 認証通知を待たず、ログイン成功の返答を受けたらそのまま読み込む。
-  if(signInResult?.user) await setSignedIn(signInResult.user);
+  try{
+    const result=await Promise.race([
+      supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value}),
+      new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),12000))
+    ]);
+    if(result?.timeout){showAuthMessage('ログイン通信に時間がかかっています。通信を確認してもう一度お試しください。');return;}
+    const {data:signInResult,error}=result;
+    if(error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
+    // 認証通知を待たず、ログイン成功の返答を受けたらそのまま読み込む。
+    if(signInResult?.user) await setSignedIn(signInResult.user);
+  }catch(error){
+    console.error('Sign in failed',error);
+    showAuthMessage('ログイン通信でエラーになりました。通信を確認してもう一度お試しください。');
+  }
 });
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
