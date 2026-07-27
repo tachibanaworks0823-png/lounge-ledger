@@ -627,10 +627,12 @@ form.addEventListener('click',event=>{
     const profile={name:x._castEntryX9||'',status:x.status||'在籍',joinedDate:x.joinedDate||'',leavingDate:x.leavingDate||'',lastName:x.castIdentityA||'',firstName:x.castIdentityB||'',birthday:x.birthday||'',age:x.age||'',phone:x.phone||'',emergencyContact:x.emergencyContact||'',emergencyRelation:x.emergencyRelation||'',address:x.address||'',building:x.building||'',memo:x.memo||'',termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate)};
     const existing=data.casts.find(c=>c.id===editingCastId);
     if(existing)Object.assign(existing,profile);else data.casts.push({id:'c-'+Date.now(),hourly:0,...profile});
-    save();render();dialog.close();
+    save();
+    dialog.close();
+    try{render();}catch(renderError){console.error('Cast saved but rendering failed',renderError);window.setTimeout(()=>window.location.reload(),0);}
   }catch(error){
     console.error('Cast save failed',error);
-    alert('保存に失敗しました。もう一度お試しください。');
+    alert('保存に失敗しました。\n'+(error?.message||'もう一度お試しください。'));
   }
 });
 form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const x=Object.fromEntries(new FormData(form));if(mode==='slip'){
