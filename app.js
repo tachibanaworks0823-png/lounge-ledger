@@ -31,7 +31,28 @@ function normalizeData(source){
   return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,customerNameOrder:Array.isArray(value.settings?.customerNameOrder)?value.settings.customerNameOrder:defaultData.settings.customerNameOrder,paymentMethods:Array.isArray(value.settings?.paymentMethods)&&value.settings.paymentMethods.length?value.settings.paymentMethods.filter(item=>item&&item.name):defaultData.settings.paymentMethods,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
-const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
+const $ = s => document.querySelector(s);
+const pullRefreshIndicator=$('#pullRefreshIndicator');
+let pullStartY=0,pullStartX=0,pullDistance=0,pullingToRefresh=false;
+const canPullRefresh=()=>window.innerWidth<=780&&window.scrollY<=0&&!document.querySelector('dialog[open]')&&!$('#authScreen').classList.contains('hidden');
+document.addEventListener('touchstart',event=>{
+  if(event.touches.length!==1||window.scrollY>0||document.querySelector('dialog[open]')||!$('#authScreen').classList.contains('hidden')){pullingToRefresh=false;return;}
+  pullStartY=event.touches[0].clientY;pullStartX=event.touches[0].clientX;pullDistance=0;pullingToRefresh=true;
+},{passive:true});
+document.addEventListener('touchmove',event=>{
+  if(!pullingToRefresh||event.touches.length!==1)return;
+  const y=event.touches[0].clientY,x=event.touches[0].clientX,dy=y-pullStartY,dx=x-pullStartX;
+  if(dy<=0||Math.abs(dx)>Math.abs(dy)){pullingToRefresh=false;pullRefreshIndicator.classList.remove('is-pulling','is-ready');return;}
+  pullDistance=Math.min(dy,108);
+  if(pullDistance>8){event.preventDefault();pullRefreshIndicator.classList.add('is-pulling');pullRefreshIndicator.classList.toggle('is-ready',pullDistance>=72);pullRefreshIndicator.textContent=pullDistance>=72?'離して更新':'↓ 引っ張って更新';}
+},{passive:false});
+document.addEventListener('touchend',()=>{
+  if(!pullingToRefresh)return;
+  const shouldRefresh=pullDistance>=72;
+  pullingToRefresh=false;pullDistance=0;pullRefreshIndicator.classList.remove('is-ready');
+  if(shouldRefresh){pullRefreshIndicator.textContent='更新しています…';pullRefreshIndicator.classList.add('is-pulling');window.location.reload();}
+  else{pullRefreshIndicator.classList.remove('is-pulling');pullRefreshIndicator.textContent='↓ 更新する';}
+},{passive:true}); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
 const clonePayload=value=>JSON.parse(JSON.stringify(value));
 const snapshotData=value=>{const snapshot=clonePayload(value);delete snapshot._backups;return snapshot;};
 const dataScore=value=>{
