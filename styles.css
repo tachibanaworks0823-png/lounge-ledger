@@ -363,3 +363,35 @@ dialog textarea:focus{
   .pull-refresh-indicator.is-pulling{top:0}
   .pull-refresh-indicator.is-ready{border-color:#e25591;color:#fff;background:#7d2452}
 }
+
+/* Cast profile layout guard: keep every entry field aligned across desktop and iPhone */
+.form-fields.cast-profile-fields{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+}
+.form-fields.cast-profile-fields .field,
+.form-fields.cast-profile-fields .cast-contact-row{min-width:0}
+.form-fields.cast-profile-fields input,
+.form-fields.cast-profile-fields select,
+.form-fields.cast-profile-fields textarea{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+.form-fields.cast-profile-fields .age-field .cast-age{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  height:42px;
+}
+@media(max-width:560px){
+  .form-fields.cast-profile-fields{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  .form-fields.cast-profile-fields .cast-contact-row{
+    grid-template-columns:minmax(0,1.12fr) minmax(0,1.12fr) minmax(0,.66fr);
+    gap:6px;
+  }
+  .form-fields.cast-profile-fields .age-field .cast-age{height:40px}
+}
