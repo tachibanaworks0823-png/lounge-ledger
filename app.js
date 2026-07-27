@@ -623,6 +623,12 @@ async function initializeAuth(){
   if(session) await setSignedIn(session.user);
   supabaseClient.auth.onAuthStateChange((_event,session)=>{
     // 認証イベント内でDB読込を待つと認証処理が止まるため、次の処理に分離する。
+    if(_event==='PASSWORD_RECOVERY') setTimeout(async()=>{
+      const password=window.prompt('新しいパスワードを6文字以上で入力してください。');
+      if(!password)return;
+      const {error}=await supabaseClient.auth.updateUser({password});
+      alert(error?'パスワードを変更できませんでした。':'パスワードを変更しました。新しいパスワードでログインできます。');
+    },0);
     if(session && cloudUser?.id!==session.user.id) setTimeout(()=>setSignedIn(session.user),0);
     if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
   });
@@ -657,5 +663,14 @@ $('#authForm').addEventListener('submit',async e=>{
   }
 });
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
+$('#resetPasswordButton').onclick=async()=>{
+  const email=$('#authEmail').value.trim();
+  if(!email){showAuthMessage('メールアドレスを入力してから「パスワードを忘れた場合」を押してください。');return;}
+  showAuthMessage('再設定メールを送信しています…');
+  try{
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+    showAuthMessage(error?'再設定メールを送れませんでした。メールアドレスを確認してください。':'再設定メールを送信しました。メール内のリンクを開いてください。');
+  }catch(error){showAuthMessage('再設定メールを送れませんでした。通信を確認してください。');}
+};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
 initializeAuth();
