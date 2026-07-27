@@ -620,7 +620,14 @@ async function setSignedIn(user){
     if(loaded) $('#authScreen').classList.add('hidden');
   }finally{authLoading=false;}
 }
-$('#authForm').addEventListener('submit',async e=>{e.preventDefault();showAuthMessage('ログインしています…');const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');});
+$('#authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  showAuthMessage('ログインしています…');
+  const {data:signInResult,error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});
+  if(error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
+  // 認証通知を待たず、ログイン成功の返答を受けたらそのまま読み込む。
+  if(signInResult?.user) await setSignedIn(signInResult.user);
+});
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
 initializeAuth();
