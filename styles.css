@@ -329,3 +329,7 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 /* 伝票・支出：画面ごとの操作ヘッダーを固定 */
 #slips .section-head,#expenses .section-head{position:sticky;top:107px;z-index:2;padding:12px 0;background:linear-gradient(90deg,#151218f7,#191018f4)!important;box-shadow:0 9px 18px #05040644}@media(max-width:560px){#slips .section-head,#expenses .section-head{top:78px;padding:10px 0}}
 .daily-slip-filter{display:flex;align-items:center;gap:7px;color:#d9c4ce;font-size:12px;font-weight:700}.daily-slip-filter input{width:145px!important;padding:8px!important;color-scheme:dark}
+
+
+/* 支出入力：プルダウン横の追加操作 */
+.expense-select-field>span{display:flex;align-items:center;justify-content:space-between}.expense-option-name{display:grid;gap:8px;color:#e5ced9;font-size:13px;font-weight:700}.expense-option-name input{width:100%}
