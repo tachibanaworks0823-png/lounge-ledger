@@ -75,7 +75,7 @@ function calcCast(cast){
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
-function render(){ updateMonthUi();renderDashboard();renderUnsettledSlips();renderSlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
+function render(){ updateMonthUi();renderDashboard();renderUnsettledSlips();renderSlips();renderDailySlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
@@ -136,6 +136,14 @@ function renderUnsettledSlips(){
   const slips=data.slips.filter(isUnsettledSlip).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.id||'').localeCompare(String(a.id||''),'ja',{numeric:true}));
   $('#unsettledSlipSummary').textContent='未収あり '+slips.length+'件（すべての年度）';
   $('#unsettledSlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(8,'未収伝票はありません');
+}
+function renderDailySlips(){
+  const [year,month]=data.month.split('-');
+  if(!window.slipDayFilter||!window.slipDayFilter.startsWith(data.month+'-'))window.slipDayFilter=data.month+'-01';
+  const input=$('#slipDayFilter');if(input){input.value=window.slipDayFilter;input.onchange=e=>{window.slipDayFilter=e.target.value;renderDailySlips();};}
+  const slips=data.slips.filter(x=>x.date===window.slipDayFilter).slice().sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
+  $('#dailySlipSummary').textContent=(window.slipDayFilter?dateJP(window.slipDayFilter):year+'年'+Number(month)+'月')+'・'+slips.length+'件';
+  $('#dailySlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(8,'この日の伝票はありません');
 }
 function renderSlips(){
   const direction=slipDateSort==='asc'?1:-1;
@@ -212,7 +220,7 @@ function renderShifts(){
   else{
     const selectedId=scheduleCasts.some(c=>c.id===window.shiftSummaryCastId)?window.shiftSummaryCastId:scheduleCasts[0].id;
     const currentCast=scheduleCasts.find(c=>c.id===selectedId);
-    $('#shiftCastSummary').innerHTML='<label class="shift-cast-picker">送るキャストを選択<select id="shiftSummaryCast">'+scheduleCasts.map(c=>'<option value="'+c.id+'"'+(c.id===selectedId?' selected':'')+'>'+c.name+'</option>').join('')+'</select></label><article class="cast-shift-card"><h3>'+currentCast.name+'</h3>'+periodGrid(currentCast,'前期　1日〜16日',days.slice(0,16))+periodGrid(currentCast,'後期　17日〜末日',days.slice(16))+'</article>';
+    $('#shiftCastSummary').innerHTML='<label class="shift-cast-picker">送るキャストを選択<select id="shiftSummaryCast">'+scheduleCasts.map(c=>'<option value="'+c.id+'"'+(c.id===selectedId?' selected':'')+'>'+c.name+'</option>').join('')+'</select></label><article class="cast-shift-card"><h3>'+currentCast.name+'</h3>'+periodGrid(currentCast,'前期　1日〜15日',days.slice(0,15))+periodGrid(currentCast,'後期　16日〜末日',days.slice(15))+'</article>';
     $('#shiftSummaryCast').onchange=e=>{window.shiftSummaryCastId=e.target.value;renderShifts();};
   }
 }
@@ -433,7 +441,7 @@ window.hideCustomerHistoryName=encoded=>{
   renderCustomerHistoryList();
 };
 function payeeOptions(){return (data.settings.payeeHistory||[]).map(name=>'<option value="'+String(name).replace(/"/g,'&quot;')+'"></option>').join('');}
-function expenseHistoryManager(){const chips=(items,type)=>items.map((name,index)=>'<button type="button" class="history-chip" data-history-type="'+type+'" data-history-index="'+index+'">'+name+' <b>×</b></button>').join('')||'<small>まだ履歴はありません</small>';return '<div class="expense-history full"><p>過去の履歴 <small>×で個別に削除できます</small></p><div class="history-group"><span>カテゴリ</span><div>'+chips(data.settings.categories,'category')+'</div></div><div class="history-group"><span>会社名・支払先</span><div>'+chips(data.settings.payeeHistory||[],'payee')+'</div></div></div>';}
+function expenseHistoryManager(){const chips=(items,type)=>items.map((name,index)=>'<button type="button" class="history-chip" data-history-type="'+type+'" data-history-index="'+index+'">'+name+' <b>×</b></button>').join('')||'<small>まだ履歴はありません</small>';return '<details class="customer-history expense-history full"><summary>履歴を管理</summary><div class="expense-history-body"><div class="history-group"><span>カテゴリ</span><div>'+chips(data.settings.categories,'category')+'</div></div><div class="history-group"><span>会社名・支払先</span><div>'+chips(data.settings.payeeHistory||[],'payee')+'</div></div></div></details>';}
 function bindExpenseHistoryButtons(){fields.querySelectorAll('[data-history-type]').forEach(button=>button.onclick=()=>{const type=button.dataset.historyType,index=Number(button.dataset.historyIndex);const list=type==='category'?data.settings.categories:data.settings.payeeHistory;list.splice(index,1);save();openForm('expense');});}
 function renderShiftBatchRows(){
   const castId=fields.querySelector('[name="castId"]')?.value;
@@ -449,7 +457,7 @@ function renderShiftBatchRows(){
     return '<label class="shift-batch-row" data-date="'+date+'"><b>'+month+'/'+day+'（'+weekdays[new Date(date+'T12:00:00').getDay()]+'）</b><input class="shift-batch-value" value="'+String(value).replace(/"/g,'&quot;')+'" placeholder="例：8、8-12.5、×、休み"></label>';
   }).join('');
 }
-function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||type==='application')?'off':'on';fields.classList.toggle('cast-profile-fields',type==='cast');editingCastId=type==='cast'?castId:null;editingDailyInputId=type==='dailyInput'?castId:null;editingApplicationId=type==='application'?castId:null;editingSlipIndex=type==='slip'&&castId!==null?Number(castId):null;form.querySelector('[value="save"]').hidden=type==='dailyDetails';$('#deleteCastButton').hidden=!(type==='cast'&&editingCastId);const castVisibilityButton=$('#toggleCastVisibilityButton');castVisibilityButton.hidden=!(type==='cast'&&editingCastId);if(type==='cast'&&editingCastId){const cast=data.casts.find(c=>c.id===editingCastId);castVisibilityButton.textContent=cast?.hidden?'表示に戻す':'非表示';}$('#deleteApplicationButton').hidden=!(type==='application'&&editingApplicationId);$('#deleteSlipButton').hidden=!(type==='slip'&&editingSlipIndex!==null);$('#dialogKicker').textContent=type==='slip'?'':type==='expense'?'EXPENSE':(type==='shift'||type==='shiftBatch'||type==='shopClosed')?'SHIFT':'CAST';
+function openForm(type,castId=null){mode=type;form.autocomplete=(type==='cast'||type==='application')?'off':'on';fields.classList.toggle('cast-profile-fields',type==='cast');editingCastId=type==='cast'?castId:null;editingDailyInputId=type==='dailyInput'?castId:null;editingApplicationId=type==='application'?castId:null;editingSlipIndex=type==='slip'&&castId!==null?Number(castId):null;form.querySelector('[value="save"]').hidden=type==='dailyDetails';$('#deleteCastButton').hidden=!(type==='cast'&&editingCastId);const castVisibilityButton=$('#toggleCastVisibilityButton');castVisibilityButton.hidden=!(type==='cast'&&editingCastId);if(type==='cast'&&editingCastId){const cast=data.casts.find(c=>c.id===editingCastId);castVisibilityButton.textContent=cast?.hidden?'表示に戻す':'非表示';}$('#deleteApplicationButton').hidden=!(type==='application'&&editingApplicationId);$('#deleteSlipButton').hidden=!(type==='slip'&&editingSlipIndex!==null);$('#dialogKicker').textContent=type==='slip'||type==='expense'?'':(type==='shift'||type==='shiftBatch'||type==='shopClosed')?'SHIFT':'CAST';
  if(type==='slip'){
    const slip=editingSlipIndex!==null?data.slips[editingSlipIndex]:null;
    $('#dialogTitle').textContent=slip?'伝票を編集':'伝票を入力';
