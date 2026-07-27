@@ -621,56 +621,24 @@ async function initializeAuth(){
   if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(session) await setSignedIn(session.user);
-  supabaseClient.auth.onAuthStateChange((_event,session)=>{
-    // 認証イベント内でDB読込を待つと認証処理が止まるため、次の処理に分離する。
-    if(_event==='PASSWORD_RECOVERY') setTimeout(async()=>{
-      const password=window.prompt('新しいパスワードを6文字以上で入力してください。');
-      if(!password)return;
-      const {error}=await supabaseClient.auth.updateUser({password});
-      alert(error?'パスワードを変更できませんでした。':'パスワードを変更しました。新しいパスワードでログインできます。');
-    },0);
-    if(session && cloudUser?.id!==session.user.id) setTimeout(()=>setSignedIn(session.user),0);
-    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
+  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
+    if(session&&!cloudUser) await setSignedIn(session.user);
+    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;$('#authScreen').classList.remove('hidden');}
   });
 }
 async function setSignedIn(user){
-  if(authLoading || (cloudUser?.id===user.id && cloudLoaded)) return;
-  cloudUser=user; authLoading=true;
-  try{
-    const loaded=await loadFromCloud();
-    if(loaded) $('#authScreen').classList.add('hidden');
-  }catch(error){
-    console.error('Sign-in data setup failed',error);
-    showAuthMessage('ログイン後のデータ準備に失敗しました。もう一度お試しください。');
-  }finally{authLoading=false;}
+  cloudUser=user;
+  $('#authScreen').classList.add('hidden');
+  await loadFromCloud();
 }
 $('#authForm').addEventListener('submit',async e=>{
   e.preventDefault();
   showAuthMessage('ログインしています…');
   try{
-    const result=await Promise.race([
-      supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value}),
-      new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),12000))
-    ]);
-    if(result?.timeout){showAuthMessage('ログイン通信に時間がかかっています。通信を確認してもう一度お試しください。');return;}
-    const {data:signInResult,error}=result;
-    if(error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
-    // 認証通知を待たず、ログイン成功の返答を受けたらそのまま読み込む。
-    if(signInResult?.user) await setSignedIn(signInResult.user);
-  }catch(error){
-    console.error('Sign in failed',error);
-    showAuthMessage('ログイン通信でエラーになりました。通信を確認してもう一度お試しください。');
-  }
+    const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});
+    if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');
+  }catch(error){showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');}
 });
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
-$('#resetPasswordButton').onclick=async()=>{
-  const email=$('#authEmail').value.trim();
-  if(!email){showAuthMessage('メールアドレスを入力してから「パスワードを忘れた場合」を押してください。');return;}
-  showAuthMessage('再設定メールを送信しています…');
-  try{
-    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
-    showAuthMessage(error?'再設定メールを送れませんでした。メールアドレスを確認してください。':'再設定メールを送信しました。メール内のリンクを開いてください。');
-  }catch(error){showAuthMessage('再設定メールを送れませんでした。通信を確認してください。');}
-};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
 initializeAuth();
