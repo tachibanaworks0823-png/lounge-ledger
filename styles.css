@@ -424,3 +424,24 @@ dialog textarea:focus{
     appearance:none;
   }
 }
+
+/* Keep the cast edit action visible at the right edge while the list scrolls */
+.cast-list-group .table-wrap th:last-child,
+.cast-list-group .table-wrap td:last-child{
+  position:-webkit-sticky;
+  position:sticky;
+  right:0;
+  z-index:2;
+  min-width:78px;
+  text-align:right;
+  background:#211b20!important;
+  box-shadow:-2px 0 0 #4a3c46;
+}
+.cast-list-group .table-wrap th:last-child{
+  z-index:3;
+  background:#2b2229!important;
+}
+@media(max-width:560px){
+  .cast-list-group .table-wrap th:last-child,
+  .cast-list-group .table-wrap td:last-child{min-width:72px}
+}
