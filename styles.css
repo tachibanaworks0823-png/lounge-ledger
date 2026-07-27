@@ -446,17 +446,3 @@ dialog textarea:focus{
   .cast-list-group .table-wrap td:last-child{min-width:72px}
 }
 
-/* Fallback edit control inside the fixed cast-name column */
-.cast-inline-edit{
-  display:block;
-  margin-top:5px;
-  padding:0;
-  border:0;
-  background:transparent;
-  color:#ed73a8;
-  font:700 10px inherit;
-  line-height:1.2;
-  white-space:nowrap;
-  cursor:pointer;
-}
-.cast-inline-edit:hover{color:#ffd4e4;text-decoration:underline}
