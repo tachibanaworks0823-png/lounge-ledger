@@ -3,7 +3,7 @@ window.SUPABASE_PUBLISHABLE_KEY ??= 'sb_publishable_dppPYAR_cf23aziHH4g_tA_eMvEG
 
 const storageKey = 'lounge-ledger-v1';
 const supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
-let cloudUser = null, saveTimer = null, cloudLoaded = false;
+let cloudUser = null, saveTimer = null, cloudLoaded = false, lastCloudScore = 0;
 const defaultData = {
   month: '2026-07',
   casts: [
@@ -32,21 +32,62 @@ function normalizeData(source){
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
+const clonePayload=value=>JSON.parse(JSON.stringify(value));
+const snapshotData=value=>{const snapshot=clonePayload(value);delete snapshot._backups;return snapshot;};
+const dataScore=value=>{
+  const v=value||{};
+  return (v.casts?.length||0)+(v.slips?.length||0)*3+(v.expenses?.length||0)*2+
+    (v.dailyInputs?.length||0)*2+(v.shifts?.length||0)+(v.applications?.length||0);
+};
+const localBackupKey=()=>storageKey+'-backups-'+(cloudUser?.id||'guest');
+const archiveLocalSnapshot=value=>{
+  try{
+    const snapshot=snapshotData(value), key=localBackupKey();
+    const history=JSON.parse(localStorage.getItem(key)||'[]');
+    const latest=history[0]?.payload;
+    if(!latest||JSON.stringify(latest)!==JSON.stringify(snapshot)){
+      history.unshift({savedAt:new Date().toISOString(),payload:snapshot});
+      localStorage.setItem(key,JSON.stringify(history.slice(0,20)));
+    }
+  }catch(error){console.error('Local backup failed',error);}
+};
 const save = () => {
   localStorage.setItem(storageKey, JSON.stringify(data));
+  archiveLocalSnapshot(data);
   // クラウドの読込完了前に初期データで上書きしないため、保存は読込後だけに限定する。
   if(cloudUser && cloudLoaded){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToCloud,500); }
 };
 async function saveToCloud(){
   if(!cloudUser || !cloudLoaded) return;
-  const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload:data,updated_at:new Date().toISOString()});
-  if(error) console.error('Cloud save failed',error);
+  const snapshot=snapshotData(data), score=dataScore(snapshot);
+  // 読込み済みのデータが突然空になった場合は、誤上書きを止める。
+  if(lastCloudScore>0 && score===0){
+    console.error('Cloud save stopped: unexpected empty payload');
+    showAuthMessage('データ保護のため、空のデータ保存を停止しました。再読み込みしてください。');
+    return;
+  }
+  const previous=Array.isArray(data._backups)?data._backups:[];
+  const latest=previous[0]?.payload;
+  const backups=(!latest||JSON.stringify(latest)!==JSON.stringify(snapshot))
+    ? [{savedAt:new Date().toISOString(),payload:snapshot},...previous].slice(0,12)
+    : previous.slice(0,12);
+  const payload={...snapshot,_backups:backups};
+  const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload,updated_at:new Date().toISOString()});
+  if(error){console.error('Cloud save failed',error);return;}
+  data._backups=backups;
+  lastCloudScore=score;
+  localStorage.setItem(storageKey,JSON.stringify(data));
 }
 async function loadFromCloud(){
   cloudLoaded=false;
   const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle();
   if(error){showAuthMessage('データベース設定を確認してください。');render();return;}
-  if(row?.payload){data=normalizeData(row.payload);localStorage.setItem(storageKey,JSON.stringify(data));}
+  if(row?.payload){
+    data=normalizeData(row.payload);
+    lastCloudScore=dataScore(snapshotData(data));
+    localStorage.setItem(storageKey,JSON.stringify(data));
+    archiveLocalSnapshot(data);
+  }
   cloudLoaded=true;
   render();
 }
@@ -525,7 +566,7 @@ async function initializeAuth(){
   if(session) await setSignedIn(session.user);
   supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
     if(session && cloudUser?.id!==session.user.id) await setSignedIn(session.user);
-    if(!session){cloudUser=null;cloudLoaded=false;$('#authScreen').classList.remove('hidden');}
+    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;$('#authScreen').classList.remove('hidden');}
   });
 }
 async function setSignedIn(user){cloudUser=user;$('#authScreen').classList.add('hidden');await loadFromCloud();}
