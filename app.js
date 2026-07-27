@@ -123,8 +123,24 @@ async function loadFromCloud(){
   }
   const {data:row,error}=result;
   if(error){showAuthMessage('データを読み込めませんでした。通信を確認して再度ログインしてください。');return false;}
-  const cloudSnapshot=row?.payload?normalizeData(row.payload):null;
+  const rawPayload=row?.payload;
+  const cloudSnapshot=rawPayload?normalizeData(rawPayload):null;
   const cloudScore=cloudSnapshot?dataScore(snapshotData(cloudSnapshot)):0;
+  // 保存済みの世代バックアップから、現在よりキャスト情報が多い状態を探す。
+  const recoveryCandidate=(Array.isArray(rawPayload?._backups)?rawPayload._backups:[])
+    .map(item=>item?.payload?normalizeData(item.payload):null)
+    .filter(Boolean)
+    .sort((left,right)=>dataScore(snapshotData(right))-dataScore(snapshotData(left)))
+    .find(item=>(item.casts?.length||0)>(cloudSnapshot?.casts?.length||0));
+  if(recoveryCandidate){
+    data=normalizeData({...recoveryCandidate,_backups:rawPayload._backups});
+    lastCloudScore=dataScore(snapshotData(data));
+    cloudLoaded=true;
+    await saveToCloud();
+    showAuthMessage('保存済みバックアップからキャスト情報を復元しました。');
+    render();
+    return true;
+  }
   // クラウドが空で、この端末に実データが残っている場合だけ端末側を正として復元する。
   if(usableLocal && cloudScore===0){
     data=normalizeData(localSnapshot);
