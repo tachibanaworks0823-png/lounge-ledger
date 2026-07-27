@@ -419,7 +419,7 @@ $('#cancelPaymentMethodDialog').onclick=closePaymentMethodDialog;
 $('#closeCustomerHistoryDialog').onclick=()=>{if(typeof customerHistoryDialog.close==='function')customerHistoryDialog.close();else customerHistoryDialog.removeAttribute('open');};
 paymentMethodForm.addEventListener('submit',event=>{event.preventDefault();const value=Object.fromEntries(new FormData(paymentMethodForm)),name=(value.name||'').trim();if(!name){return;}const category=value.category||'card';if(!paymentMethods().some(item=>item.name===name))data.settings.paymentMethods.push({name,category});save();refreshPaymentMethodSelect(name);paymentMethodForm.reset();renderPaymentMethodList();});
 document.querySelectorAll('[data-close-dialog]').forEach(button=>button.onclick=closeEntryDialog);
-const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input required name="${name}" type="${type}"></label>`;
+const field=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input name="${name}" type="${type}"></label>`;
 const optionalField=(label,name,type='text',cls='')=>`<label class="field ${cls}">${label}<input name="${name}" type="${type}"></label>`;
 const timeField=(label,name)=>{
   if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches)return '<label class="field">'+label+'<input name="'+name+'" type="time" step="1800"></label>';
