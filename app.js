@@ -3,7 +3,7 @@ window.SUPABASE_PUBLISHABLE_KEY ??= 'sb_publishable_dppPYAR_cf23aziHH4g_tA_eMvEG
 
 const storageKey = 'lounge-ledger-v1';
 const supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
-let cloudUser = null, saveTimer = null;
+let cloudUser = null, saveTimer = null, cloudLoaded = false;
 const defaultData = {
   month: '2026-07',
   casts: [
@@ -32,9 +32,24 @@ function normalizeData(source){
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
-const save = () => { localStorage.setItem(storageKey, JSON.stringify(data)); if(cloudUser){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToCloud,500); } };
-async function saveToCloud(){ const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload:data,updated_at:new Date().toISOString()}); if(error) console.error('Cloud save failed',error); }
-async function loadFromCloud(){ const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle(); if(error){showAuthMessage('データベース設定を確認してください。');return;} if(row?.payload){data=normalizeData(row.payload);localStorage.setItem(storageKey,JSON.stringify(data));} render(); }
+const save = () => {
+  localStorage.setItem(storageKey, JSON.stringify(data));
+  // クラウドの読込完了前に初期データで上書きしないため、保存は読込後だけに限定する。
+  if(cloudUser && cloudLoaded){ clearTimeout(saveTimer); saveTimer=setTimeout(saveToCloud,500); }
+};
+async function saveToCloud(){
+  if(!cloudUser || !cloudLoaded) return;
+  const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload:data,updated_at:new Date().toISOString()});
+  if(error) console.error('Cloud save failed',error);
+}
+async function loadFromCloud(){
+  cloudLoaded=false;
+  const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle();
+  if(error){showAuthMessage('データベース設定を確認してください。');render();return;}
+  if(row?.payload){data=normalizeData(row.payload);localStorage.setItem(storageKey,JSON.stringify(data));}
+  cloudLoaded=true;
+  render();
+}
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const sortedCasts = () => data.casts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));
 const dateJP = d => new Date(d+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
@@ -508,7 +523,10 @@ async function initializeAuth(){
   if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(session) await setSignedIn(session.user);
-  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{if(session&&!cloudUser) await setSignedIn(session.user);if(!session){cloudUser=null;$('#authScreen').classList.remove('hidden');}});
+  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
+    if(session && cloudUser?.id!==session.user.id) await setSignedIn(session.user);
+    if(!session){cloudUser=null;cloudLoaded=false;$('#authScreen').classList.remove('hidden');}
+  });
 }
 async function setSignedIn(user){cloudUser=user;$('#authScreen').classList.add('hidden');await loadFromCloud();}
 $('#authForm').addEventListener('submit',async e=>{e.preventDefault();showAuthMessage('ログインしています…');const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');});
