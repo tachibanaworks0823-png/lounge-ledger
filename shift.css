@@ -153,3 +153,7 @@
 @media(max-width:560px){
   input,select,textarea{font-size:16px!important;-webkit-text-size-adjust:100%}
 }
+
+
+/* iPhone：シフト入力時も自動拡大を確実に防止 */
+@media(max-width:560px){dialog input,dialog select,dialog textarea,.batch-time select{font-size:16px!important;-webkit-text-size-adjust:100%!important}}
