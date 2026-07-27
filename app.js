@@ -204,7 +204,15 @@ function calcCast(cast){
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>isSelectedMonth(x.date)).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
-function render(){ updateMonthUi();renderDashboard();renderUnsettledSlips();renderSlips();renderDailySlips();renderDailyInputs();renderCasts();renderCastManagement();renderApplications();renderShifts();renderExpenses();renderSettings(); }
+function render(){
+  const renderTasks=[
+    ['月選択',updateMonthUi],['ダッシュボード',renderDashboard],['未収伝票',renderUnsettledSlips],
+    ['伝票一覧',renderSlips],['日別伝票',renderDailySlips],['日別打込み',renderDailyInputs],
+    ['女子給',renderCasts],['キャスト管理',renderCastManagement],['応募',renderApplications],
+    ['シフト',renderShifts],['支出',renderExpenses],['計算設定',renderSettings]
+  ];
+  renderTasks.forEach(([name,task])=>{try{task();}catch(error){console.error('画面描画エラー: '+name,error);}});
+}
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
   const count=new Date(year,month,0).getDate();
