@@ -333,3 +333,24 @@ body{background-image:radial-gradient(900px 640px at -12% 4%,#26364b55 0%,transp
 
 /* 支出入力：プルダウン横の追加操作 */
 .expense-select-field>span{display:flex;align-items:center;justify-content:space-between}.expense-option-name{display:grid;gap:8px;color:#e5ced9;font-size:13px;font-weight:700}.expense-option-name input{width:100%}
+
+/* 全ダイアログの入力枠を共通仕様に統一 */
+:root{--form-control-border:1px solid #765869;--form-control-radius:9px;--form-control-bg:#1a161a;--form-control-height:44px}
+dialog input:not([type="checkbox"]):not([type="radio"]),
+dialog select,
+dialog textarea{
+  box-sizing:border-box!important;
+  border:var(--form-control-border)!important;
+  border-radius:var(--form-control-radius)!important;
+  background:var(--form-control-bg)!important;
+  color:#fff!important;
+}
+dialog input:not([type="checkbox"]):not([type="radio"]),
+dialog select{min-height:var(--form-control-height)!important}
+dialog input:not([type="checkbox"]):not([type="radio"]):focus,
+dialog select:focus,
+dialog textarea:focus{
+  outline:0!important;
+  border-color:#d25288!important;
+  box-shadow:0 0 0 3px rgba(210,82,136,.18)!important;
+}
