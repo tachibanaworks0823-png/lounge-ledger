@@ -395,3 +395,18 @@ dialog textarea:focus{
   }
   .form-fields.cast-profile-fields .age-field .cast-age{height:40px}
 }
+
+/* Mobile dialog field alignment: every input/select uses the same usable width */
+@media(max-width:560px){
+  #entryDialog .form-fields{width:100%;box-sizing:border-box}
+  #entryDialog .form-fields>.field{width:100%;min-width:0}
+  #entryDialog .form-fields>.field>input,
+  #entryDialog .form-fields>.field>select,
+  #entryDialog .form-fields>.field>textarea{
+    width:100%!important;
+    min-width:0;
+    max-width:none;
+    box-sizing:border-box;
+  }
+  #entryDialog .field:has(.field-option-add){min-width:0}
+}
