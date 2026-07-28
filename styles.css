@@ -580,3 +580,17 @@ dialog textarea:focus{
 #expenseOptionList .payment-method-row span{min-width:0}
 #expenseOptionList .expense-option-hidden{color:#ff829f!important;font-size:11px!important;font-weight:700!important}
 #expenseOptionList .payment-method-row .expense-option-visibility{width:48px!important;font-size:10px!important;white-space:nowrap!important}
+
+
+/* iPhone: keep the expense date control the same size as other input fields. */
+@media(max-width:560px){
+  #entryDialog .form-grid .field input[name="date"][type="date"]{
+    box-sizing:border-box!important;
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:46px!important;
+    padding:0 12px!important;
+  }
+}
