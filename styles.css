@@ -649,3 +649,6 @@ dialog textarea:focus{
 #expenseSummary .expense-total-card:hover,#expenseSummary .expense-category-item:hover{border-color:#bd5d8b!important;background:#34202d!important;transform:translateY(-1px)}
 #expenseSummary .expense-total-card.is-active,#expenseSummary .expense-category-item.is-active{border-color:#ed6ca4!important;box-shadow:0 0 0 1px #ed6ca466,0 8px 18px #0004}
 #expenseSummary .expense-category-item.is-active span,#expenseSummary .expense-category-item.is-active b{color:#fff!important}
+
+/* 未収伝票の領収証欄も行全体と同じ色に統一 */
+#slipTable tr.unsettled-slip td:nth-child(6),#unsettledSlipTable tr.unsettled-slip td:nth-child(6){background:#641c36!important;background-image:none!important}
