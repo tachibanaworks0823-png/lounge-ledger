@@ -499,3 +499,11 @@ dialog textarea:focus{
   z-index:auto!important;
   box-shadow:none!important;
 }
+
+
+/* Keep application-list notes within their cells */
+.application-list-group .table-wrap table{table-layout:fixed}
+.application-list-group .table-wrap th,
+.application-list-group .table-wrap td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.application-list-group .table-wrap th:last-child,
+.application-list-group .table-wrap td:last-child{width:230px;max-width:230px}
