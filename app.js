@@ -316,8 +316,9 @@ function renderUnsettledSlips(){
 function renderDailySlips(){
   const [year,month]=data.month.split('-');
   if(!window.slipDayFilter||!window.slipDayFilter.startsWith(data.month+'-'))window.slipDayFilter=data.month+'-01';
-  const input=$('#slipDayFilter');if(input){input.value=window.slipDayFilter;input.onchange=e=>{window.slipDayFilter=e.target.value;renderDailySlips();};}
-  const slips=data.slips.filter(x=>slipSalesPostingDate(x)===window.slipDayFilter).slice().sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
+  const input=$('#slipDayFilter');if(input){input.value=window.slipDayFilter;const update=event=>{window.slipDayFilter=event.target.value;renderDailySlips();};input.onchange=update;input.oninput=update;}
+  const selectedDate=dateKey(window.slipDayFilter);
+  const slips=data.slips.filter(slip=>dateKey(slip.receivedDate||slip.date)===selectedDate).slice().sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
   $('#dailySlipSummary').textContent=(window.slipDayFilter?dateJP(window.slipDayFilter):year+'年'+Number(month)+'月')+'・'+slips.length+'件';
   $('#dailySlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(8,'この日の伝票はありません');
 }
