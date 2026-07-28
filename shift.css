@@ -157,3 +157,19 @@
 
 /* iPhone：シフト入力時も自動拡大を確実に防止 */
 @media(max-width:560px){dialog input,dialog select,dialog textarea,.batch-time select{font-size:16px!important;-webkit-text-size-adjust:100%!important}}
+
+
+/* Keep the complete left column fixed while the monthly shift table scrolls. */
+.shift-table tr > :first-child{
+  position:sticky!important;
+  left:0!important;
+  z-index:5!important;
+  box-shadow:2px 0 0 #5a4853!important;
+}
+.shift-table thead tr > :first-child{
+  z-index:7!important;
+}
+.shift-table .shift-count-row > :first-child,
+.shift-table .shift-special-row > :first-child{
+  z-index:6!important;
+}
