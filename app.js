@@ -764,7 +764,7 @@ form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.pre
   const card=payments.reduce((sum,item)=>sum+(paymentMethodCategory(item.method)==='card'?Number(item.amount||0):0),0);
   const receivable=payments.reduce((sum,item)=>sum+(paymentMethodCategory(item.method)==='receivable'?Number(item.amount||0):0),0);
   const payment=payments.length>1?'併用':(payments[0]?.method||'');
-  if(receivable>0&&!x.receivedDate&&!window.confirm('未収 '+yen(receivable)+' が残っています。\n入金完了日を登録せず、このまま未収として保存しますか？'))return;
+  if(receivable>0&&x.receivedDate&&!window.confirm('入金完了日が '+x.receivedDate+' に登録されていますが、未収 '+yen(receivable)+' が残っています。\n決済方法の変更忘れがないか確認してください。このまま保存しますか？'))return;
   const id=[...fields.querySelectorAll('.slip-id-input')].map(input=>input.value.trim()).filter(Boolean).join(' / ');
   const record={id,date:x.date,receivedDate:x.receivedDate||'',customerName:x.customerName,total,card,receivable,payment,payments,receipt:Boolean(fields.querySelector('[name="receipt"]')?.checked),groups:1,guests:+x.guests,casts:[]};
   if(editingSlipIndex!==null&&data.slips[editingSlipIndex])Object.assign(data.slips[editingSlipIndex],record);else data.slips.push(record)
