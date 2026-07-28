@@ -609,7 +609,7 @@ function slipPaymentCashOnly(slip){
 }
 function hasReceivablePayment(slip){return Number(slip?.receivable||0)>0||slipPaymentLines(slip).some(item=>item.amount>0&&paymentMethodCategory(item.method)==='receivable');}
 function isUnsettledSlip(slip){return hasReceivablePayment(slip)&&!slip?.receivedDate;}
-function slipSalesPostingDate(slip){return hasReceivablePayment(slip)&&slip?.receivedDate?slip.receivedDate:slip?.date;}
+function slipSalesPostingDate(slip){return slip?.receivedDate||slip?.date;}
 function slipPaymentRow(line={},canRemove=false){
   const selected=String(line.method||'');
   return '<div class="slip-payment-row"><select class="slip-payment-method"><option value="">選択してください</option>'+paymentMethodOptions()+'</select><input class="slip-payment-amount" type="number" inputmode="numeric" min="0" placeholder="金額" value="'+(line.amount||'')+'">'+(canRemove?'<button type="button" class="slip-payment-remove" onclick="removeSlipPaymentRow(this)" aria-label="この決済を削除">×</button>':'<span></span>')+'</div>';
