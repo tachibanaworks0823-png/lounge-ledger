@@ -490,3 +490,12 @@ dialog textarea:focus{
   z-index:auto!important;
   box-shadow:none!important;
 }
+
+
+/* Cast list edit actions remain in the table flow; do not float over the page */
+.cast-list-group .table-wrap td.cast-action-cell{
+  position:static!important;
+  right:auto!important;
+  z-index:auto!important;
+  box-shadow:none!important;
+}
