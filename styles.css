@@ -643,3 +643,11 @@ dialog textarea:focus{
 #expenseSummary .expense-category-item b{flex:none;color:#fff;font-size:12px}
 #expenseSummary .expense-category-item.is-zero{opacity:.45}
 @media(max-width:700px){#expenseSummary{grid-template-columns:1fr!important}#expenseSummary .expense-total-card{min-height:82px}#expenseSummary .expense-category-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* 支出カテゴリのクリック絞り込み */
+#expenseSummary button{font-family:inherit;cursor:pointer}
+#expenseSummary .expense-total-card{width:100%;text-align:left}
+#expenseSummary .expense-category-item{width:100%;text-align:left}
+#expenseSummary .expense-total-card:hover,#expenseSummary .expense-category-item:hover{border-color:#bd5d8b!important;background:#34202d!important;transform:translateY(-1px)}
+#expenseSummary .expense-total-card.is-active,#expenseSummary .expense-category-item.is-active{border-color:#ed6ca4!important;box-shadow:0 0 0 1px #ed6ca466,0 8px 18px #0004}
+#expenseSummary .expense-category-item.is-active span,#expenseSummary .expense-category-item.is-active b{color:#fff!important}
