@@ -18,3 +18,10 @@
 /* 日別売上表の支出欄：数値入力の上下ボタンを表示しない */
 .daily-sales-table .daily-expense-input{-moz-appearance:textfield}
 .daily-sales-table .daily-expense-input::-webkit-outer-spin-button,.daily-sales-table .daily-expense-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* 日別売上表：伝票売上に加える手入力 */
+.daily-sales-table .daily-sales-input{width:90px;min-width:76px;height:30px;padding:4px 7px;border:1px solid #804a64;border-radius:7px;background:#21171d;color:#ffc1d8;font:600 12px inherit;text-align:right;outline:none;-moz-appearance:textfield}
+.daily-sales-table .daily-sales-input:focus{border-color:#ec6fa5;box-shadow:0 0 0 2px #e75b9533}
+.daily-sales-table .daily-sales-input::placeholder{color:#91717f}
+.daily-sales-table .daily-sales-input::-webkit-outer-spin-button,.daily-sales-table .daily-sales-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:560px){.daily-sales-table .daily-sales-input{width:78px;height:28px;padding:3px 6px;font-size:12px!important}}
