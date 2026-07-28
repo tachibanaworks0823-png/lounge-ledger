@@ -33,3 +33,7 @@
 .daily-sales-table .daily-advance-input::placeholder{color:#608076}
 .daily-sales-table .daily-advance-input::-webkit-outer-spin-button,.daily-sales-table .daily-advance-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 @media(max-width:560px){.daily-sales-table .daily-advance-input{width:74px;height:28px;padding:3px 6px;font-size:12px!important}}
+
+/* 日別売上表：全セルの表示位置を中央へ統一 */
+.daily-sales-table th,.daily-sales-table td,.daily-sales-table th:first-child,.daily-sales-table td:first-child{text-align:center!important}
+.daily-sales-table .daily-expense-input{text-align:center!important}
