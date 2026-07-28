@@ -574,3 +574,9 @@ dialog textarea:focus{
 /* Expense option management: keep Edit and order controls on one line. */
 #expenseOptionList .payment-method-row div{flex:none;align-items:center;white-space:nowrap}
 #expenseOptionList .payment-method-row button:first-child{width:40px!important;font-size:12px!important;white-space:nowrap!important}
+
+
+/* Hidden expense options are visible in management but absent from input choices. */
+#expenseOptionList .payment-method-row span{min-width:0}
+#expenseOptionList .expense-option-hidden{color:#ff829f!important;font-size:11px!important;font-weight:700!important}
+#expenseOptionList .payment-method-row .expense-option-visibility{width:48px!important;font-size:10px!important;white-space:nowrap!important}
