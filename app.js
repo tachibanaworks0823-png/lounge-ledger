@@ -81,34 +81,51 @@ const save = () => {
 async function saveToCloud(){
   if(!cloudUser || !cloudLoaded) return false;
   const snapshot=snapshotData(data), score=dataScore(snapshot);
-  // 読込み済みのデータが突然空になった場合は、誤上書きを止める。
   if(lastCloudScore>0 && score===0){
     console.error('Cloud save stopped: unexpected empty payload');
     showAuthMessage('データ保護のため、空のデータ保存を停止しました。再読み込みしてください。');
     return false;
   }
-  const previous=Array.isArray(data._backups)?data._backups:[];
-  const latest=previous[0]?.payload;
-  const backups=(!latest||JSON.stringify(latest)!==JSON.stringify(snapshot))
-    ? [{savedAt:new Date().toISOString(),payload:snapshot},...previous].slice(0,12)
-    : previous.slice(0,12);
-  const payload={...snapshot,_backups:backups};
-  const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload,updated_at:new Date().toISOString()});
-  if(error){console.error('Cloud save failed',error);return false;}
-  data._backups=backups;
-  lastCloudScore=score;
-  localStorage.setItem(storageKey,JSON.stringify(data));
-  return true;
+  try{
+    const previous=Array.isArray(data._backups)?data._backups:[];
+    const latest=previous[0]?.payload;
+    const backups=(!latest||JSON.stringify(latest)!==JSON.stringify(snapshot))
+      ? [{savedAt:new Date().toISOString(),payload:snapshot},...previous].slice(0,12)
+      : previous.slice(0,12);
+    const payload={...snapshot,_backups:backups};
+    const {error}=await supabaseClient.from('store_data').upsert({user_id:cloudUser.id,payload,updated_at:new Date().toISOString()});
+    if(error){console.error('Cloud save failed',error);return false;}
+    data._backups=backups;
+    lastCloudScore=score;
+    localStorage.setItem(storageKey,JSON.stringify(data));
+    return true;
+  }catch(error){
+    console.error('Cloud save failed',error);
+    return false;
+  }
 }
-async function commitCastDeletion(previousData){
+async function isCastDeletionStored(castId){
+  try{
+    const {data:row,error}=await supabaseClient.from('store_data').select('payload').eq('user_id',cloudUser.id).maybeSingle();
+    if(error) return false;
+    return !normalizeData(row?.payload).casts.some(cast=>cast.id===castId);
+  }catch(error){
+    console.error('Cast deletion verification failed',error);
+    return false;
+  }
+}
+async function commitCastDeletion(previousData,castId){
   clearTimeout(saveTimer);
-  const saved=await saveToCloud();
-  if(saved) return true;
+  for(let attempt=0;attempt<3;attempt++){
+    const saved=await saveToCloud();
+    if(saved&&await isCastDeletionStored(castId)) return true;
+    if(attempt<2) await new Promise(resolve=>setTimeout(resolve,500*(attempt+1)));
+  }
   data=normalizeData(previousData);
   localStorage.setItem(storageKey,JSON.stringify(data));
   archiveLocalSnapshot(data);
   render();
-  alert('削除を保存できませんでした。削除は取り消しました。通信を確認してからもう一度お試しください。');
+  alert('削除をサーバーへ保存できませんでした。削除は取り消しました。');
   return false;
 }
 const isDemoPayload=value=>JSON.stringify(snapshotData(value))===JSON.stringify(snapshotData(defaultData));
@@ -659,7 +676,7 @@ form.addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.pre
   const record={id,date:x.date,customerName:x.customerName,total,card,receivable,payment,payments,receipt:Boolean(fields.querySelector('[name="receipt"]')?.checked),groups:1,guests:+x.guests,casts:[]};
   if(editingSlipIndex!==null&&data.slips[editingSlipIndex])Object.assign(data.slips[editingSlipIndex],record);else data.slips.push(record)
 }if(mode==='dailyBatch'){fields.querySelectorAll('.daily-batch-row').forEach(row=>{const value=cls=>row.querySelector(cls).value||'';const start=value('.batch-start-hour')&&value('.batch-start-minute')?value('.batch-start-hour')+':'+value('.batch-start-minute'):'';const end=value('.batch-end-hour')&&value('.batch-end-minute')?value('.batch-end-hour')+':'+value('.batch-end-minute'):'';const hours=calculateBatchHours(row);const advance=value('.batch-advance'),deduction=value('.batch-deduction'),area=value('.batch-area'),main=value('.batch-main'),companion=value('.batch-companion'),sales=value('.batch-sales'),back={};backInputKeys.forEach(key=>back[key]=+value('.batch-'+key));if(!start&&!end&&!advance&&!deduction&&!area&&!main&&!companion&&!sales&&!backInputKeys.some(key=>back[key]))return;data.dailyInputs.push({id:'DI-'+Date.now()+'-'+row.dataset.castId,date:x.date,castId:row.querySelector('.batch-cast-select').value,startTime:start,endTime:end,hours:+hours,advance:+advance,deduction:+deduction,areaNomination:+area,mainCount:+main,companionCount:+companion,mainSales:+sales,...back});});}if(mode==='dailyInput'){const record={id:editingDailyInputId||'DI-'+Date.now(),date:x.date,castId:x.castId,startTime:x.startTime,endTime:x.endTime,hours:+x.hours,advance:+x.advance,deduction:+x.deduction,areaNomination:+x.areaNomination,mainCount:+x.mainCount,companionCount:+x.companionCount,mainSales:+x.mainSales,...Object.fromEntries(backInputKeys.map(key=>[key,+(x[key]||0)]))};const existing=data.dailyInputs.find(item=>item.id===editingDailyInputId);if(existing)Object.assign(existing,record);else data.dailyInputs.push(record)}if(mode==='expense'){data.expenses.push({id:'E-'+Date.now(),date:x.date,category:x.category,company:x.company,note:x.note,amount:+x.amount})}if(mode==='shiftBatch'){const castId=x.castId;fields.querySelectorAll('.shift-batch-row').forEach(row=>{const value=row.querySelector('.shift-batch-value').value.trim();if(!value)return;const date=row.dataset.date,numeric=Number(value),existing=data.shifts.find(item=>item.date===date&&item.castId===castId);const record={date,castId,hours:Number.isFinite(numeric)&&numeric>=0?numeric:0,schedule:value,advance:existing?.advance||0};if(existing)Object.assign(existing,record);else data.shifts.push(record);});}if(mode==='shopClosed'){const existing=data.dailyStatuses.find(item=>item.date===x.date);if(existing)existing.status='店休';else data.dailyStatuses.push({date:x.date,status:'店休'});}if(mode==='shift'){data.shifts.push({date:x.date,castId:x.castId,hours:+x.hours,advance:+x.advance})}if(mode==='application'){const record={applicationDate:x.applicationDate,media:x.media,recruitmentName:x.recruitmentName,birthday:x.birthday,age:x.age,phone:x.phone,email:x.email,preferredInterviewDate:x.preferredInterviewDate,confirmedInterviewDate:x.confirmedInterviewDate,interviewTime:x.interviewTime,reschedule:x.reschedule,status:x.status,note:x.note};const existing=data.applications.find(item=>item.id===editingApplicationId);if(existing)Object.assign(existing,record);else data.applications.push({id:'A-'+Date.now(),...record})}if(mode==='cast'){const profile={name:x._castEntryX9,status:x.status,joinedDate:x.joinedDate,leavingDate:x.leavingDate,lastName:x.castIdentityA,firstName:x.castIdentityB,birthday:x.birthday,age:x.age,phone:x.phone,emergencyContact:x.emergencyContact,emergencyRelation:x.emergencyRelation,address:x.address,building:x.building,memo:x.memo,termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate)};const existing=data.casts.find(c=>c.id===editingCastId);if(existing)Object.assign(existing,profile);else data.casts.push({id:'c-'+Date.now(),hourly:0,...profile})}save();render();dialog.close();});
-window.editSlip=index=>openForm('slip',index);window.deleteEditingSlip=()=>{if(editingSlipIndex===null||!data.slips[editingSlipIndex])return;if(!confirm('この伝票を削除しますか？'))return;data.slips.splice(editingSlipIndex,1);save();render();closeEntryDialog();};window.deleteEditingApplication=()=>{if(!editingApplicationId)return;if(!confirm('この応募情報を削除しますか？'))return;data.applications=data.applications.filter(item=>item.id!==editingApplicationId);save();render();closeEntryDialog();};window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=async id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;const previous=clonePayload(data);data.casts=data.casts.filter(x=>x.id!==id);save();if(await commitCastDeletion(previous))render();};window.deleteEditingCast=async()=>{if(!editingCastId)return;if(!confirm('このキャストを削除しますか？ 関連する過去データは残ります。'))return;const previous=clonePayload(data);data.casts=data.casts.filter(x=>x.id!==editingCastId);save();if(await commitCastDeletion(previous)){render();closeEntryDialog();}};
+window.editSlip=index=>openForm('slip',index);window.deleteEditingSlip=()=>{if(editingSlipIndex===null||!data.slips[editingSlipIndex])return;if(!confirm('この伝票を削除しますか？'))return;data.slips.splice(editingSlipIndex,1);save();render();closeEntryDialog();};window.deleteEditingApplication=()=>{if(!editingApplicationId)return;if(!confirm('この応募情報を削除しますか？'))return;data.applications=data.applications.filter(item=>item.id!==editingApplicationId);save();render();closeEntryDialog();};window.removeItem=(type,id)=>{if(!confirm('このデータを削除しますか？'))return;data[type]=data[type].filter(x=>x.id!==id);save();render()};window.removeCast=async id=>{if(!confirm('キャストを削除しますか？ 関連する過去データは残ります。'))return;const previous=clonePayload(data);data.casts=data.casts.filter(x=>x.id!==id);save();if(await commitCastDeletion(previous,id))render();};window.deleteEditingCast=async()=>{if(!editingCastId)return;if(!confirm('このキャストを削除しますか？ 関連する過去データは残ります。'))return;const previous=clonePayload(data);data.casts=data.casts.filter(x=>x.id!==editingCastId);save();if(await commitCastDeletion(previous,editingCastId)){render();closeEntryDialog();}};
 $('#saveSettings').onclick=()=>{document.querySelectorAll('[data-setting]').forEach(x=>data.settings[x.dataset.setting]=Number(x.value));data.settings.categories=$('#categories').value.split(',').map(x=>x.trim()).filter(Boolean);document.querySelectorAll('[data-hourly]').forEach(x=>{const c=data.casts.find(c=>c.id===x.dataset.hourly);if(c)c.hourly=Number(x.value)});save();render();alert('計算設定を保存しました。')};
 $('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#overlay').classList.add('show')};function closeMenu(){$('#sidebar').classList.remove('open');$('#overlay').classList.remove('show')}$('#overlay').onclick=closeMenu;
 const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
