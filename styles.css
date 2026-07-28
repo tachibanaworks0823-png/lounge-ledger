@@ -603,3 +603,24 @@ dialog textarea:focus{
 #expenseOptionDialog .expense-option-name{display:block}
 #expenseOptionDialog .expense-option-name input{width:100%}
 @media(max-width:560px){#expenseOptionDialog .expense-option-add-head{align-items:flex-start;flex-direction:column;gap:7px}#expenseOptionDialog .expense-option-add-head .dialog-actions{width:100%;justify-content:flex-end}}
+
+
+/* Expense date field: match the width and height of the other fields on iPhone. */
+@media(max-width:560px){
+  #entryDialog .expense-date-field,
+  #entryDialog .expense-date-field input[type="date"]{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  #entryDialog .expense-date-field input[type="date"]{
+    display:block!important;
+    height:46px!important;
+    min-height:46px!important;
+    max-height:46px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    line-height:44px!important;
+  }
+}
