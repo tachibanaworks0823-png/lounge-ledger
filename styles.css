@@ -624,3 +624,9 @@ dialog textarea:focus{
     line-height:44px!important;
   }
 }
+
+/* 支払先ごとの標準カテゴリ設定 */
+#expenseOptionList .expense-option-row{align-items:center}
+#expenseOptionList .expense-payee-category{display:flex;align-items:center;gap:5px;flex:0 1 170px;color:#d8c1cc;font-size:11px;font-weight:700}
+#expenseOptionList .expense-payee-category select{width:112px;min-width:0;height:30px;padding:3px 7px;border:1px solid #755569;border-radius:6px;background:#1c181c;color:#f7edf2;font:600 12px inherit}
+@media(max-width:560px){#expenseOptionList .expense-option-row{flex-wrap:wrap;gap:7px}#expenseOptionList .expense-option-row>span{min-width:100%}#expenseOptionList .expense-payee-category{flex:1 1 auto}#expenseOptionList .expense-option-row>div{margin-left:auto}}
