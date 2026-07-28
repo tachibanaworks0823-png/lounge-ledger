@@ -282,7 +282,7 @@ function renderDashboard(){
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
   $('#dailyKpis').innerHTML=[
     ['営業日数',`${activeDays}日`,''],
-    ['平均日商',yen(activeDays?ledgerSales/activeDays:0),''],
+    ['平均売上',yen(activeDays?ledgerSales/activeDays:0),''],
     ['平均客単価',yen(guests?ledgerSales/guests:0),`来店 ${groups}組 / ${guests}名`],
     ['現金比率',`${ledgerSales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/ledgerSales*100):0}%`,'現金売上 ÷ 総売上']
   ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
