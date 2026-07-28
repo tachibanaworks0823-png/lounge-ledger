@@ -630,3 +630,16 @@ dialog textarea:focus{
 #expenseOptionList .expense-payee-category{display:flex;align-items:center;gap:5px;flex:0 1 170px;color:#d8c1cc;font-size:11px;font-weight:700}
 #expenseOptionList .expense-payee-category select{width:112px;min-width:0;height:30px;padding:3px 7px;border:1px solid #755569;border-radius:6px;background:#1c181c;color:#f7edf2;font:600 12px inherit}
 @media(max-width:560px){#expenseOptionList .expense-option-row{flex-wrap:wrap;gap:7px}#expenseOptionList .expense-option-row>span{min-width:100%}#expenseOptionList .expense-payee-category{flex:1 1 auto}#expenseOptionList .expense-option-row>div{margin-left:auto}}
+
+/* 支出集計：全カテゴリをコンパクトに一覧表示 */
+#expenseSummary{display:grid!important;grid-template-columns:minmax(190px,.8fr) minmax(0,3.2fr)!important;gap:12px!important;align-items:stretch}
+#expenseSummary .expense-total-card{display:flex!important;flex-direction:column;justify-content:center;min-height:104px;padding:18px!important;border:1px solid #7b3d5b!important;border-radius:13px;background:linear-gradient(145deg,#3b1729,#20171d)!important;box-shadow:inset 0 1px #ffffff0d}
+#expenseSummary .expense-total-card p{margin:0 0 6px!important;color:#e7b6ca!important;font-weight:700}
+#expenseSummary .expense-total-card strong{font-size:25px!important;line-height:1.2;color:#fff!important}
+#expenseSummary .expense-total-card small{margin-top:5px;color:#c8aab8;font-size:11px}
+#expenseSummary .expense-category-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:7px;padding:8px;border:1px solid #443640;border-radius:13px;background:linear-gradient(145deg,#201c20,#161316)}
+#expenseSummary .expense-category-item{display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0;padding:9px 10px;border:1px solid #463842;border-radius:8px;background:#171417;color:#f3e8ed;font-size:11px}
+#expenseSummary .expense-category-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c9b7c0}
+#expenseSummary .expense-category-item b{flex:none;color:#fff;font-size:12px}
+#expenseSummary .expense-category-item.is-zero{opacity:.45}
+@media(max-width:700px){#expenseSummary{grid-template-columns:1fr!important}#expenseSummary .expense-total-card{min-height:82px}#expenseSummary .expense-category-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
