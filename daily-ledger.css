@@ -8,3 +8,9 @@
 .daily-sales-table tr.is-store-closed td:first-child{box-shadow:inset 4px 0 #e35f7f}
 .daily-sales-table tr.is-store-closed .weekday{color:#ffb5c7!important}
 .daily-sales-table .store-closed-label{display:block;margin-top:2px;color:#ff91ab;font-size:9px;font-weight:700;letter-spacing:.04em}
+
+/* 日別売上表：支出は独立した手入力 */
+.daily-sales-table .daily-expense-input{width:86px;min-width:72px;height:30px;padding:4px 7px;border:1px solid #745240;border-radius:7px;background:#211a18;color:#f5cf7e;font:600 12px inherit;text-align:right;outline:none}
+.daily-sales-table .daily-expense-input:focus{border-color:#e0a34d;box-shadow:0 0 0 2px #d78e2833}
+.daily-sales-table .daily-expense-input::placeholder{color:#806b56}
+@media(max-width:560px){.daily-sales-table .daily-expense-input{width:76px;height:28px;padding:3px 6px;font-size:12px!important}}
