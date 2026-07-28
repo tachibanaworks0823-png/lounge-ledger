@@ -836,6 +836,7 @@ async function setSignedIn(user){
 $('#authForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if(authLoading)return;
+  authLoading=true;
   showAuthMessage('ログインしています…');
   try{
     const result=await Promise.race([
@@ -844,9 +845,20 @@ $('#authForm').addEventListener('submit',async e=>{
     ]);
     if(result?.timeout){showAuthMessage('ログインに時間がかかっています。通信を確認して再度お試しください。');return;}
     if(result?.error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
-    if(result?.data?.session){await setSignedIn(result.data.session.user);return;}
+    if(result?.data?.session){
+      cloudUser=result.data.session.user;
+      const loaded=await loadFromCloud();
+      if(loaded){$('#authScreen').classList.add('hidden');showAuthMessage('');}
+      else {cloudUser=null;$('#authScreen').classList.remove('hidden');}
+      return;
+    }
     showAuthMessage('ログイン状態を確認できませんでした。もう一度お試しください。');
-  }catch(error){console.error('Sign in failed',error);showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');}
+  }catch(error){
+    console.error('Sign in failed',error);
+    showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');
+  }finally{
+    authLoading=false;
+  }
 });
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
