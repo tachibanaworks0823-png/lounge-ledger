@@ -201,7 +201,7 @@ const expensePostingDate = expense => {
   return month+'-'+String(Math.min(Math.max(day,1),lastDay)).padStart(2,'0');
 };
 const monthLabel = () => { const [year,month]=data.month.split('-').map(Number); return year+'年 '+month+'月'; };
-const dateKey=value=>String(value||'').replace(/\//g,'-');
+const dateKey=value=>{const raw=String(value||'').trim().replace(/\//g,'-');const match=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);return match?match[1]+'-'+match[2].padStart(2,'0')+'-'+match[3].padStart(2,'0'):raw;};
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const effectiveCastStatus=cast=>{const leaving=dateKey(cast.leavingDate);if(leaving&&leaving<=todayKey())return '退店';if(leaving&&cast.status==='退店')return '在籍';return cast.status||'在籍';};
 const dailyBackKeys=['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle','mainChampagne','mainExtension','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle','companionChampagne','companionExtension'];
