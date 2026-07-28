@@ -24,11 +24,11 @@ const defaultData = {
   expenses: [
     {id:'E-1',date:'2026-07-03',category:'酒代',company:'○○酒販',note:'営業用酒類',amount:984},{id:'E-2',date:'2026-07-04',category:'食材',company:'スーパー',note:'フルーツ・軽食',amount:1329},{id:'E-3',date:'2026-07-10',category:'備品',company:'通販',note:'紙おしぼり',amount:2400}
   ],
-  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'},{name:'未収',category:'receivable'}] }
+  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], hiddenExpenseOptions:{categories:[],payees:[]}, customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'},{name:'未収',category:'receivable'}] }
 };
 function normalizeData(source){
   const value=source||{};
-  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,customerNameOrder:Array.isArray(value.settings?.customerNameOrder)?value.settings.customerNameOrder:defaultData.settings.customerNameOrder,paymentMethods:Array.isArray(value.settings?.paymentMethods)&&value.settings.paymentMethods.length?value.settings.paymentMethods.filter(item=>item&&item.name):defaultData.settings.paymentMethods,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
+  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,hiddenExpenseOptions:{categories:Array.isArray(value.settings?.hiddenExpenseOptions?.categories)?value.settings.hiddenExpenseOptions.categories:[],payees:Array.isArray(value.settings?.hiddenExpenseOptions?.payees)?value.settings.hiddenExpenseOptions.payees:[]},customerNameOrder:Array.isArray(value.settings?.customerNameOrder)?value.settings.customerNameOrder:defaultData.settings.customerNameOrder,paymentMethods:Array.isArray(value.settings?.paymentMethods)&&value.settings.paymentMethods.length?value.settings.paymentMethods.filter(item=>item&&item.name):defaultData.settings.paymentMethods,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s);
@@ -421,17 +421,30 @@ function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.t
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
 const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), paymentMethodList=$('#paymentMethodList'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList'), customerPickerDialog=$('#customerPickerDialog'), customerPickerList=$('#customerPickerList'), expenseOptionDialog=$('#expenseOptionDialog'), expenseOptionForm=$('#expenseOptionForm'), expenseOptionList=$('#expenseOptionList');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, editingSlipIndex=null, mediaOrderDraft=[], expenseOptionType='';
 function expenseOptionItems(){return expenseOptionType==='category'?data.settings.categories:(data.settings.payeeHistory||(data.settings.payeeHistory=[]));}
+function expenseHiddenOptionItems(type){
+  const hidden=data.settings.hiddenExpenseOptions||(data.settings.hiddenExpenseOptions={categories:[],payees:[]});
+  const key=type==='category'?'categories':'payees';
+  if(!Array.isArray(hidden[key]))hidden[key]=[];
+  return hidden[key];
+}
+function isExpenseOptionHidden(type,name){return expenseHiddenOptionItems(type).includes(name);}
+function visibleExpenseOptionItems(type){return expenseOptionItemsFor(type).filter(name=>!isExpenseOptionHidden(type,name));}
+function expenseOptionItemsFor(type){return type==='category'?data.settings.categories:(data.settings.payeeHistory||(data.settings.payeeHistory=[]));}
+function expenseOptionItems(){return expenseOptionItemsFor(expenseOptionType);}
 function refreshExpenseOptionSelect(type,selectedValue){
-  const isCategory=type==='category',list=isCategory?data.settings.categories:(data.settings.payeeHistory||[]);
+  const isCategory=type==='category',list=visibleExpenseOptionItems(type);
   const select=fields.querySelector(isCategory?'[name="category"]':'[name="company"]');
   if(!select)return;
   const current=selectedValue===undefined?select.value:selectedValue;
   select.innerHTML=list.map(item=>'<option>'+item+'</option>').join('');
-  select.value=current;
+  select.value=list.includes(current)?current:(list[0]||'');
 }
 function renderExpenseOptionList(){
-  const list=expenseOptionItems(),isCategory=expenseOptionType==='category';
-  expenseOptionList.innerHTML=list.map((item,index)=>'<div class="payment-method-row"><span>'+item+'</span><div><button type="button" onclick="editExpenseOption('+index+')">編集</button><button type="button" onclick="moveExpenseOption('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveExpenseOption('+index+',1)" '+(index===list.length-1?'disabled':'')+'>↓</button></div></div>').join('')||'<p class="media-order-empty">登録済みの項目はありません。</p>';
+  const list=expenseOptionItems();
+  expenseOptionList.innerHTML=list.map((item,index)=>{
+    const hidden=isExpenseOptionHidden(expenseOptionType,item);
+    return '<div class="payment-method-row"><span>'+item+(hidden?'<small class="expense-option-hidden">非表示</small>':'')+'</span><div><button type="button" onclick="editExpenseOption('+index+')">編集</button><button type="button" class="expense-option-visibility" onclick="toggleExpenseOptionHidden('+index+')">'+(hidden?'再表示':'非表示')+'</button><button type="button" onclick="moveExpenseOption('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveExpenseOption('+index+',1)" '+(index===list.length-1?'disabled':'')+'>↓</button></div></div>';
+  }).join('')||'<p class="media-order-empty">登録済みの項目はありません。</p>';
 }
 window.openExpenseOptionDialog=type=>{
   expenseOptionType=type;
@@ -457,10 +470,19 @@ window.editExpenseOption=index=>{
   if(!after||after===before)return;
   if(list.includes(after)){alert('同じ名称がすでに登録されています。');return;}
   list[index]=after;
+  const hidden=expenseHiddenOptionItems(expenseOptionType),hiddenIndex=hidden.indexOf(before);
+  if(hiddenIndex>=0)hidden[hiddenIndex]=after;
   const key=expenseOptionType==='category'?'category':'company';
   data.expenses.forEach(item=>{if(item[key]===before)item[key]=after;});
   save();
   refreshExpenseOptionSelect(expenseOptionType,after);
+  renderExpenseOptionList();
+};
+window.toggleExpenseOptionHidden=index=>{
+  const name=expenseOptionItems()[index],hidden=expenseHiddenOptionItems(expenseOptionType),at=hidden.indexOf(name);
+  if(at>=0)hidden.splice(at,1);else hidden.push(name);
+  save();
+  refreshExpenseOptionSelect(expenseOptionType);
   renderExpenseOptionList();
 };
 expenseOptionForm.addEventListener('submit',e=>{
@@ -684,7 +706,7 @@ function openForm(type,castId=null){mode=type;const primarySave=form.querySelect
    if(slip){fields.querySelector('[name="date"]').value=slip.date||'';fields.querySelector('[name="customerName"]').value=slip.customerName||'';fields.querySelector('[name="guests"]').value=slip.guests||'';fields.querySelector('[name="total"]').value=slip.total||'';fields.querySelector('[name="receipt"]').checked=Boolean(slip.receipt);}
    renderSlipNumberRows(slip?String(slip.id||'').split(/\s*\/\s*/):['']);
    renderSlipPaymentRows(slip?slipPaymentLines(slip):[{}]);
- } if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';const payees=data.settings.payeeHistory||[];fields.innerHTML=field('支出日','date','date')+'<label class="field expense-select-field"><span>会社名・支払先<button type="button" class="payment-add-button" onclick="openExpenseOptionDialog(\'payee\')" aria-label="会社名・支払先を追加">＋</button></span><select name="company">'+payees.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+'<label class="field expense-select-field"><span>カテゴリ<button type="button" class="payment-add-button" onclick="openExpenseOptionDialog(\'category\')" aria-label="カテゴリを追加">＋</button></span><select name="category">'+data.settings.categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('内容','note','text')+field('金額','amount','number');}
+ } if(type==='expense'){ $('#dialogTitle').textContent='支出を入力';const payees=visibleExpenseOptionItems('payee'),categories=visibleExpenseOptionItems('category');fields.innerHTML=field('支出日','date','date')+'<label class="field expense-select-field"><span>会社名・支払先<button type="button" class="payment-add-button" onclick="openExpenseOptionDialog(\'payee\')" aria-label="会社名・支払先を追加">＋</button></span><select name="company">'+payees.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+'<label class="field expense-select-field"><span>カテゴリ<button type="button" class="payment-add-button" onclick="openExpenseOptionDialog(\'category\')" aria-label="カテゴリを追加">＋</button></span><select name="category">'+categories.map(x=>'<option>'+x+'</option>').join('')+'</select></label>'+field('内容','note','text')+field('金額','amount','number');}
  if(type==='dailyBatch'){ $('#dialogTitle').textContent='日別まとめ入力';const first=sortedCasts().find(c=>effectiveCastStatus(c)!=='退店')?.id||'';fields.innerHTML=field('日付','date','date')+'<div class="batch-toolbar full"><span>キャストを選択して入力してください</span><button type="button" class="secondary-button" onclick="addBatchCastRow()">＋ キャストを追加</button></div><div class="daily-batch-list full" id="batchCastList">'+batchCastRow(first)+'</div>'; }
  if(type==='dailyDetails'){const date=castId,entries=data.dailyInputs.filter(x=>x.date===date);$('#dialogTitle').textContent=dateJP(date)+' の詳細';fields.innerHTML='<div class="daily-detail-list full">'+entries.map(x=>'<article><b>'+castName(x.castId)+'</b><span>出勤 '+(x.startTime||'—')+' / 退勤 '+(x.endTime||'—')+' / 実働 '+(x.hours?x.hours+'h':'—')+'</span><span>日払い '+yen(x.advance)+' ・ 引き物 '+yen(x.deduction)+' ・ 場内 '+Number(x.areaNomination||0)+'本 ・ 本指名 '+Number(x.mainCount||0)+'本 ・ 同伴 '+Number(x.companionCount||0)+'本 ・ 本指名売上 '+yen(x.mainSales)+'</span><div><button type="button" class="text-button" onclick="editDailyInput(\''+x.id+'\')">編集</button><button type="button" class="text-button" onclick="removeItem(\'dailyInputs\',\''+x.id+'\')">削除</button></div></article>').join('')+'</div>'; }
  if(type==='dailyInput'){ const entry=data.dailyInputs.find(x=>x.id===editingDailyInputId);$('#dialogTitle').textContent=entry?'日別打込みを編集':'日別打込み';fields.innerHTML=field('日付','date','date')+'<label class="field">キャスト<select name="castId">'+sortedCasts().map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></label>'+timeField('出勤','startTime')+timeField('退勤','endTime')+optionalField('実働時間','hours','number','auto-hours')+optionalField('日払い','advance','number')+optionalField('引き物','deduction','number')+optionalField('場内指名','areaNomination','number')+optionalField('本指名 本数','mainCount','number')+optionalField('同伴 本数','companionCount','number')+optionalField('本指名 売上','mainSales','number')+dailyBackDetail();if(entry)['date','castId','startTime','endTime','hours','advance','deduction','areaNomination','mainCount','companionCount','mainSales',...backInputKeys].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.value=entry[name]??'';});}
