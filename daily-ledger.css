@@ -6,7 +6,6 @@
 /* 日別売上表：店休日 */
 .daily-sales-table tr.is-store-closed td{background:#541c2a!important;border-color:#824052!important;color:#ffdce5!important}
 .daily-sales-table tr.is-store-closed td:first-child{box-shadow:none!important}
-.daily-sales-table tr.is-store-closed .daily-expense-input{background:#541c2a!important;border-color:#824052!important;color:#ffdce5!important}
 .daily-sales-table tr.is-store-closed .weekday{color:#ffb5c7!important}
 .daily-sales-table .store-closed-label{display:block;margin-top:2px;color:#ff91ab;font-size:9px;font-weight:700;letter-spacing:.04em}
 
