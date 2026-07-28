@@ -36,3 +36,10 @@
 /* 日別売上表：全セルの表示位置を中央へ統一 */
 .daily-sales-table th,.daily-sales-table td,.daily-sales-table th:first-child,.daily-sales-table td:first-child{text-align:center!important}
 .daily-sales-table .daily-expense-input{text-align:center!important}
+
+/* iPhone：日別売上表の売上列を見切れず表示 */
+@media(max-width:560px){
+  .daily-sales-table th:nth-child(3),.daily-sales-table td:nth-child(3){width:76px!important;min-width:76px!important}
+  .daily-sales-table .daily-sales-input{width:68px!important;min-width:68px!important;padding:3px 2px!important;font-size:11px!important;letter-spacing:0!important}
+  .daily-sales-table .sales{font-size:10px!important;letter-spacing:0!important;white-space:nowrap}
+}
