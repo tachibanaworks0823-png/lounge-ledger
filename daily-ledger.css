@@ -4,8 +4,9 @@
 .daily-ledger-panel{background:linear-gradient(145deg,#201b20,#141214)!important;border-color:#40343c!important}.daily-ledger-heading{border-color:#40343c!important}.daily-ledger-total span,.daily-kpi span,.daily-kpi small{color:#b9aab3!important}.daily-ledger-total strong,.daily-kpi strong{color:#fff!important}.daily-kpi{border-color:#40343c!important;background:#191619!important}.daily-sales-table th{background:#1a171a!important;color:#c9b1bd!important;border-color:#40343c!important}.daily-sales-table td{background:#171519!important;color:#eee!important;border-color:#393139!important}.daily-sales-table tr.has-activity td{background:#271a22!important}.daily-sales-table .sales{color:#ffb2cf!important}.daily-sales-table .expense{color:#f0c16c!important}.daily-sales-table .balance{color:#90ddb8!important}.daily-table-wrap{border-color:#40343c!important;background:#171519!important}.daily-table-wrap::-webkit-scrollbar-thumb{background:#714157}
 
 /* 日別売上表：店休日 */
-.daily-sales-table tr.is-store-closed td{background:linear-gradient(90deg,#541c2a,#3c1821)!important;border-color:#824052!important;color:#ffdce5!important}
-.daily-sales-table tr.is-store-closed td:first-child{box-shadow:inset 4px 0 #e35f7f}
+.daily-sales-table tr.is-store-closed td{background:#541c2a!important;border-color:#824052!important;color:#ffdce5!important}
+.daily-sales-table tr.is-store-closed td:first-child{box-shadow:none!important}
+.daily-sales-table tr.is-store-closed .daily-expense-input{background:#541c2a!important;border-color:#824052!important;color:#ffdce5!important}
 .daily-sales-table tr.is-store-closed .weekday{color:#ffb5c7!important}
 .daily-sales-table .store-closed-label{display:block;margin-top:2px;color:#ff91ab;font-size:9px;font-weight:700;letter-spacing:.04em}
 
