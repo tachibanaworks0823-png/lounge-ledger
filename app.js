@@ -314,13 +314,23 @@ function renderUnsettledSlips(){
   $('#unsettledSlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(8,'未収伝票はありません');
 }
 function renderDailySlips(){
-  const [year,month]=data.month.split('-');
-  if(!window.slipDayFilter||!window.slipDayFilter.startsWith(data.month+'-'))window.slipDayFilter=data.month+'-01';
-  const input=$('#slipDayFilter');if(input){input.value=window.slipDayFilter;const update=event=>{window.slipDayFilter=event.target.value;renderDailySlips();};input.onchange=update;input.oninput=update;}
-  const selectedDate=dateKey(window.slipDayFilter);
-  const slips=data.slips.filter(slip=>dateKey(slip.receivedDate||slip.date)===selectedDate).slice().sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
-  $('#dailySlipSummary').textContent=(window.slipDayFilter?dateJP(window.slipDayFilter):year+'年'+Number(month)+'月')+'・'+slips.length+'件';
-  $('#dailySlipTable').innerHTML=slips.map(slipTableRow).join('')||empty(8,'この日の伝票はありません');
+  const input=$('#slipDayFilter');
+  const fallback=(data.month||todayKey().slice(0,7))+'-01';
+  const selectedDate=dateKey((input&&input.value)||window.slipDayFilter||fallback);
+  window.slipDayFilter=selectedDate;
+  if(input){
+    if(input.value!==selectedDate)input.value=selectedDate;
+    const update=event=>{window.slipDayFilter=dateKey(event.target.value);renderDailySlips();};
+    input.onchange=update;
+    input.oninput=update;
+  }
+  const slips=(Array.isArray(data.slips)?data.slips:[])
+    .filter(slip=>[slip.receivedDate,slip.date,slipSalesPostingDate(slip)].some(value=>dateKey(value)===selectedDate))
+    .filter((slip,index,list)=>list.indexOf(slip)===index)
+    .slice()
+    .sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
+  $('#dailySlipSummary').textContent=dateJP(selectedDate)+'・'+slips.length+'件';
+  $('#dailySlipTable').innerHTML=slips.length?slips.map(slipTableRow).join(''):empty(8,'この日の伝票はありません');
 }
 function renderSlips(){
   const direction=slipDateSort==='asc'?1:-1;
