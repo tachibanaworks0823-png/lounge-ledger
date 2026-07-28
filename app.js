@@ -723,7 +723,7 @@ function openForm(type,castId=null){mode=type;const primarySave=form.querySelect
    const slip=editingSlipIndex!==null?data.slips[editingSlipIndex]:null;
    $('#dialogTitle').textContent=slip?'伝票を編集':'伝票を入力';
    fields.innerHTML=optionalField('日付','date','date')+optionalField('入金完了日（未収のみ）','receivedDate','date')+
-   '<div class="field slip-id-field"><span>伝票番号</span><div class="slip-number-rows" id="slipNumberRows"></div><button type="button" class="slip-number-add" onclick="addSlipNumberRow()">＋ 伝票番号を追加</button></div>'+
+   '<div class="field slip-id-field"><span>伝票番号</span><div class="slip-number-layout"><div class="slip-number-rows" id="slipNumberRows"></div><button type="button" class="slip-number-add" onclick="addSlipNumberRow()">＋ 伝票番号を追加</button></div></div>'+
    '<label class="field customer-field"><span>顧客名<button type="button" class="customer-history-open-button" onclick="openCustomerPickerDialog()">履歴</button><button type="button" class="payment-add-button customer-history-button" onclick="openCustomerHistoryDialog()" aria-label="顧客名履歴を管理">＋</button></span><input name="customerName" list="customerHistory" autocomplete="off"></label><datalist id="customerHistory">'+customerOptions()+'</datalist>'+
    optionalField('人数','guests','number')+
    '<div class="field auto-total-field"><span>売上</span><div class="sales-total-row"><input name="total" type="number" readonly tabindex="-1" aria-label="決済内訳から自動計算される売上"><label class="receipt-check"><input name="receipt" type="checkbox">領収証</label></div></div>'+
