@@ -680,3 +680,11 @@ dialog textarea:focus{
     appearance:none!important;
   }
 }
+
+
+/* 計算設定：日別バック区分を色分け */
+#backSettings .back-rate-group>h4{display:flex;align-items:center;gap:8px;margin:18px 0 10px;font-size:15px;font-weight:800;letter-spacing:.02em}
+#backSettings .back-rate-group>h4::before{content:'';display:inline-block;width:4px;height:18px;border-radius:4px;background:currentColor}
+#backSettings .back-rate-group-0>h4{color:#76d7ef!important}
+#backSettings .back-rate-group-1>h4{color:#ff79ae!important}
+#backSettings .back-rate-group-2>h4{color:#f4c969!important}
