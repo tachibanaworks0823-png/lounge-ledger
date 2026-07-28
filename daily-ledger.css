@@ -14,3 +14,7 @@
 .daily-sales-table .daily-expense-input:focus{border-color:#e0a34d;box-shadow:0 0 0 2px #d78e2833}
 .daily-sales-table .daily-expense-input::placeholder{color:#806b56}
 @media(max-width:560px){.daily-sales-table .daily-expense-input{width:76px;height:28px;padding:3px 6px;font-size:12px!important}}
+
+/* 日別売上表の支出欄：数値入力の上下ボタンを表示しない */
+.daily-sales-table .daily-expense-input{-moz-appearance:textfield}
+.daily-sales-table .daily-expense-input::-webkit-outer-spin-button,.daily-sales-table .daily-expense-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
