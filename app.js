@@ -265,8 +265,8 @@ function dailyRows(){
     const dailySum=key=>dailyValues.reduce((n,x)=>n+Number(x[key]||0),0);
     const advance=dailyInputs.length?dailySum('advance'):legacyAdvance;
     const payroll=dailyInputs.length?dailySum('payout'):Math.max(0,legacyGross-legacyDeductions-legacyAdvance);
-    const cash=Math.max(0,sales-card-receivable);
-    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],sales,card,receivable,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
+    const cash=Math.max(0,sales-card-receivable),status=data.dailyStatuses.find(item=>item.date===date)?.status||'営業';
+    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],status,sales,card,receivable,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
   });
 }
 function renderDashboard(){
@@ -283,7 +283,7 @@ function renderDashboard(){
   $('#dailySalesTable').innerHTML=rows.map(x=>{
     const hasActivity=x.sales||x.expense||x.advance||x.payroll;
     const amount=n=>n?yen(n):'—';
-    return '<tr class="'+(hasActivity?'has-activity':'')+'"><td><b>'+x.day+'日</b></td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
+    return '<tr class="'+(hasActivity?'has-activity ':'')+(x.status==='店休'?'is-store-closed':'')+'"><td><b>'+x.day+'日</b>'+(x.status==='店休'?'<small class="store-closed-label">店休</small>':'')+'</td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense">'+amount(x.expense)+'</td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
   }).join('');
 }
 function unsettledPaymentLabel(slip){
