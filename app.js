@@ -161,15 +161,8 @@ async function loadFromCloud(){
     .filter(Boolean)
     .sort((left,right)=>dataScore(snapshotData(right))-dataScore(snapshotData(left)))
     .find(item=>(item.casts?.length||0)>(cloudSnapshot?.casts?.length||0));
-  if(recoveryCandidate){
-    data=normalizeData({...recoveryCandidate,_backups:rawPayload._backups});
-    lastCloudScore=dataScore(snapshotData(data));
-    cloudLoaded=true;
-    await saveToCloud();
-    showAuthMessage('保存済みバックアップからキャスト情報を復元しました。');
-    render();
-    return true;
-  }
+  // バックアップは保管のみ。起動時に自動復元すると、意図した削除まで元に戻るため復元は行わない。
+  if(recoveryCandidate) console.info('Previous backup is available for manual recovery if needed.');
   // クラウドが空で、この端末に実データが残っている場合だけ端末側を正として復元する。
   if(usableLocal && cloudScore===0){
     data=normalizeData(localSnapshot);
