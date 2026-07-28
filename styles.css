@@ -507,3 +507,17 @@ dialog textarea:focus{
 .application-list-group .table-wrap td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .application-list-group .table-wrap th:last-child,
 .application-list-group .table-wrap td:last-child{width:230px;max-width:230px}
+
+
+/* Keep the cast-management heading and registration button visible while scrolling */
+#cast-management .section-head{
+  position:sticky;
+  top:107px;
+  z-index:2;
+  padding:12px 0;
+  background:linear-gradient(90deg,#151218f7,#191018f4)!important;
+  box-shadow:0 9px 18px #05040644;
+}
+@media(max-width:560px){
+  #cast-management .section-head{top:78px;padding:10px 0}
+}
