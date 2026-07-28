@@ -17,6 +17,7 @@ const defaultData = {
   dailyInputs: [],
   dailyStatuses: [],
   dailyLedgerExpenses: [],
+  dailyLedgerSales: [],
   shifts: [
     { date:'2026-07-03',castId:'momo',hours:7.5,advance:5000 },{ date:'2026-07-04',castId:'momo',hours:7,advance:10000 },{ date:'2026-07-04',castId:'rina',hours:6,advance:5000 },{ date:'2026-07-10',castId:'rina',hours:7.5,advance:10000 },{ date:'2026-07-10',castId:'yui',hours:6,advance:5000 }
   ],
@@ -29,7 +30,7 @@ const defaultData = {
 };
 function normalizeData(source){
   const value=source||{};
-  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],dailyLedgerExpenses:Array.isArray(value.dailyLedgerExpenses)?value.dailyLedgerExpenses:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,hiddenExpenseOptions:{categories:Array.isArray(value.settings?.hiddenExpenseOptions?.categories)?value.settings.hiddenExpenseOptions.categories:[],payees:Array.isArray(value.settings?.hiddenExpenseOptions?.payees)?value.settings.hiddenExpenseOptions.payees:[]},payeeCategories:value.settings?.payeeCategories&&typeof value.settings.payeeCategories==='object'&&!Array.isArray(value.settings.payeeCategories)?value.settings.payeeCategories:{},customerNameOrder:Array.isArray(value.settings?.customerNameOrder)?value.settings.customerNameOrder:defaultData.settings.customerNameOrder,paymentMethods:Array.isArray(value.settings?.paymentMethods)&&value.settings.paymentMethods.length?value.settings.paymentMethods.filter(item=>item&&item.name):defaultData.settings.paymentMethods,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
+  return {...defaultData,...value,month:value.month||defaultData.month,casts:Array.isArray(value.casts)?value.casts:[],slips:Array.isArray(value.slips)?value.slips:[],dailyInputs:Array.isArray(value.dailyInputs)?value.dailyInputs:[],dailyStatuses:Array.isArray(value.dailyStatuses)?value.dailyStatuses:[],dailyLedgerExpenses:Array.isArray(value.dailyLedgerExpenses)?value.dailyLedgerExpenses:[],dailyLedgerSales:Array.isArray(value.dailyLedgerSales)?value.dailyLedgerSales:[],shifts:Array.isArray(value.shifts)?value.shifts:[],shiftSpecials:Array.isArray(value.shiftSpecials)?value.shiftSpecials:[],applications:Array.isArray(value.applications)?value.applications:[],expenses:Array.isArray(value.expenses)?value.expenses:[],settings:{...defaultData.settings,...(value.settings||{}),categories:Array.isArray(value.settings?.categories)?value.settings.categories:defaultData.settings.categories,applicationMedia:Array.isArray(value.settings?.applicationMedia)?value.settings.applicationMedia:defaultData.settings.applicationMedia,hiddenCustomerNames:Array.isArray(value.settings?.hiddenCustomerNames)?value.settings.hiddenCustomerNames:defaultData.settings.hiddenCustomerNames,hiddenExpenseOptions:{categories:Array.isArray(value.settings?.hiddenExpenseOptions?.categories)?value.settings.hiddenExpenseOptions.categories:[],payees:Array.isArray(value.settings?.hiddenExpenseOptions?.payees)?value.settings.hiddenExpenseOptions.payees:[]},payeeCategories:value.settings?.payeeCategories&&typeof value.settings.payeeCategories==='object'&&!Array.isArray(value.settings.payeeCategories)?value.settings.payeeCategories:{},customerNameOrder:Array.isArray(value.settings?.customerNameOrder)?value.settings.customerNameOrder:defaultData.settings.customerNameOrder,paymentMethods:Array.isArray(value.settings?.paymentMethods)&&value.settings.paymentMethods.length?value.settings.paymentMethods.filter(item=>item&&item.name):defaultData.settings.paymentMethods,payeeHistory:Array.isArray(value.settings?.payeeHistory)?value.settings.payeeHistory:[...new Set((Array.isArray(value.expenses)?value.expenses:[]).map(x=>x.company).filter(Boolean))]}};
 }
 let data = normalizeData(JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData);
 const $ = s => document.querySelector(s);
@@ -249,8 +250,8 @@ function dailyRows(){
   const weekdays=['日','月','火','水','木','金','土'];
   return Array.from({length:count},(_,i)=>{
     const date=data.month+'-'+String(i+1).padStart(2,'0');
-    const slips=data.slips.filter(x=>x.date===date&&!isUnsettledSlip(x)), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date), manualExpense=data.dailyLedgerExpenses.filter(x=>x.date===date).reduce((sum,item)=>sum+Number(item.amount||0),0);
-    const sales=slips.reduce((n,x)=>n+Number(x.total||0),0);
+    const slips=data.slips.filter(x=>x.date===date&&!isUnsettledSlip(x)), shifts=data.shifts.filter(x=>x.date===date), dailyInputs=data.dailyInputs.filter(x=>x.date===date), manualExpense=data.dailyLedgerExpenses.filter(x=>x.date===date).reduce((sum,item)=>sum+Number(item.amount||0),0),manualSalesEntry=data.dailyLedgerSales.find(item=>item.date===date),manualSalesEntered=Boolean(manualSalesEntry),manualSales=Number(manualSalesEntry?.amount||0);
+    const slipSales=slips.reduce((n,x)=>n+Number(x.total||0),0),sales=slipSales+manualSales;
     const card=slips.reduce((n,x)=>n+Number(x.card||0),0);
     const receivable=slips.reduce((n,x)=>n+Number(x.receivable||0),0);
     const groups=slips.reduce((n,x)=>n+Number(x.groups||0),0);
@@ -267,25 +268,27 @@ function dailyRows(){
     const advance=dailyInputs.length?dailySum('advance'):legacyAdvance;
     const payroll=dailyInputs.length?dailySum('payout'):Math.max(0,legacyGross-legacyDeductions-legacyAdvance);
     const cash=Math.max(0,sales-card-receivable),status=data.dailyStatuses.find(item=>item.date===date)?.status||'営業';
-    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],status,sales,card,receivable,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
+    return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],status,slipSales,manualSales,manualSalesEntered,sales,card,receivable,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash-expense-advance};
   });
 }
 window.updateDailyLedgerExpense=(date,value)=>{const amount=Math.max(0,Number(value)||0),existing=data.dailyLedgerExpenses.find(item=>item.date===date);if(amount){if(existing)existing.amount=amount;else data.dailyLedgerExpenses.push({date,amount});}else data.dailyLedgerExpenses=data.dailyLedgerExpenses.filter(item=>item.date!==date);save();renderDashboard();};
+window.updateDailyLedgerSales=(date,value)=>{const raw=String(value??'').trim(),existing=data.dailyLedgerSales.find(item=>item.date===date);if(raw===''){data.dailyLedgerSales=data.dailyLedgerSales.filter(item=>item.date!==date);}else{const amount=Math.max(0,Number(raw)||0);if(existing)existing.amount=amount;else data.dailyLedgerSales.push({date,amount});}save();renderDashboard();};
 function renderDashboard(){
   const t=totals(),slips=data.slips.filter(x=>isSelectedMonth(x.date)&&!isUnsettledSlip(x)),expenses=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${slips.length}件`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${expenses.length}件`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
-  const rows=dailyRows(), activeRows=rows.filter(x=>x.sales||x.expense);
-  $('#dailyLedgerTotal').textContent=yen(t.sales);
+  const rows=dailyRows(),ledgerSales=rows.reduce((sum,row)=>sum+row.sales,0),activeRows=rows.filter(x=>x.sales||x.expense||x.manualSalesEntered);
+  $('#dailyLedgerTotal').textContent=yen(ledgerSales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
   $('#dailyKpis').innerHTML=[
     ['営業日数',`${activeDays}日`,'売上または支出の登録日'],
-    ['平均日商',yen(activeDays?t.sales/activeDays:0),'営業日の平均'],
-    ['平均客単価',yen(guests?t.sales/guests:0),`来店 ${groups}組 / ${guests}名`],
-    ['現金比率',`${t.sales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/t.sales*100):0}%`,'現金売上 ÷ 総売上']
+    ['平均日商',yen(activeDays?ledgerSales/activeDays:0),'営業日の平均'],
+    ['平均客単価',yen(guests?ledgerSales/guests:0),`来店 ${groups}組 / ${guests}名`],
+    ['現金比率',`${ledgerSales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/ledgerSales*100):0}%`,'現金売上 ÷ 総売上']
   ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
   $('#dailySalesTable').innerHTML=rows.map(x=>{
-    const hasActivity=x.sales||x.expense||x.advance||x.payroll;
-    const amount=n=>n?yen(n):'—';
-    return '<tr class="'+(hasActivity?'has-activity ':'')+(x.status==='店休'?'is-store-closed':'')+'"><td><b>'+x.day+'日</b>'+(x.status==='店休'?'<small class="store-closed-label">店休</small>':'')+'</td><td class="weekday">('+x.weekday+')</td><td class="amount sales">'+amount(x.sales)+'</td><td class="amount">'+amount(x.cash)+'</td><td class="amount">'+amount(x.card)+'</td><td class="amount">'+amount(x.receivable)+'</td><td>'+ (x.groups||'—')+'</td><td>'+ (x.guests||'—')+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense"><input class="daily-expense-input" type="number" min="0" inputmode="numeric" aria-label="'+x.day+'日の支出" value="'+(x.expense||'')+'" placeholder="—" onchange="updateDailyLedgerExpense(\''+x.date+'\',this.value)"></td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
+    const zeroSalesDay=x.manualSalesEntered&&x.manualSales===0&&x.slipSales===0;
+    const hasActivity=x.sales||x.expense||x.advance||x.payroll||x.manualSalesEntered;
+    const amount=(n,showZero=false)=>n?yen(n):(showZero?'¥0':'—');
+    return '<tr class="'+(hasActivity?'has-activity ':'')+(x.status==='店休'?'is-store-closed':'')+'"><td><b>'+x.day+'日</b>'+(x.status==='店休'?'<small class="store-closed-label">店休</small>':'')+'</td><td class="weekday">('+x.weekday+')</td><td class="amount sales"><input class="daily-sales-input" type="number" min="0" inputmode="numeric" aria-label="'+x.day+'日の売上手入力" value="'+(x.manualSalesEntered?x.manualSales:'')+'" placeholder="'+(x.slipSales?yen(x.slipSales):'—')+'" onchange="updateDailyLedgerSales(\''+x.date+'\',this.value)"></td><td class="amount">'+amount(x.cash,zeroSalesDay)+'</td><td class="amount">'+amount(x.card,zeroSalesDay)+'</td><td class="amount">'+amount(x.receivable,zeroSalesDay)+'</td><td>'+ (x.groups|| (zeroSalesDay?'0':'—'))+'</td><td>'+ (x.guests|| (zeroSalesDay?'0':'—'))+'</td><td class="amount">'+(x.guests?yen(x.sales/x.guests):'—')+'</td><td class="amount">'+amount(x.advance)+'</td><td class="amount expense"><input class="daily-expense-input" type="number" min="0" inputmode="numeric" aria-label="'+x.day+'日の支出" value="'+(x.expense||'')+'" placeholder="—" onchange="updateDailyLedgerExpense(\''+x.date+'\',this.value)"></td><td class="amount balance">'+(hasActivity?yen(x.cashBalance):'—')+'</td><td class="amount">'+amount(x.payroll)+'</td><td>'+ (x.sales?Math.round(x.payroll/x.sales*100)+'%':'—')+'</td></tr>';
   }).join('');
 }
 function unsettledPaymentLabel(slip){
