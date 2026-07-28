@@ -775,25 +775,47 @@ const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP'
 function showAuthMessage(message){$('#authMessage').textContent=message;}
 async function initializeAuth(){
   if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(session) await setSignedIn(session.user);
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(session) await setSignedIn(session.user);
+  }catch(error){console.error('Session check failed',error);}
   supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
-    if(session&&!cloudUser) await setSignedIn(session.user);
-    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;$('#authScreen').classList.remove('hidden');}
+    if(session&&(!cloudUser||cloudUser.id!==session.user.id)) await setSignedIn(session.user);
+    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
   });
 }
 async function setSignedIn(user){
+  if(authLoading) return false;
+  authLoading=true;
   cloudUser=user;
-  $('#authScreen').classList.add('hidden');
-  await loadFromCloud();
+  try{
+    const loaded=await loadFromCloud();
+    if(loaded){$('#authScreen').classList.add('hidden');showAuthMessage('');return true;}
+    cloudUser=null;
+    $('#authScreen').classList.remove('hidden');
+    return false;
+  }catch(error){
+    console.error('Signed-in setup failed',error);
+    cloudUser=null;
+    $('#authScreen').classList.remove('hidden');
+    showAuthMessage('ログイン後の読み込みに失敗しました。もう一度お試しください。');
+    return false;
+  }finally{authLoading=false;}
 }
 $('#authForm').addEventListener('submit',async e=>{
   e.preventDefault();
+  if(authLoading)return;
   showAuthMessage('ログインしています…');
   try{
-    const {error}=await supabaseClient.auth.signInWithPassword({email:$('#authEmail').value,password:$('#authPassword').value});
-    if(error)showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');
-  }catch(error){showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');}
+    const result=await Promise.race([
+      supabaseClient.auth.signInWithPassword({email:$('#authEmail').value.trim(),password:$('#authPassword').value}),
+      new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),15000))
+    ]);
+    if(result?.timeout){showAuthMessage('ログインに時間がかかっています。通信を確認して再度お試しください。');return;}
+    if(result?.error){showAuthMessage('ログインできませんでした。メールアドレスとパスワードを確認してください。');return;}
+    if(result?.data?.session){await setSignedIn(result.data.session.user);return;}
+    showAuthMessage('ログイン状態を確認できませんでした。もう一度お試しください。');
+  }catch(error){console.error('Sign in failed',error);showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');}
 });
 $('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
 $('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
