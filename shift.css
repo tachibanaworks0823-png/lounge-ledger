@@ -169,3 +169,31 @@
   left:auto!important;
   box-shadow:none!important;
 }
+
+
+/* Final shift-table containment: only the date header row is sticky, inside its own scroll area. */
+.shift-table-wrap{
+  position:relative!important;
+  isolation:isolate!important;
+}
+.shift-table thead th{
+  position:sticky!important;
+  top:0!important;
+  left:auto!important;
+  z-index:2!important;
+}
+.shift-table tbody > tr > th,
+.shift-table .shift-cast-name,
+.shift-table .shift-count-row > th,
+.shift-table .shift-special-row > th{
+  position:static!important;
+  left:auto!important;
+  z-index:auto!important;
+  box-shadow:none!important;
+}
+/* A shop-closed day stays coloured even when the cast was added after that date. */
+.shift-table td.outside-employment.shop-closed{
+  background:#5d1e2b!important;
+  color:#ffe5ea!important;
+  opacity:1!important;
+}
