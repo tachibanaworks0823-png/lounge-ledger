@@ -303,8 +303,10 @@ function unsettledPaymentLabel(slip){
 function slipTableRow(s){
   const unsettled=isUnsettledSlip(s),paymentLabel=unsettled?unsettledPaymentLabel(s):slipPaymentSummary(s);
   const slipIndex=data.slips.indexOf(s);
-  const postedDate=slipSalesPostingDate(s),recovered=Boolean(s.receivedDate),dateCell=dateJP(postedDate)+(recovered?'<small class="recovered-slip-label">回収伝票</small>':'');
-  return '<tr class="'+(unsettled?'unsettled-slip':'')+'"><td>'+dateCell+'</td><td>'+ (s.id||'—')+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td>'+(s.receipt?'<input class="receipt-list-check" type="checkbox" checked tabindex="-1" onclick="return false" aria-label="領収証あり">':'')+'</td><td><span class="status '+(unsettled?'unsettled-status ':slipPaymentCashOnly(s)?'cash':'')+'">'+paymentLabel+'</span></td><td><button class="text-button" onclick="editSlip('+slipIndex+')">編集</button></td></tr>';
+  const postedDate=slipSalesPostingDate(s),recovered=Boolean(s.receivedDate);
+  const dateCell=dateJP(postedDate)+(recovered?'<small class="issued-slip-label">発行 '+dateJP(s.date)+'</small>':'');
+  const slipIdCell=(s.id||'—')+(recovered?'<span class="recovered-slip-label">回収伝票</span>':'');
+  return '<tr class="'+(unsettled?'unsettled-slip':'')+'"><td>'+dateCell+'</td><td>'+slipIdCell+'</td><td>'+ (s.customerName||'—')+'</td><td>'+ (s.guests? s.guests+'名':'—')+'</td><td>'+yen(s.total)+'</td><td>'+(s.receipt?'<input class="receipt-list-check" type="checkbox" checked tabindex="-1" onclick="return false" aria-label="領収証あり">':'')+'</td><td><span class="status '+(unsettled?'unsettled-status ':slipPaymentCashOnly(s)?'cash':'')+'">'+paymentLabel+'</span></td><td><button class="text-button" onclick="editSlip('+slipIndex+')">編集</button></td></tr>';
 }
 function renderUnsettledSlips(){
   const slips=data.slips.filter(isUnsettledSlip).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.id||'').localeCompare(String(a.id||''),'ja',{numeric:true}));
