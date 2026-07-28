@@ -535,3 +535,14 @@ dialog textarea:focus{
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
+
+
+/* Application notes are a normal column immediately after reschedule. */
+.application-list-group .table-wrap th:last-child,
+.application-list-group .table-wrap td:last-child{
+  width:auto!important;
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+}
