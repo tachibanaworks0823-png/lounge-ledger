@@ -420,9 +420,61 @@ function scrollShiftToToday(){
 function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});if(id==='shifts')scrollShiftToToday();}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
 const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), paymentMethodList=$('#paymentMethodList'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList'), customerPickerDialog=$('#customerPickerDialog'), customerPickerList=$('#customerPickerList'), expenseOptionDialog=$('#expenseOptionDialog'), expenseOptionForm=$('#expenseOptionForm');let mode='', slipDateSort='desc', dailyInputDateSort='desc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, editingSlipIndex=null, mediaOrderDraft=[], expenseOptionType='';
-window.openExpenseOptionDialog=type=>{expenseOptionType=type;const isCategory=type==='category';$('#expenseOptionTitle').textContent=isCategory?'カテゴリを追加':'会社名・支払先を追加';$('#expenseOptionNameLabel').textContent=isCategory?'カテゴリ名':'会社名・支払先';expenseOptionForm.reset();if(typeof expenseOptionDialog.showModal==='function')expenseOptionDialog.showModal();else expenseOptionDialog.setAttribute('open','');};
+function expenseOptionItems(){return expenseOptionType==='category'?data.settings.categories:(data.settings.payeeHistory||(data.settings.payeeHistory=[]));}
+function refreshExpenseOptionSelect(type,selectedValue){
+  const isCategory=type==='category',list=isCategory?data.settings.categories:(data.settings.payeeHistory||[]);
+  const select=fields.querySelector(isCategory?'[name="category"]':'[name="company"]');
+  if(!select)return;
+  const current=selectedValue===undefined?select.value:selectedValue;
+  select.innerHTML=list.map(item=>'<option>'+item+'</option>').join('');
+  select.value=current;
+}
+function renderExpenseOptionList(){
+  const list=expenseOptionItems(),isCategory=expenseOptionType==='category';
+  expenseOptionList.innerHTML=list.map((item,index)=>'<div class="payment-method-row"><span>'+item+'</span><div><button type="button" onclick="editExpenseOption('+index+')">編集</button><button type="button" onclick="moveExpenseOption('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveExpenseOption('+index+',1)" '+(index===list.length-1?'disabled':'')+'>↓</button></div></div>').join('')||'<p class="media-order-empty">登録済みの項目はありません。</p>';
+}
+window.openExpenseOptionDialog=type=>{
+  expenseOptionType=type;
+  const isCategory=type==='category';
+  $('#expenseOptionTitle').textContent=isCategory?'カテゴリを管理':'会社名・支払先を管理';
+  $('#expenseOptionNameLabel').textContent=isCategory?'カテゴリを追加':'会社名・支払先を追加';
+  expenseOptionForm.reset();
+  renderExpenseOptionList();
+  if(typeof expenseOptionDialog.showModal==='function')expenseOptionDialog.showModal();else expenseOptionDialog.setAttribute('open','');
+};
 window.closeExpenseOptionDialog=()=>{if(typeof expenseOptionDialog.close==='function')expenseOptionDialog.close();else expenseOptionDialog.removeAttribute('open');};
-expenseOptionForm.addEventListener('submit',e=>{e.preventDefault();const name=$('#expenseOptionName').value.trim();if(!name)return;const isCategory=expenseOptionType==='category';const list=isCategory?data.settings.categories:(data.settings.payeeHistory||(data.settings.payeeHistory=[]));if(!list.includes(name))list.push(name);save();const select=fields.querySelector(isCategory?'[name="category"]':'[name="company"]');if(select){select.innerHTML=list.map(item=>'<option>'+item+'</option>').join('');select.value=name;}closeExpenseOptionDialog();});
+window.moveExpenseOption=(index,direction)=>{
+  const list=expenseOptionItems(),target=index+direction;
+  if(target<0||target>=list.length)return;
+  [list[index],list[target]]=[list[target],list[index]];
+  save();
+  refreshExpenseOptionSelect(expenseOptionType);
+  renderExpenseOptionList();
+};
+window.editExpenseOption=index=>{
+  const list=expenseOptionItems(),before=list[index];
+  const after=(prompt('名称を編集してください',before)||'').trim();
+  if(!after||after===before)return;
+  if(list.includes(after)){alert('同じ名称がすでに登録されています。');return;}
+  list[index]=after;
+  const key=expenseOptionType==='category'?'category':'company';
+  data.expenses.forEach(item=>{if(item[key]===before)item[key]=after;});
+  save();
+  refreshExpenseOptionSelect(expenseOptionType,after);
+  renderExpenseOptionList();
+};
+expenseOptionForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=$('#expenseOptionName').value.trim();
+  if(!name)return;
+  const list=expenseOptionItems();
+  if(list.includes(name)){alert('同じ名称がすでに登録されています。');return;}
+  list.push(name);
+  save();
+  refreshExpenseOptionSelect(expenseOptionType,name);
+  expenseOptionForm.reset();
+  renderExpenseOptionList();
+});
 function showEntryDialog(){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
 function closeEntryDialog(){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
 function renderMediaOrderList(){mediaOrderList.innerHTML=mediaOrderDraft.map((name,index)=>'<div class="media-order-row"><span>'+name+'</span><div><button type="button" onclick="moveApplicationMedia('+index+',-1)" '+(index===0?'disabled':'')+'>↑</button><button type="button" onclick="moveApplicationMedia('+index+',1)" '+(index===mediaOrderDraft.length-1?'disabled':'')+'>↓</button></div></div>').join('')||'<p class="media-order-empty">媒体がありません。</p>';}
