@@ -652,3 +652,8 @@ dialog textarea:focus{
 
 /* 未収伝票の領収証欄も行全体と同じ色に統一 */
 #slipTable tr.unsettled-slip td:nth-child(6),#unsettledSlipTable tr.unsettled-slip td:nth-child(6){background:#641c36!important;background-image:none!important}
+
+/* iPhone: 入力時の自動ズーム防止（今後追加する入力欄にも共通適用） */
+@media (max-width:767px){
+  input:not([type="checkbox"]):not([type="radio"]),select,textarea{font-size:16px!important}
+}
