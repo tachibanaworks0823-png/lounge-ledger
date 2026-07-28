@@ -594,3 +594,12 @@ dialog textarea:focus{
     padding:0 12px!important;
   }
 }
+
+
+/* Keep expense-option actions next to the add field, above the long option list. */
+#expenseOptionDialog .expense-option-add-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;color:#ead7df;font-size:13px;font-weight:700}
+#expenseOptionDialog .expense-option-add-head .dialog-actions{display:flex;gap:8px;margin:0;padding:0;border:0}
+#expenseOptionDialog .expense-option-add-head .primary-button,#expenseOptionDialog .expense-option-add-head .secondary-button{padding:8px 11px;font-size:11px}
+#expenseOptionDialog .expense-option-name{display:block}
+#expenseOptionDialog .expense-option-name input{width:100%}
+@media(max-width:560px){#expenseOptionDialog .expense-option-add-head{align-items:flex-start;flex-direction:column;gap:7px}#expenseOptionDialog .expense-option-add-head .dialog-actions{width:100%;justify-content:flex-end}}
