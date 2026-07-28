@@ -521,3 +521,17 @@ dialog textarea:focus{
 @media(max-width:560px){
   #cast-management .section-head{top:78px;padding:10px 0}
 }
+
+
+/* Application list: keep every column readable; constrain only the notes column */
+.application-list-group .table-wrap table{table-layout:auto!important}
+.application-list-group .table-wrap th,
+.application-list-group .table-wrap td{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+.application-list-group .table-wrap th:last-child,
+.application-list-group .table-wrap td:last-child{
+  width:230px!important;
+  max-width:230px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
