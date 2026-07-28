@@ -25,3 +25,10 @@
 .daily-sales-table .daily-sales-input::placeholder{color:#91717f}
 .daily-sales-table .daily-sales-input::-webkit-outer-spin-button,.daily-sales-table .daily-sales-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 @media(max-width:560px){.daily-sales-table .daily-sales-input{width:78px;height:28px;padding:3px 6px;font-size:12px!important}}
+
+/* 日別売上表：自動集計に加える日払い手入力 */
+.daily-sales-table .daily-advance-input{width:82px;min-width:70px;height:30px;padding:4px 7px;border:1px solid #456c62;border-radius:7px;background:#17201d;color:#9ce3c5;font:600 12px inherit;text-align:right;outline:none;-moz-appearance:textfield}
+.daily-sales-table .daily-advance-input:focus{border-color:#68c69d;box-shadow:0 0 0 2px #59bf9333}
+.daily-sales-table .daily-advance-input::placeholder{color:#608076}
+.daily-sales-table .daily-advance-input::-webkit-outer-spin-button,.daily-sales-table .daily-advance-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:560px){.daily-sales-table .daily-advance-input{width:74px;height:28px;padding:3px 6px;font-size:12px!important}}
