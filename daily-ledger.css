@@ -43,3 +43,73 @@
   .daily-sales-table .daily-sales-input{width:68px!important;min-width:68px!important;padding:3px 2px!important;font-size:11px!important;letter-spacing:0!important}
   .daily-sales-table .sales{font-size:10px!important;letter-spacing:0!important;white-space:nowrap}
 }
+
+
+/* iPhone：日別売上表の固定列と手入力欄 */
+@media (max-width:560px){
+  .daily-table-wrap{
+    position:relative!important;
+    overflow-x:auto!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  .daily-sales-table{
+    border-collapse:separate!important;
+    border-spacing:0!important;
+  }
+  .daily-sales-table th:nth-child(1),
+  .daily-sales-table td:nth-child(1){
+    position:-webkit-sticky!important;
+    position:sticky!important;
+    left:0!important;
+    z-index:8!important;
+    width:60px!important;
+    min-width:60px!important;
+    max-width:60px!important;
+  }
+  .daily-sales-table th:nth-child(2),
+  .daily-sales-table td.weekday{
+    position:-webkit-sticky!important;
+    position:sticky!important;
+    left:60px!important;
+    z-index:8!important;
+    width:46px!important;
+    min-width:46px!important;
+    max-width:46px!important;
+  }
+  .daily-sales-table th:nth-child(1),
+  .daily-sales-table th:nth-child(2){
+    z-index:10!important;
+    background:#1a171a!important;
+  }
+  .daily-sales-table td:nth-child(1),
+  .daily-sales-table td.weekday{background:#171519!important}
+  .daily-sales-table tr.has-activity td:nth-child(1),
+  .daily-sales-table tr.has-activity td.weekday{background:#271a22!important}
+  .daily-sales-table tr.is-store-closed td:nth-child(1),
+  .daily-sales-table tr.is-store-closed td.weekday{background:#541c2a!important}
+  .daily-sales-table th:nth-child(3),
+  .daily-sales-table td:nth-child(3){
+    width:116px!important;
+    min-width:116px!important;
+  }
+  .daily-sales-table .daily-sales-input,
+  .daily-sales-table .daily-advance-input,
+  .daily-sales-table .daily-expense-input{
+    box-sizing:border-box!important;
+    width:104px!important;
+    min-width:104px!important;
+    max-width:104px!important;
+    height:28px!important;
+    padding:3px 5px!important;
+    font-size:11px!important;
+    line-height:1!important;
+    letter-spacing:0!important;
+    text-align:right!important;
+  }
+  .daily-sales-table .daily-sales-input::placeholder,
+  .daily-sales-table .daily-advance-input::placeholder,
+  .daily-sales-table .daily-expense-input::placeholder{
+    font-size:11px!important;
+  }
+}
