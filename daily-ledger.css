@@ -207,3 +207,17 @@
     z-index:35!important;
   }
 }
+
+/* iPhone：日別売上表の入力済み金額サイズを固定 */
+@media (max-width:560px){
+  .daily-table-wrap .daily-sales-table .daily-money-input > input.daily-sales-input,
+  .daily-table-wrap .daily-sales-table .daily-money-input > input.daily-advance-input,
+  .daily-table-wrap .daily-sales-table .daily-money-input > input.daily-expense-input{
+    font-family:"DM Sans","Noto Sans JP",sans-serif!important;
+    font-size:11px!important;
+    font-weight:600!important;
+    line-height:1!important;
+    -webkit-text-size-adjust:100%!important;
+    text-size-adjust:100%!important;
+  }
+}
