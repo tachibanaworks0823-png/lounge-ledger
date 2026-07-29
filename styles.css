@@ -904,3 +904,11 @@ input[type="number"]::-webkit-inner-spin-button{
   width:100%;
   min-width:0;
 }
+
+/* 女子給システム */
+.girls-payroll-system-panel{margin-bottom:17px}
+.girls-payroll-settings{display:grid;gap:10px;margin-top:16px}
+.girls-payroll-rule{display:flex;align-items:end;flex-wrap:wrap;gap:7px;padding:11px 13px;border:1px solid #4f3a47;border-radius:10px;background:#1b171b;color:#eadde5;font-size:13px}
+.girls-payroll-rule .setting-field{display:block;width:84px;min-width:84px;color:inherit;font-size:0}
+.girls-payroll-rule .setting-field input{width:100%;min-height:36px;padding:7px 8px!important;text-align:right;font-size:14px!important}
+@media(max-width:560px){.girls-payroll-system-panel{margin-bottom:10px}.girls-payroll-rule{gap:6px;padding:10px;font-size:12px;line-height:1.4}.girls-payroll-rule .setting-field{width:68px;min-width:68px}.girls-payroll-rule .setting-field input{min-height:38px;font-size:16px!important}}
