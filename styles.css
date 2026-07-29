@@ -714,12 +714,10 @@ dialog textarea:focus{
 #casts .table-wrap td:nth-child(7),
 #casts .table-wrap th:nth-child(14),
 #casts .table-wrap td:nth-child(14),
-#casts .table-wrap th:nth-child(18),
-#casts .table-wrap td:nth-child(18),
-#casts .table-wrap th:nth-child(19),
-#casts .table-wrap td:nth-child(19),
-#casts .table-wrap th:nth-child(23),
-#casts .table-wrap td:nth-child(23){
+#casts .table-wrap th:nth-child(20),
+#casts .table-wrap td:nth-child(20),
+#casts .table-wrap th:nth-child(24),
+#casts .table-wrap td:nth-child(24){
   border-left:2px solid #815269!important;
 }
 
@@ -734,12 +732,12 @@ dialog textarea:focus{
 #casts .table-wrap thead th:first-child{z-index:8!important}
 
 /* キャスト給与：控除計と日払いの区切り */
-#casts .table-wrap th:nth-child(18),
-#casts .table-wrap td:nth-child(18){
-  border-left:0!important;
-}
 #casts .table-wrap th:nth-child(19),
 #casts .table-wrap td:nth-child(19){
+  border-left:0!important;
+}
+#casts .table-wrap th:nth-child(20),
+#casts .table-wrap td:nth-child(20){
   border-left:2px solid #815269!important;
 }
 
