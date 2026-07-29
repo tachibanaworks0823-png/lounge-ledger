@@ -688,3 +688,21 @@ dialog textarea:focus{
 #backSettings .back-rate-group-0>h4{color:#76d7ef!important}
 #backSettings .back-rate-group-1>h4{color:#ff79ae!important}
 #backSettings .back-rate-group-2>h4{color:#f4c969!important}
+
+/* キャスト給与：キャスト列を固定 */
+#casts .table-wrap{position:relative!important;isolation:isolate!important}
+#casts .table-wrap table{border-collapse:separate!important;border-spacing:0!important}
+#casts .table-wrap th:first-child,
+#casts .table-wrap td:first-child{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  left:0!important;
+  z-index:5!important;
+  min-width:106px!important;
+  background:#211c21!important;
+  box-shadow:2px 0 0 #51404a!important;
+}
+#casts .table-wrap th:first-child{
+  z-index:7!important;
+  background:#2a2228!important;
+}
