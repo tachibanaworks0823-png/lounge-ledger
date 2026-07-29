@@ -210,15 +210,20 @@ function calcDailyInput(input){
   const cast=data.casts.find(c=>c.id===input.castId);
   const hours=Number(input.hours||0);
   const hourly=hours*Number(cast?.hourly||0);
+  const incomeTax=Math.round((hourly+0)*(Number(data.settings.taxRate||0))/100);
+  const consumptionTax=Math.round((hourly+0)*(Number(data.settings.consumptionTax||0))/100);
   const back=Number(input.areaNomination||0)*Number(data.settings.areaNomination||0)
     +Number(input.mainCount||0)*Number(data.settings.mainNomination||0)
     +Number(input.companionCount||0)*Number(data.settings.companion||0)
     +dailyBackKeys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(data.settings[key]||0),0);
   const gross=hourly+back;
-  const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)
-    +Number(data.settings.welfarePerShift||0)+Number(data.settings.deductionPerShift||0)+Number(input.deduction||0);
+  const income=Math.round(gross*(Number(data.settings.taxRate||0))/100);
+  const consumption=Math.round(gross*(Number(data.settings.consumptionTax||0))/100);
+  const welfare=Number(data.settings.welfarePerShift||0);
+  const deduction=Number(input.deduction||0);
+  const deductions=income+consumption+welfare+Number(data.settings.deductionPerShift||0)+deduction;
   const advance=Number(input.advance||0);
-  return {hours,advance,back,hourly,gross,deductions,payout:Math.max(0,gross-deductions-advance)};
+  return {hours,advance,back,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,deduction,payout:Math.max(0,gross-deductions-advance)};
 }
 function payrollAdjustment(castId){return (data.payrollAdjustments||[]).find(item=>item.castId===castId&&item.month===data.month)||{};}
 function applyPayrollAdjustment(castId,values){
@@ -229,20 +234,45 @@ function applyPayrollAdjustment(castId,values){
   const payout=value('payout',Math.max(0,hourly+back-deductions));
   return {...values,nominated,area,main,companion,hours,hourly,back,deductions,advance:0,payout};
 }
+function enrichCastPayroll(castId,raw){
+  const result=applyPayrollAdjustment(castId,raw);
+  const adjustment=payrollAdjustment(castId);
+  const manualDeductions=adjustment.deductions!==undefined&&adjustment.deductions!=='';
+  const gross=Number(result.hourly||0)+Number(result.back||0);
+  const deductionTotal=manualDeductions?Number(result.deductions||0):Number(raw.deductionTotal||0);
+  const advanceAmount=manualDeductions?0:Number(raw.advanceAmount||0);
+  return {...result,...raw,gross,deductionTotal,advanceAmount,payoutBeforeAdvance:Math.max(0,gross-deductionTotal)};
+}
 function calcCast(cast){
   const dailyInputs=data.dailyInputs.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date));
   if(dailyInputs.length){
     const values=dailyInputs.map(calcDailyInput);
     const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
-    return applyPayrollAdjustment(cast.id,{hours:sum('hours'),advance:sum('advance'),nominated:dailyInputs.reduce((n,x)=>n+Number(x.mainSales||0),0),area:dailyInputs.reduce((n,x)=>n+Number(x.areaNomination||0),0),main:dailyInputs.reduce((n,x)=>n+Number(x.mainCount||0),0),companion:dailyInputs.reduce((n,x)=>n+Number(x.companionCount||0),0),drink:0,bottle:0,back:sum('back'),hourly:sum('hourly'),gross:sum('gross'),deductions:sum('deductions'),payout:sum('payout')});
+    const inputSum=key=>dailyInputs.reduce((n,x)=>n+Number(x[key]||0),0);
+    return enrichCastPayroll(cast.id,{
+      days:dailyInputs.length,hours:sum('hours'),advance:sum('advance'),advanceAmount:sum('advance'),
+      nominated:inputSum('mainSales'),area:inputSum('areaNomination'),main:inputSum('mainCount'),companion:inputSum('companionCount'),
+      extension:inputSum('mainExtension')+inputSum('companionExtension'),
+      companionBack:inputSum('companion1000')+inputSum('companion1500')+inputSum('companion2000')+inputSum('companion2500')+inputSum('companion3000')+inputSum('companionP'),
+      mainBack:inputSum('main1000')+inputSum('main1500')+inputSum('main2000')+inputSum('main2500')+inputSum('main3000')+inputSum('mainP'),
+      extensionBack:inputSum('mainExtension')+inputSum('companionExtension'),drink:0,
+      decoration:inputSum('mainDecoration')+inputSum('companionDecoration'),
+      bottleChampagne:inputSum('mainBottle')+inputSum('mainChampagne')+inputSum('companionBottle')+inputSum('companionChampagne'),
+      back:sum('back'),hourly:sum('hourly'),gross:sum('gross'),
+      consumptionTax:sum('consumptionTax'),incomeTax:sum('incomeTax'),welfare:sum('welfare'),
+      pull:inputSum('deduction')+dailyInputs.length*Number(data.settings.deductionPerShift||0),
+      deductionTotal:sum('deductions'),deductions:sum('deductions'),payout:sum('payout')
+    });
   }
   const slips=data.slips.filter(s=>isSelectedMonth(slipSalesPostingDate(s))&&!isUnsettledSlip(s)).flatMap(s=>(s.casts||[]).map(a=>({...a,date:slipSalesPostingDate(s)}))).filter(a=>a.castId===cast.id);
-  const shifts=data.shifts.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date)); const hours=shifts.reduce((n,x)=>n+Number(x.hours),0); const advance=shifts.reduce((n,x)=>n+Number(x.advance),0);
-  const nominated=slips.filter(x=>x.type==='本指名').reduce((n,x)=>n+Number(x.sales),0); const area=slips.filter(x=>x.type==='場内'||x.type==='フリー・場内').length; const main=slips.filter(x=>x.type==='本指名').length; const companion=slips.filter(x=>x.type==='同伴').length;
-  const drink=slips.reduce((n,x)=>n+Number(x.drink),0), bottle=slips.reduce((n,x)=>n+Number(x.bottle),0), champagne=slips.reduce((n,x)=>n+Number(x.champagne),0), extension=slips.reduce((n,x)=>n+Number(x.extension),0);
-  const back=main*data.settings.mainNomination + companion*data.settings.companion + extension*data.settings.extension + drink*data.settings.drink + bottle*data.settings.bottle + champagne*data.settings.champagne;
-  const hourly=hours*cast.hourly, gross=hourly+back; const deductions=Math.round(gross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)+shifts.length*(Number(data.settings.welfarePerShift||0)+Number(data.settings.deductionPerShift||0));
-  return applyPayrollAdjustment(cast.id,{hours,advance,nominated,area,main,companion,drink,bottle,back,hourly,gross,deductions,payout:Math.max(0,gross-deductions-advance)});
+  const shifts=data.shifts.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date));
+  const hours=shifts.reduce((n,x)=>n+Number(x.hours||0),0),advance=shifts.reduce((n,x)=>n+Number(x.advance||0),0);
+  const nominated=slips.filter(x=>x.type==='本指名').reduce((n,x)=>n+Number(x.sales||0),0);
+  const area=slips.filter(x=>x.type==='場内'||x.type==='フリー・場内').length,main=slips.filter(x=>x.type==='本指名').length,companion=slips.filter(x=>x.type==='同伴').length;
+  const drink=slips.reduce((n,x)=>n+Number(x.drink||0),0),bottle=slips.reduce((n,x)=>n+Number(x.bottle||0),0),champagne=slips.reduce((n,x)=>n+Number(x.champagne||0),0),extension=slips.reduce((n,x)=>n+Number(x.extension||0),0);
+  const back=main*Number(data.settings.mainNomination||0)+companion*Number(data.settings.companion||0)+extension*Number(data.settings.extension||0)+drink*Number(data.settings.drink||0)+bottle*Number(data.settings.bottle||0)+champagne*Number(data.settings.champagne||0);
+  const hourly=hours*Number(cast.hourly||0),gross=hourly+back,incomeTax=Math.round(gross*Number(data.settings.taxRate||0)/100),consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100),welfare=shifts.length*Number(data.settings.welfarePerShift||0),pull=shifts.reduce((n,x)=>n+Number(x.deduction||0),0)+shifts.length*Number(data.settings.deductionPerShift||0),deductionTotal=incomeTax+consumptionTax+welfare+pull;
+  return enrichCastPayroll(cast.id,{days:shifts.length,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension,companionBack:companion,mainBack:main,extensionBack:extension,drink,decoration:0,bottleChampagne:bottle+champagne,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(slipSalesPostingDate(x))&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
@@ -350,7 +380,14 @@ function renderSlips(){
   $('#slipTable').innerHTML=slips.slice().sort((a,b)=>{const dateOrder=String(slipSalesPostingDate(a)||'').localeCompare(String(slipSalesPostingDate(b)||''))*direction;return dateOrder||String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true})*direction;}).map(slipTableRow).join('')||empty(8,'伝票はまだありません');
 }
 function renderDailyInputs(){const [year,month]=data.month.split('-').map(Number),count=new Date(year,month,0).getDate(),grouped=new Map(),statuses=new Map(),inputs=data.dailyInputs.filter(x=>isSelectedMonth(x.date));inputs.forEach(x=>{if(!grouped.has(x.date))grouped.set(x.date,[]);grouped.get(x.date).push(x);});data.dailyStatuses.filter(x=>isSelectedMonth(x.date)).forEach(x=>statuses.set(x.date,x.status));const dates=Array.from({length:count},(_,i)=>data.month+'-'+String(i+1).padStart(2,'0')).sort((a,b)=>a.localeCompare(b)*(dailyInputDateSort==='asc'?1:-1));$('#dailyInputSummary').textContent=data.month.replace('-','年')+'月・'+inputs.length+'件';$('#sortDailyInputDate').textContent='日付 '+(dailyInputDateSort==='asc'?'↑':'↓');const options=status=>['営業','店休','キャスト0'].map(value=>'<option'+(status===value?' selected':'')+'>'+value+'</option>').join('');$('#dailyInputTable').innerHTML=dates.map(date=>{const entries=grouped.get(date)||[],status=statuses.get(date)||'営業',statusClass=status==='店休'?' is-closed':status==='キャスト0'?' is-zero':'';return '<tr><td><b>'+dateJP(date)+'</b></td><td><select class="daily-status-select'+statusClass+'" onchange="updateDailyStatus(\''+date+'\',this.value)">'+options(status)+'</select></td><td>'+entries.length+'人分</td><td><button class="primary-button compact-button" onclick="openDailyDateDetails(\''+date+'\')">詳細を見る</button></td></tr>';}).join('');}
-function renderCasts(){ $('#castTable').innerHTML=sortedCasts().map(c=>{const x=calcCast(c);return `<tr><td><b>${c.name}</b><br><small>時給 ${yen(c.hourly)}</small></td><td>${yen(x.nominated)}</td><td>${x.area||0}本 / ${x.main}本 / ${x.companion}本</td><td>${x.hours.toFixed(1)}h</td><td>${yen(x.hourly)}</td><td>${yen(x.back)}</td><td>${yen(x.deductions+x.advance)}</td><td><b>${yen(x.payout)}</b></td><td><button class="text-button" onclick="editCastPayroll('${c.id}')">詳細・編集</button></td></tr>`}).join('')||empty(9,'キャストはまだいません'); }
+function renderCasts(){
+  const value=(amount,suffix='')=>Number(amount||0)?yen(amount)+suffix:'—';
+  const count=(amount,label='')=>Number(amount||0)?Number(amount)+label:'—';
+  $('#castTable').innerHTML=sortedCasts().map(c=>{
+    const x=calcCast(c),payRate=x.nominated?Math.round(Number(x.payout||0)/Number(x.nominated||1)*100)+'%':'—',averageHourly=x.hours?yen(Number(x.payout||0)/Number(x.hours||1)):'—';
+    return '<tr><td><b>'+c.name+'</b><br><small>時給 '+yen(c.hourly)+'</small></td><td>'+value(x.nominated)+'</td><td>'+count(x.area,'本')+' / '+count(x.main,'本')+' / '+count(x.companion,'本')+' / '+count(x.extension,'本')+'</td><td>'+count(x.days,'日')+'</td><td>'+Number(x.hours||0).toFixed(1)+'h</td><td>'+value(x.hourly)+'</td><td>'+count(x.companionBack,'本')+'</td><td>'+count(x.mainBack,'本')+'</td><td>'+count(x.extensionBack,'本')+'</td><td>'+count(x.drink,'杯')+'</td><td>'+count(x.decoration,'個')+'</td><td>'+count(x.bottleChampagne,'本')+'</td><td>'+value(x.back)+'</td><td>'+value(x.consumptionTax)+'</td><td>'+value(x.incomeTax)+'</td><td>'+value(x.welfare)+'</td><td>'+value(x.pull)+'</td><td>'+value(x.deductionTotal)+'</td><td>'+value(x.advanceAmount)+'</td><td>'+value(x.gross)+'</td><td>'+value(x.payoutBeforeAdvance)+'</td><td><b>'+value(x.payout)+'</b></td><td>'+payRate+'</td><td>'+averageHourly+'</td><td><button class="text-button" onclick="editCastPayroll(\''+c.id+'\')">詳細・編集</button></td></tr>';
+  }).join('')||empty(25,'キャストはまだいません');
+}
 const castAge=birthday=>{if(!birthday)return '—';const birth=new Date(birthday+'T00:00:00'),today=new Date();let years=today.getFullYear()-birth.getFullYear();if(today.getMonth()<birth.getMonth()||(today.getMonth()===birth.getMonth()&&today.getDate()<birth.getDate()))years--;return years+'歳';};
 function renderCastManagement(){
   const row=(c,showLeavingDate=false,showAddress=false)=>{const profileAge=(c.age!==''&&c.age!==undefined&&c.age!==null)?String(c.age)+'歳':castAge(c.birthday);const checked=[c.termsSigned,c.photoSubmitted,c.residenceCertificate].filter(Boolean).length;const checkLabel=checked===3?'確認済':'未確認 '+checked+'/3';const address=[c.address,c.building].filter(Boolean).join(' ')||'—';const memo='<td>'+(c.memo||'—')+'</td>';const addressCells='<td><button class="text-button" onclick="copyCastAddress(&quot;'+c.id+'&quot;)">コピー</button></td><td>'+address+'</td>';const actions='<td class="cast-action-cell"><button class="text-button" onclick="editCastProfile(&quot;'+c.id+'&quot;)">編集・詳細</button></td>';return '<tr><td><b>'+c.name+'</b></td><td>'+profileAge+'</td><td><span class="cast-check-status '+(checked===3?'complete':'incomplete')+'">'+checkLabel+'</span></td>'+(showLeavingDate?'<td>'+(c.leavingDate?dateKey(c.leavingDate).replace(/-/g,'/'):'—')+'</td>':'')+(showAddress?addressCells+memo:memo)+actions+'</tr>';};
