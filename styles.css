@@ -740,3 +740,21 @@ dialog textarea:focus{
 #casts .table-wrap td:nth-child(19){
   border-left:2px solid #815269!important;
 }
+
+
+/* 日別打込み：見出しと入力操作を固定 */
+#daily-input .section-head{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:107px!important;
+  z-index:2!important;
+  padding:12px 0!important;
+  background:linear-gradient(90deg,#151218f7,#191018f4)!important;
+  box-shadow:0 9px 18px #05040644!important;
+}
+@media(max-width:560px){
+  #daily-input .section-head{
+    top:78px!important;
+    padding:10px 0!important;
+  }
+}
