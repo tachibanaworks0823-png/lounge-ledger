@@ -772,3 +772,21 @@ input[type="number"]::-webkit-inner-spin-button{
   appearance:none!important;
   margin:0!important;
 }
+
+/* 設定画面：モバイルでも入力枠をカード内の幅に収める */
+#settings .setting-fields,
+#settings .setting-rate-section,
+#settings .daily-rate-grid,
+#settings .setting-field{
+  min-width:0!important;
+}
+#settings .setting-field input{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+@media(max-width:560px){
+  #settings .setting-fields{width:100%!important}
+  #settings .daily-rate-grid{width:100%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
