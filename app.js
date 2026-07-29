@@ -241,7 +241,7 @@ function enrichCastPayroll(castId,raw){
   const gross=Number(result.hourly||0)+Number(result.back||0);
   const deductionTotal=manualDeductions?Number(result.deductions||0):Number(raw.deductionTotal||0);
   const advanceAmount=manualDeductions?0:Number(raw.advanceAmount||0);
-  return {...result,...raw,gross,deductionTotal,advanceAmount,payoutBeforeAdvance:Math.max(0,gross-deductionTotal)};
+  return {...raw,...result,gross,deductionTotal,advanceAmount,payoutBeforeAdvance:Math.max(0,gross-deductionTotal)};
 }
 function calcCast(cast){
   const dailyInputs=data.dailyInputs.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date));
