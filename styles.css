@@ -819,3 +819,53 @@ input[type="number"]::-webkit-inner-spin-button{
 /* 本指名売上：実働・日払い・引き物の並びに合わせる */
 .daily-batch-row>label.batch-sales-field{flex:1 1 calc(33.333% - 7px)!important;min-width:0!important}
 @media(max-width:560px){.daily-batch-row>label.batch-sales-field{flex-basis:calc(33.333% - 7px)!important}}
+
+/* 日別まとめ入力：通常入力欄を同じ寸法の4列グリッドへ統一 */
+.daily-batch-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  align-items:end!important;
+}
+.daily-batch-row>.batch-cast-head,
+.daily-batch-row>.batch-back-detail{
+  grid-column:1 / -1!important;
+  width:auto!important;
+}
+.daily-batch-row>.batch-time-field{
+  grid-column:span 2!important;
+  width:auto!important;
+  min-width:0!important;
+}
+.daily-batch-row>label.batch-work-field,
+.daily-batch-row>label.batch-count-field,
+.daily-batch-row>label.batch-sales-field{
+  grid-column:span 1!important;
+  width:auto!important;
+  min-width:0!important;
+}
+.daily-batch-row input,
+.daily-batch-row select,
+.daily-batch-row .batch-hours{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-height:42px!important;
+  height:42px!important;
+  font-size:16px!important;
+  line-height:1.2!important;
+}
+.daily-batch-row .batch-hours{
+  display:flex!important;
+  align-items:center!important;
+  padding:7px 6px!important;
+}
+@media(max-width:560px){
+  .daily-batch-row{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  .daily-batch-row>.batch-time-field{grid-column:span 2!important}
+  .daily-batch-row input,
+  .daily-batch-row select,
+  .daily-batch-row .batch-hours{min-height:40px!important;height:40px!important;padding:6px 5px!important}
+}
