@@ -206,27 +206,31 @@ const dateKey=value=>{const raw=String(value||'').trim().replace(/\//g,'-');cons
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const effectiveCastStatus=cast=>{const leaving=dateKey(cast.leavingDate);if(leaving&&leaving<=todayKey())return '退店';if(leaving&&cast.status==='退店')return '在籍';return cast.status||'在籍';};
 const dailyBackKeys=['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration'];
+function dailyBackBreakdown(input){
+  const detailBack=keys=>keys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(data.settings[key]||0),0);
+  const companionBack=Number(input.companionCount||0)*Number(data.settings.companion||0);
+  const mainBack=Number(input.mainCount||0)*Number(data.settings.mainNomination||0);
+  const extensionBack=(Number(input.mainExtension||0)+Number(input.companionExtension||0))*Number(data.settings.extension||0);
+  const drink=detailBack(['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','companion1000','companion1500','companion2000','companion2500','companion3000','companionP']);
+  const decoration=detailBack(['mainDecoration','companionDecoration']);
+  const bottleChampagne=(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(data.settings.mainBottle||0)/100
+    +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(data.settings.companionBottle||0)/100;
+  return {companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,backTotal:companionBack+mainBack+extensionBack+drink+decoration+bottleChampagne};
+}
 function calcDailyInput(input){
   const cast=data.casts.find(c=>c.id===input.castId);
   const hours=Number(input.hours||0);
   const hourly=hours*Number(cast?.hourly||0);
-  const incomeTax=Math.round((hourly+0)*(Number(data.settings.taxRate||0))/100);
-  const consumptionTax=Math.round((hourly+0)*(Number(data.settings.consumptionTax||0))/100);
-  const bottlePercentBack=(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(data.settings.mainBottle||0)/100
-    +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(data.settings.companionBottle||0)/100;
-  const back=Number(input.areaNomination||0)*Number(data.settings.areaNomination||0)
-    +Number(input.mainCount||0)*Number(data.settings.mainNomination||0)
-    +Number(input.companionCount||0)*Number(data.settings.companion||0)
-    +dailyBackKeys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(data.settings[key]||0),0)
-    +bottlePercentBack;
+  const backBreakdown=dailyBackBreakdown(input);
+  const back=backBreakdown.backTotal;
   const gross=hourly+back;
-  const income=Math.round(gross*(Number(data.settings.taxRate||0))/100);
-  const consumption=Math.round(gross*(Number(data.settings.consumptionTax||0))/100);
+  const consumption=Math.round(gross*Number(data.settings.consumptionTax||0)/100);
+  const income=Math.round(Math.max(0,gross-consumption)*Number(data.settings.taxRate||0)/100);
   const welfare=Number(data.settings.welfarePerShift||0);
   const deduction=Number(input.deduction||0);
   const deductions=income+consumption+welfare+Number(data.settings.deductionPerShift||0)+deduction;
   const advance=Number(input.advance||0);
-  return {hours,advance,back,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,deduction,payout:Math.max(0,gross-deductions-advance)};
+  return {hours,advance,back,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,deduction,payout:Math.max(0,gross-deductions-advance),...backBreakdown};
 }
 function payrollAdjustment(castId){return (data.payrollAdjustments||[]).find(item=>item.castId===castId&&item.month===data.month)||{};}
 function applyPayrollAdjustment(castId,values){
@@ -252,14 +256,13 @@ function calcCast(cast){
     const values=dailyInputs.map(calcDailyInput);
     const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
     const inputSum=key=>dailyInputs.reduce((n,x)=>n+Number(x[key]||0),0);
-    const detailBack=keys=>dailyInputs.reduce((total,input)=>total+keys.reduce((amount,key)=>amount+Number(input[key]||0)*Number(data.settings[key]||0),0),0);
-    const companionBack=inputSum('companionCount')*Number(data.settings.companion||0);
-    const mainBack=inputSum('mainCount')*Number(data.settings.mainNomination||0);
-    const extensionBack=(inputSum('mainExtension')+inputSum('companionExtension'))*Number(data.settings.extension||0);
-    const drink=detailBack(['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','companion1000','companion1500','companion2000','companion2500','companion3000','companionP']);
-    const decoration=detailBack(['mainDecoration','companionDecoration']);
-    const bottleChampagne=dailyInputs.reduce((total,input)=>total+(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(data.settings.mainBottle||0)/100+(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(data.settings.companionBottle||0)/100,0);
-    const backTotal=companionBack+mainBack+extensionBack+drink+decoration+bottleChampagne;
+    const companionBack=sum('companionBack');
+    const mainBack=sum('mainBack');
+    const extensionBack=sum('extensionBack');
+    const drink=sum('drink');
+    const decoration=sum('decoration');
+    const bottleChampagne=sum('bottleChampagne');
+    const backTotal=sum('backTotal');
     return enrichCastPayroll(cast.id,{
       days:dailyInputs.length,hours:sum('hours'),advance:sum('advance'),advanceAmount:sum('advance'),
       nominated:inputSum('mainSales'),area:inputSum('areaNomination'),main:inputSum('mainCount'),companion:inputSum('companionCount'),
@@ -277,9 +280,9 @@ function calcCast(cast){
   const nominated=slips.filter(x=>x.type==='本指名').reduce((n,x)=>n+Number(x.sales||0),0);
   const area=slips.filter(x=>x.type==='場内'||x.type==='フリー・場内').length,main=slips.filter(x=>x.type==='本指名').length,companion=slips.filter(x=>x.type==='同伴').length;
   const drink=slips.reduce((n,x)=>n+Number(x.drink||0),0),bottle=slips.reduce((n,x)=>n+Number(x.bottle||0),0),champagne=slips.reduce((n,x)=>n+Number(x.champagne||0),0),extension=slips.reduce((n,x)=>n+Number(x.extension||0),0);
-  const back=main*Number(data.settings.mainNomination||0)+companion*Number(data.settings.companion||0)+extension*Number(data.settings.extension||0)+drink*Number(data.settings.drink||0)+bottle*Number(data.settings.bottle||0)+champagne*Number(data.settings.champagne||0);
-  const hourly=hours*Number(cast.hourly||0),gross=hourly+back,incomeTax=Math.round(gross*Number(data.settings.taxRate||0)/100),consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100),welfare=shifts.length*Number(data.settings.welfarePerShift||0),pull=shifts.reduce((n,x)=>n+Number(x.deduction||0),0)+shifts.length*Number(data.settings.deductionPerShift||0),deductionTotal=incomeTax+consumptionTax+welfare+pull;
   const companionBack=companion*Number(data.settings.companion||0),mainBack=main*Number(data.settings.mainNomination||0),extensionBack=extension*Number(data.settings.extension||0),drinkBack=drink*Number(data.settings.drink||0),bottleChampagneBack=bottle*Number(data.settings.bottle||0)+champagne*Number(data.settings.champagne||0),backTotal=companionBack+mainBack+extensionBack+drinkBack+bottleChampagneBack;
+  const back=backTotal;
+  const hourly=hours*Number(cast.hourly||0),gross=hourly+back,consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100),incomeTax=Math.round(Math.max(0,gross-consumptionTax)*Number(data.settings.taxRate||0)/100),welfare=shifts.length*Number(data.settings.welfarePerShift||0),pull=shifts.reduce((n,x)=>n+Number(x.deduction||0),0)+shifts.length*Number(data.settings.deductionPerShift||0),deductionTotal=incomeTax+consumptionTax+welfare+pull;
   return enrichCastPayroll(cast.id,{days:shifts.length,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension,companionBack,mainBack,extensionBack,drink:drinkBack,decoration:0,bottleChampagne:bottleChampagneBack,backTotal,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(slipSalesPostingDate(x))&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
