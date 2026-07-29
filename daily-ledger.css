@@ -113,3 +113,52 @@
     font-size:11px!important;
   }
 }
+
+/* 日別売上表：手入力の金額記号 */
+.daily-sales-table .daily-money-input{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:116px!important;
+  min-width:116px!important;
+  max-width:116px!important;
+  height:30px!important;
+  padding:0 6px!important;
+  border:1px solid #6f5064!important;
+  border-radius:7px!important;
+  background:#171519!important;
+  color:#f5b5cf!important;
+  box-sizing:border-box!important;
+}
+.daily-sales-table .daily-money-input i{
+  flex:0 0 auto!important;
+  margin-right:2px!important;
+  color:#dca6bd!important;
+  font-size:12px!important;
+  font-style:normal!important;
+  font-weight:600!important;
+  line-height:1!important;
+}
+.daily-sales-table .daily-money-input input.daily-sales-input,
+.daily-sales-table .daily-money-input input.daily-advance-input,
+.daily-sales-table .daily-money-input input.daily-expense-input{
+  width:calc(100% - 12px)!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:100%!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+@media (max-width:560px){
+  .daily-sales-table .daily-money-input{
+    width:116px!important;
+    min-width:116px!important;
+    max-width:116px!important;
+    height:28px!important;
+    padding:0 5px!important;
+  }
+  .daily-sales-table .daily-money-input i{font-size:11px!important}
+}
