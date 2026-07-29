@@ -815,3 +815,7 @@ input[type="number"]::-webkit-inner-spin-button{
   .daily-batch-row>label.batch-work-field{flex-basis:calc(33.333% - 7px)!important}
   .daily-batch-row>label.batch-count-field{flex-basis:calc(25% - 7px)!important}
 }
+
+/* 本指名売上：実働・日払い・引き物の並びに合わせる */
+.daily-batch-row>label.batch-sales-field{flex:1 1 calc(33.333% - 7px)!important;min-width:0!important}
+@media(max-width:560px){.daily-batch-row>label.batch-sales-field{flex-basis:calc(33.333% - 7px)!important}}
