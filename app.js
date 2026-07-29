@@ -28,7 +28,7 @@ const defaultData = {
   expenses: [
     {id:'E-1',date:'2026-07-03',category:'酒代',company:'○○酒販',note:'営業用酒類',amount:984},{id:'E-2',date:'2026-07-04',category:'食材',company:'スーパー',note:'フルーツ・軽食',amount:1329},{id:'E-3',date:'2026-07-10',category:'備品',company:'通販',note:'紙おしぼり',amount:2400}
   ],
-  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, deductionPerShift:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], hiddenExpenseOptions:{categories:[],payees:[]}, payeeCategories:{}, customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'},{name:'未収',category:'receivable'}] }
+  settings:{ mainNomination:2500, companion:5000, extension:1500, drink:500, bottle:3000, champagne:7000, areaNomination:0, free1000:0, free1500:0, free2000:0, free2500:0, free3000:0, main1000:0, main1500:0, main2000:0, main2500:0, main3000:0, mainP:0, mainDecoration:0, mainBottle:0, mainChampagne:0, companion1000:0, companion1500:0, companion2000:0, companion2500:0, companion3000:0, companionP:0, companionDecoration:0, companionBottle:0, companionChampagne:0, taxRate:10, consumptionTax:0, welfarePerShift:0, deductionPerShift:0, monthlyMainCompanionStep:0, monthlyMainCompanionAdd:0, monthlyCompanionStep:0, monthlyCompanionAdd:0, monthlySalesStep:0, monthlySalesAdd:0, categories:['酒代','食材','備品','カラオケ','印刷','通信費','組合費','交通費','家賃','ガス','その他'], applicationMedia:['ポケパラ','ナイツネット','体入ショコラ','紹介','その他'], hiddenCustomerNames:[], hiddenExpenseOptions:{categories:[],payees:[]}, payeeCategories:{}, customerNameOrder:[], paymentMethods:[{name:'現金',category:'cash'},{name:'カード',category:'card'},{name:'未収',category:'receivable'}] }
 };
 function normalizeData(source){
   const value=source||{};
@@ -217,6 +217,16 @@ function dailyBackBreakdown(input){
     +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(data.settings.companionBottle||0)/100;
   return {companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,backTotal:companionBack+mainBack+extensionBack+drink+decoration+bottleChampagne};
 }
+function monthlyHourlyBonus(values){
+  const count=Number(values.main||0)+Number(values.companion||0);
+  const companion=Number(values.companion||0);
+  const sales=Number(values.nominated||0);
+  const step=(key)=>Number(data.settings[key]||0);
+  const earned=(value,stepKey,addKey)=>step(stepKey)>0?Math.floor(value/step(stepKey))*step(addKey):0;
+  return earned(count,'monthlyMainCompanionStep','monthlyMainCompanionAdd')
+    +earned(companion,'monthlyCompanionStep','monthlyCompanionAdd')
+    +earned(sales,'monthlySalesStep','monthlySalesAdd');
+}
 function calcDailyInput(input){
   const cast=data.casts.find(c=>c.id===input.castId);
   const hours=Number(input.hours||0);
@@ -261,23 +271,18 @@ function calcCast(cast){
     const values=dailyInputs.map(calcDailyInput);
     const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
     const inputSum=key=>dailyInputs.reduce((n,x)=>n+Number(x[key]||0),0);
-    const companionBack=sum('companionBack');
-    const mainBack=sum('mainBack');
-    const extensionBack=sum('extensionBack');
-    const drink=sum('drink');
-    const decoration=sum('decoration');
-    const bottleChampagne=sum('bottleChampagne');
-    const backTotal=sum('backTotal');
-    return enrichCastPayroll(cast.id,{
-      days:dailyInputs.length,hours:sum('hours'),advance:sum('advance'),advanceAmount:sum('advance'),
-      nominated:inputSum('mainSales'),area:inputSum('areaNomination'),main:inputSum('mainCount'),companion:inputSum('companionCount'),
-      extension:inputSum('mainExtension')+inputSum('companionExtension'),
-      companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,allowance:sum('allowance'),backTotal,
-      back:sum('back'),hourly:sum('hourly'),gross:sum('gross'),
-      consumptionTax:sum('consumptionTax'),incomeTax:sum('incomeTax'),welfare:sum('welfare'),
-      pull:inputSum('deduction')+dailyInputs.length*Number(data.settings.deductionPerShift||0),
-      deductionTotal:sum('deductions'),deductions:sum('deductions'),payout:sum('payout')
-    });
+    const days=dailyInputs.length,hours=sum('hours'),advance=sum('advance');
+    const nominated=inputSum('mainSales'),area=inputSum('areaNomination'),main=inputSum('mainCount'),companion=inputSum('companionCount');
+    const hourlyBonus=monthlyHourlyBonus({main,companion,nominated});
+    const hourly=hours*(Number(cast.hourly||0)+hourlyBonus);
+    const companionBack=sum('companionBack'),mainBack=sum('mainBack'),extensionBack=sum('extensionBack'),drink=sum('drink'),decoration=sum('decoration'),bottleChampagne=sum('bottleChampagne'),backTotal=sum('backTotal'),allowance=sum('allowance');
+    const back=backTotal,gross=hourly+back+allowance;
+    const consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100);
+    const incomeTax=Math.round(Math.max(0,gross-consumptionTax)*Number(data.settings.taxRate||0)/100);
+    const welfare=days*Number(data.settings.welfarePerShift||0);
+    const pull=inputSum('deduction')+days*Number(data.settings.deductionPerShift||0);
+    const deductionTotal=incomeTax+consumptionTax+welfare+pull;
+    return enrichCastPayroll(cast.id,{days,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension:inputSum('mainExtension')+inputSum('companionExtension'),hourlyBonus,companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,allowance,backTotal,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
   }
   const slips=data.slips.filter(s=>isSelectedMonth(slipSalesPostingDate(s))&&!isUnsettledSlip(s)).flatMap(s=>(s.casts||[]).map(a=>({...a,date:slipSalesPostingDate(s)}))).filter(a=>a.castId===cast.id);
   const shifts=data.shifts.filter(x=>x.castId===cast.id&&isSelectedMonth(x.date));
@@ -286,9 +291,8 @@ function calcCast(cast){
   const area=slips.filter(x=>x.type==='場内'||x.type==='フリー・場内').length,main=slips.filter(x=>x.type==='本指名').length,companion=slips.filter(x=>x.type==='同伴').length;
   const drink=slips.reduce((n,x)=>n+Number(x.drink||0),0),bottle=slips.reduce((n,x)=>n+Number(x.bottle||0),0),champagne=slips.reduce((n,x)=>n+Number(x.champagne||0),0),extension=slips.reduce((n,x)=>n+Number(x.extension||0),0);
   const companionBack=companion*Number(data.settings.companion||0),mainBack=main*Number(data.settings.mainNomination||0),extensionBack=extension*Number(data.settings.extension||0),drinkBack=drink*Number(data.settings.drink||0),bottleChampagneBack=bottle*Number(data.settings.bottle||0)+champagne*Number(data.settings.champagne||0),backTotal=companionBack+mainBack+extensionBack+drinkBack+bottleChampagneBack;
-  const back=backTotal;
-  const hourly=hours*Number(cast.hourly||0),gross=hourly+back,consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100),incomeTax=Math.round(Math.max(0,gross-consumptionTax)*Number(data.settings.taxRate||0)/100),welfare=shifts.length*Number(data.settings.welfarePerShift||0),pull=shifts.reduce((n,x)=>n+Number(x.deduction||0),0)+shifts.length*Number(data.settings.deductionPerShift||0),deductionTotal=incomeTax+consumptionTax+welfare+pull;
-  return enrichCastPayroll(cast.id,{days:shifts.length,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension,companionBack,mainBack,extensionBack,drink:drinkBack,decoration:0,bottleChampagne:bottleChampagneBack,allowance:0,backTotal,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
+  const back=backTotal,hourlyBonus=monthlyHourlyBonus({main,companion,nominated}),hourly=hours*(Number(cast.hourly||0)+hourlyBonus),gross=hourly+back,consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100),incomeTax=Math.round(Math.max(0,gross-consumptionTax)*Number(data.settings.taxRate||0)/100),welfare=shifts.length*Number(data.settings.welfarePerShift||0),pull=shifts.reduce((n,x)=>n+Number(x.deduction||0),0)+shifts.length*Number(data.settings.deductionPerShift||0),deductionTotal=incomeTax+consumptionTax+welfare+pull;
+  return enrichCastPayroll(cast.id,{days:shifts.length,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension,hourlyBonus,companionBack,mainBack,extensionBack,drink:drinkBack,decoration:0,bottleChampagne:bottleChampagneBack,allowance:0,backTotal,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
 }
 function totals(){const sales=data.slips.filter(x=>isSelectedMonth(slipSalesPostingDate(x))&&!isUnsettledSlip(x)).reduce((n,x)=>n+Number(x.total),0);const expense=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month).reduce((n,x)=>n+Number(x.amount),0);const payroll=data.casts.reduce((n,c)=>n+calcCast(c).payout,0);return {sales,expense,payroll,balance:sales-expense-payroll};}
 function updateMonthUi(){ $('#monthButton').value=data.month;if($('#dashboard').classList.contains('active'))$('#pageTitle').textContent=monthLabel(); }
@@ -503,7 +507,15 @@ window.editShiftSpecial=(type,date)=>{
 let expenseCategoryFilter='';
 window.filterExpenseCategory=category=>{expenseCategoryFilter=category||'';renderExpenses();};
 function renderExpenses(){const m={},expenses=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month);expenses.forEach(x=>m[x.category]=(m[x.category]||0)+Number(x.amount));const categoryNames=[...new Set([...(data.settings.categories||[]),...Object.keys(m).filter(Boolean)])];const total=expenses.reduce((sum,item)=>sum+Number(item.amount||0),0),filteredExpenses=expenseCategoryFilter?expenses.filter(item=>item.category===expenseCategoryFilter):expenses;$('#expenseSummary').innerHTML='<button type="button" class="expense-total-card'+(!expenseCategoryFilter?' is-active':'')+'" data-category="" onclick="filterExpenseCategory(this.dataset.category)"><p>支出合計</p><strong>'+yen(total)+'</strong><small>'+expenses.length+'件 ・ すべて表示</small></button><section class="expense-category-list">'+categoryNames.map(category=>'<button type="button" class="expense-category-item'+(m[category]?'':' is-zero')+(expenseCategoryFilter===category?' is-active':'')+'" data-category="'+category+'" onclick="filterExpenseCategory(this.dataset.category)"><span>'+category+'</span><b>'+yen(m[category]||0)+'</b></button>').join('')+'</section>';const filterInfo=$('#expenseFilterInfo');if(filterInfo)filterInfo.textContent=expenseCategoryFilter?'「'+expenseCategoryFilter+'」の支出一覧':'カテゴリをクリックすると、そのカテゴリだけに絞り込めます。';$('#expenseTable').innerHTML=filteredExpenses.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${dateJP(x.date)}</td><td>${yen(x.amount)}</td><td>${x.company}</td><td><span class="status">${x.category}</span></td><td>${x.note||'—'}</td><td><button class="text-button" onclick="editExpense('${x.id}')">編集</button></td></tr>`).join('')||empty(6,expenseCategoryFilter?'このカテゴリの支出はありません':'支出はまだありません');}
-function renderSettings(){ const labels={areaNomination:'場内指名バック（1本）',extension:'延長バック（1本）',mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）'};const rate=(key,label)=>'<label class="setting-field">'+label+'<input data-setting="'+key+'" type="number" min="0" value="'+(data.settings[key]||0)+'"></label>';const groups=[['フリー・場内',['free1000','free1500','free2000','free2500','free3000']],['本指名',['main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle']],['同伴',['companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle']]];const labels2={free1000:'1,000円',free1500:'1,500円',free2000:'2,000円',free2500:'2,500円',free3000:'3,000円',main1000:'1,000円',main1500:'1,500円',main2000:'2,000円',main2500:'2,500円',main3000:'3,000円',mainP:'P',mainDecoration:'飾り物',mainBottle:'ボトル・シャンパン（%）',mainExtension:'延長指名',companion1000:'1,000円',companion1500:'1,500円',companion2000:'2,000円',companion2500:'2,500円',companion3000:'3,000円',companionP:'P',companionDecoration:'飾り物',companionBottle:'ボトル・シャンパン（%）',companionExtension:'延長指名'};$('#backSettings').innerHTML='<div class="setting-rate-section full"><h3>基本バック</h3><div class="daily-rate-grid">'+Object.entries(labels).map(([k,l])=>rate(k,l)).join('')+'</div></div><div class="setting-rate-section daily-rate-section full">'+groups.map(([title,keys],index)=>'<section class="back-rate-group back-rate-group-'+index+'"><h4>'+title+'</h4><div class="daily-rate-grid">'+keys.map(k=>rate(k,labels2[k])).join('')+'</div></section>').join('')+'</div>';$('#deductionSettings').innerHTML=`<label class="setting-field">所得税（%）<input data-setting="taxRate" type="number" min="0" value="${data.settings.taxRate||0}"></label><label class="setting-field">消費税（%）<input data-setting="consumptionTax" type="number" min="0" value="${data.settings.consumptionTax||0}"></label><label class="setting-field full">厚生費（1出勤につき）<input data-setting="welfarePerShift" type="number" min="0" value="${data.settings.welfarePerShift||0}"></label>`; }
+function renderSettings(){
+  const rate=(key,label)=>'<label class="setting-field">'+label+'<input data-setting="'+key+'" type="number" min="0" value="'+(data.settings[key]||0)+'"></label>';
+  const labels={areaNomination:'場内指名バック（1本）',extension:'延長バック（1本）',mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）'};
+  const groups=[['フリー・場内',['free1000','free1500','free2000','free2500','free3000']],['本指名',['main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle']],['同伴',['companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle']]];
+  const labels2={free1000:'1,000円',free1500:'1,500円',free2000:'2,000円',free2500:'2,500円',free3000:'3,000円',main1000:'1,000円',main1500:'1,500円',main2000:'2,000円',main2500:'2,500円',main3000:'3,000円',mainP:'P',mainDecoration:'飾り物',mainBottle:'ボトル・シャンパン（%）',companion1000:'1,000円',companion1500:'1,500円',companion2000:'2,000円',companion2500:'2,500円',companion3000:'3,000円',companionP:'P',companionDecoration:'飾り物',companionBottle:'ボトル・シャンパン（%）'};
+  $('#girlsPayrollSettings').innerHTML='<div class="girls-payroll-rule"><span>月毎で本指名・同伴の合計本数が</span>'+rate('monthlyMainCompanionStep','')+'<span>本毎に＋</span>'+rate('monthlyMainCompanionAdd','')+'<span>円</span></div><div class="girls-payroll-rule"><span>月毎で同伴の本数が</span>'+rate('monthlyCompanionStep','')+'<span>本毎に＋</span>'+rate('monthlyCompanionAdd','')+'<span>円</span></div><div class="girls-payroll-rule"><span>月毎の売上が</span>'+rate('monthlySalesStep','')+'<span>円毎に＋</span>'+rate('monthlySalesAdd','')+'<span>円</span></div>';
+  $('#backSettings').innerHTML='<div class="setting-rate-section full"><h3>基本バック</h3><div class="daily-rate-grid">'+Object.entries(labels).map(([k,l])=>rate(k,l)).join('')+'</div></div><div class="setting-rate-section daily-rate-section full">'+groups.map(([title,keys],index)=>'<section class="back-rate-group back-rate-group-'+index+'"><h4>'+title+'</h4><div class="daily-rate-grid">'+keys.map(k=>rate(k,labels2[k])).join('')+'</div></section>').join('')+'</div>';
+  $('#deductionSettings').innerHTML='<label class="setting-field">所得税（%）<input data-setting="taxRate" type="number" min="0" value="'+(data.settings.taxRate||0)+'"></label><label class="setting-field">消費税（%）<input data-setting="consumptionTax" type="number" min="0" value="'+(data.settings.consumptionTax||0)+'"></label><label class="setting-field full">厚生費（1出勤につき）<input data-setting="welfarePerShift" type="number" min="0" value="'+(data.settings.welfarePerShift||0)+'"></label>';
+}
 const empty=(n,text)=>`<tr><td colspan="${n}" class="empty">${text}</td></tr>`;
 function scrollShiftToToday(){
   const wrap=$('.shift-table-wrap'),today=$('.shift-day-head[data-shift-date="'+todayKey()+'"]'),nameHead=$('.shift-name-head');
