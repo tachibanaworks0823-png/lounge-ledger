@@ -710,6 +710,8 @@ dialog textarea:focus{
 /* キャスト給与：項目グループの区切り線 */
 #casts .table-wrap th:nth-child(4),
 #casts .table-wrap td:nth-child(4),
+#casts .table-wrap th:nth-child(7),
+#casts .table-wrap td:nth-child(7),
 #casts .table-wrap th:nth-child(14),
 #casts .table-wrap td:nth-child(14),
 #casts .table-wrap th:nth-child(18),
