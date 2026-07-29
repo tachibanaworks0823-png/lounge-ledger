@@ -162,3 +162,18 @@
   }
   .daily-sales-table .daily-money-input i{font-size:11px!important}
 }
+
+/* 日別売上表：数値位置を統一 */
+.daily-sales-table td.amount,
+.daily-sales-table td.sales,
+.daily-sales-table td.balance{
+  text-align:center!important;
+}
+.daily-sales-table .daily-money-input{
+  justify-content:center!important;
+}
+.daily-sales-table .daily-money-input input.daily-sales-input,
+.daily-sales-table .daily-money-input input.daily-advance-input,
+.daily-sales-table .daily-money-input input.daily-expense-input{
+  text-align:center!important;
+}
