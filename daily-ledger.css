@@ -221,3 +221,15 @@
     text-size-adjust:100%!important;
   }
 }
+
+
+/* iPhone：日別売上表の入力時ズームを防止 */
+@media(max-width:560px){
+  .daily-table-wrap .daily-sales-table input,
+  .daily-table-wrap .daily-sales-table select,
+  .daily-table-wrap .daily-money-input > input.daily-sales-input{
+    font-size:16px!important;
+    -webkit-text-size-adjust:100%!important;
+    text-size-adjust:100%!important;
+  }
+}
