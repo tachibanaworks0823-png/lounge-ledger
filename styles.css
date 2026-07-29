@@ -730,3 +730,13 @@ dialog textarea:focus{
   background:#2a2228!important;
 }
 #casts .table-wrap thead th:first-child{z-index:8!important}
+
+/* キャスト給与：控除計と日払いの区切り */
+#casts .table-wrap th:nth-child(18),
+#casts .table-wrap td:nth-child(18){
+  border-left:0!important;
+}
+#casts .table-wrap th:nth-child(19),
+#casts .table-wrap td:nth-child(19){
+  border-left:2px solid #815269!important;
+}
