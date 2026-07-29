@@ -912,3 +912,15 @@ input[type="number"]::-webkit-inner-spin-button{
 .girls-payroll-rule .setting-field{display:block;width:84px;min-width:84px;color:inherit;font-size:0}
 .girls-payroll-rule .setting-field input{width:100%;min-height:36px;padding:7px 8px!important;text-align:right;font-size:14px!important}
 @media(max-width:560px){.girls-payroll-system-panel{margin-bottom:10px}.girls-payroll-rule{gap:6px;padding:10px;font-size:12px;line-height:1.4}.girls-payroll-rule .setting-field{width:68px;min-width:68px}.girls-payroll-rule .setting-field input{min-height:38px;font-size:16px!important}}
+
+/* 控除設定：3項目を横一列で表示 */
+#deductionSettings{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+#deductionSettings .setting-field input{min-width:0;width:100%}
+@media(max-width:560px){
+  #deductionSettings{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  #deductionSettings .setting-field{font-size:10px!important}
+  #deductionSettings .setting-field input{padding:8px 6px!important;font-size:16px!important}
+}
