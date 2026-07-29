@@ -802,3 +802,16 @@ input[type="number"]::-webkit-inner-spin-button{
     flex:0 0 64px!important;
   }
 }
+
+/* 日別まとめ入力：PC・iPhone共通の入力配置 */
+.daily-batch-row>.batch-time-field{flex:1 1 calc(50% - 6px)!important;min-width:0!important}
+.daily-batch-row>label.batch-work-field{flex:1 1 calc(33.333% - 7px)!important;min-width:0!important}
+.daily-batch-row>label.batch-count-field{flex:1 1 calc(25% - 7px)!important;min-width:0!important}
+.daily-batch-row>label.batch-sales-field{flex:1 1 100%!important;min-width:0!important}
+.daily-batch-row input,.daily-batch-row select{font-size:16px!important;padding:7px 6px!important;line-height:1.2!important}
+.daily-batch-row small{font-size:10px!important;line-height:1.15!important}
+@media(max-width:560px){
+  .daily-batch-row>.batch-time-field{flex-basis:calc(50% - 6px)!important}
+  .daily-batch-row>label.batch-work-field{flex-basis:calc(33.333% - 7px)!important}
+  .daily-batch-row>label.batch-count-field{flex-basis:calc(25% - 7px)!important}
+}
