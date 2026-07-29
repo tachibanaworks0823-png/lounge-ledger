@@ -706,3 +706,17 @@ dialog textarea:focus{
   z-index:7!important;
   background:#2a2228!important;
 }
+
+/* キャスト給与：項目グループの区切り線 */
+#casts .table-wrap th:nth-child(4),
+#casts .table-wrap td:nth-child(4),
+#casts .table-wrap th:nth-child(14),
+#casts .table-wrap td:nth-child(14),
+#casts .table-wrap th:nth-child(18),
+#casts .table-wrap td:nth-child(18),
+#casts .table-wrap th:nth-child(19),
+#casts .table-wrap td:nth-child(19),
+#casts .table-wrap th:nth-child(23),
+#casts .table-wrap td:nth-child(23){
+  border-left:2px solid #815269!important;
+}
