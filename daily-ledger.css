@@ -177,3 +177,33 @@
 .daily-sales-table .daily-money-input input.daily-expense-input{
   text-align:center!important;
 }
+
+/* iPhone：日付・曜日列をスクロール領域の左端に固定 */
+@media (max-width:560px){
+  .daily-table-wrap{
+    padding-left:0!important;
+    padding-right:0!important;
+    isolation:isolate!important;
+  }
+  .daily-sales-table{
+    margin:0!important;
+  }
+  .daily-sales-table thead th:nth-child(1),
+  .daily-sales-table tbody td:nth-child(1){
+    position:-webkit-sticky!important;
+    position:sticky!important;
+    left:0!important;
+    z-index:30!important;
+  }
+  .daily-sales-table thead th:nth-child(2),
+  .daily-sales-table tbody td:nth-child(2){
+    position:-webkit-sticky!important;
+    position:sticky!important;
+    left:60px!important;
+    z-index:30!important;
+  }
+  .daily-sales-table thead th:nth-child(1),
+  .daily-sales-table thead th:nth-child(2){
+    z-index:35!important;
+  }
+}
