@@ -383,7 +383,13 @@ function renderDailyInputs(){const [year,month]=data.month.split('-').map(Number
 function renderCasts(){
   const value=(amount,suffix='')=>Number(amount||0)?yen(amount)+suffix:'—';
   const count=(amount,label='')=>Number(amount||0)?Number(amount)+label:'—';
-  $('#castTable').innerHTML=sortedCasts().map(c=>{
+  // 退店月以降は給与の支給一覧に表示しない（退店前の月だけ確認できます）。
+  const visibleInPayroll=cast=>{
+    const leavingMonth=dateKey(cast.leavingDate).slice(0,7);
+    if(leavingMonth)return String(data.month||'')<leavingMonth;
+    return effectiveCastStatus(cast)!=='退店';
+  };
+  $('#castTable').innerHTML=sortedCasts().filter(visibleInPayroll).map(c=>{
     const x=calcCast(c),payRate=x.nominated?Math.round(Number(x.payout||0)/Number(x.nominated||1)*100)+'%':'—',averageHourly=x.hours?yen(Number(x.payout||0)/Number(x.hours||1)):'—';
     return '<tr><td><b>'+c.name+'</b><br><small>時給 '+yen(c.hourly)+'</small></td><td>'+value(x.nominated)+'</td><td>'+count(x.area,'本')+' / '+count(x.main,'本')+' / '+count(x.companion,'本')+' / '+count(x.extension,'本')+'</td><td>'+count(x.days,'日')+'</td><td>'+Number(x.hours||0).toFixed(1)+'h</td><td>'+value(x.hourly)+'</td><td>'+count(x.companionBack,'本')+'</td><td>'+count(x.mainBack,'本')+'</td><td>'+count(x.extensionBack,'本')+'</td><td>'+count(x.drink,'杯')+'</td><td>'+count(x.decoration,'個')+'</td><td>'+count(x.bottleChampagne,'本')+'</td><td>'+value(x.back)+'</td><td>'+value(x.consumptionTax)+'</td><td>'+value(x.incomeTax)+'</td><td>'+value(x.welfare)+'</td><td>'+value(x.pull)+'</td><td>'+value(x.deductionTotal)+'</td><td>'+value(x.advanceAmount)+'</td><td>'+value(x.gross)+'</td><td>'+value(x.payoutBeforeAdvance)+'</td><td><b>'+value(x.payout)+'</b></td><td>'+payRate+'</td><td>'+averageHourly+'</td><td><button class="text-button" onclick="editCastPayroll(\''+c.id+'\')">詳細・編集</button></td></tr>';
   }).join('')||empty(25,'キャストはまだいません');
