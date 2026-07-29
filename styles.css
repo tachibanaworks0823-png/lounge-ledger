@@ -788,3 +788,17 @@ input[type="number"]::-webkit-inner-spin-button{
   #settings .setting-fields{width:100%!important}
   #settings .daily-rate-grid{width:100%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* 日別まとめ入力：本数入力は1〜2桁向けにコンパクト化 */
+.daily-batch-row>label.batch-count-field{
+  flex:0 0 64px!important;
+}
+.daily-batch-row>label.batch-count-field input{
+  text-align:center!important;
+}
+@media(max-width:560px){
+  .daily-batch-row>label.batch-count-field{
+    flex:0 0 64px!important;
+  }
+}
