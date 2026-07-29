@@ -758,3 +758,15 @@ dialog textarea:focus{
     padding:10px 0!important;
   }
 }
+
+/* 数値入力：上下スピンボタンを非表示 */
+input[type="number"]{
+  -moz-appearance:textfield!important;
+  appearance:textfield!important;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  margin:0!important;
+}
