@@ -1239,3 +1239,26 @@ input[type="number"]::-webkit-inner-spin-button{
   .daily-batch-row .batch-back-detail label,
   #entryDialog .daily-back-detail label{font-size:9px!important}
 }
+
+
+/* 日別まとめ入力のバック打込み：常に1行4項目 */
+#entryDialog .daily-batch-row .batch-back-detail section>div,
+#entryDialog .form-fields.daily-input-edit-fields .daily-back-detail section>div{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  width:100%!important;
+  gap:7px!important;
+}
+#entryDialog .daily-batch-row .batch-back-detail section>div>label,
+#entryDialog .form-fields.daily-input-edit-fields .daily-back-detail section>div>label{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:560px){
+  #entryDialog .daily-batch-row .batch-back-detail section>div,
+  #entryDialog .form-fields.daily-input-edit-fields .daily-back-detail section>div{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+}
