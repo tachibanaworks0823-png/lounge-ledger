@@ -1262,3 +1262,24 @@ input[type="number"]::-webkit-inner-spin-button{
     gap:5px!important;
   }
 }
+
+
+/* iPhone Safari：日別まとめ入力時の自動ズームを完全に防止 */
+@media(max-width:560px){
+  #entryDialog .daily-batch-row input,
+  #entryDialog .daily-batch-row select,
+  #entryDialog .daily-batch-row textarea,
+  #entryDialog .form-fields.daily-input-edit-fields input,
+  #entryDialog .form-fields.daily-input-edit-fields select,
+  #entryDialog .form-fields.daily-input-edit-fields textarea{
+    font-size:16px!important;
+    -webkit-text-size-adjust:100%!important;
+    text-size-adjust:100%!important;
+  }
+  #entryDialog .daily-batch-row input,
+  #entryDialog .daily-batch-row select,
+  #entryDialog .form-fields.daily-input-edit-fields input,
+  #entryDialog .form-fields.daily-input-edit-fields select{
+    height:38px!important;
+  }
+}
