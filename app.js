@@ -192,7 +192,7 @@ async function loadFromCloud(){
 }
 const castName = id => data.casts.find(x=>x.id===id)?.name || '退職キャスト';
 const sortedCasts = () => data.casts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));
-const dateJP = d => new Date(d+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
+const dateJP = d => { const value=String(d||'').trim(); const parsed=value?new Date(value.replace(/\//g,'-')+'T12:00:00'):null; return parsed&&!Number.isNaN(parsed.valueOf())?parsed.toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'}):''; };
 const isSelectedMonth = date => String(date||'').startsWith(data.month+'-');
 const expenseAccountingMonth = expense => String(expense?.accountingMonth||expense?.date||'').slice(0,7);
 const expensePostingDate = expense => {
@@ -389,7 +389,7 @@ function renderDailySlips(){
     .filter((slip,index,list)=>list.indexOf(slip)===index)
     .slice()
     .sort((a,b)=>String(a.id||'').localeCompare(String(b.id||''),'ja',{numeric:true}));
-  $('#dailySlipSummary').textContent=dateJP(selectedDate)+'・'+slips.length+'件';
+  const selectedDateLabel=dateJP(selectedDate);$('#dailySlipSummary').textContent=(selectedDateLabel?selectedDateLabel+'・':'')+slips.length+'件';
   $('#dailySlipTable').innerHTML=slips.length?slips.map(slipTableRow).join(''):empty(8,'この日の伝票はありません');
 }
 function renderSlips(){
