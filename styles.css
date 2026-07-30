@@ -1402,3 +1402,34 @@ input[type="number"]::-webkit-inner-spin-button{
     max-width:108px!important;
   }
 }
+
+
+/* 日別まとめ入力：実働・勤怠を出勤／退勤と同じ幅・高さに統一 */
+.daily-batch-row .batch-basic-fields>.batch-top-field{
+  flex:0 0 calc((100% - 24px) / 4)!important;
+  width:calc((100% - 24px) / 4)!important;
+  min-width:0!important;
+}
+.daily-batch-row .batch-basic-fields .batch-attendance-field select{
+  width:100%!important;
+  min-width:0!important;
+  height:40px!important;
+  min-height:40px!important;
+  padding:0 5px!important;
+  font-size:14px!important;
+  text-align:center!important;
+}
+.daily-batch-row .batch-basic-fields .batch-work-field .batch-hours{
+  width:100%!important;
+  font-size:14px!important;
+}
+@media(max-width:560px){
+  .daily-batch-row .batch-basic-fields>.batch-top-field{
+    flex-basis:calc((100% - 18px) / 4)!important;
+    width:calc((100% - 18px) / 4)!important;
+  }
+  .daily-batch-row .batch-basic-fields .batch-attendance-field small,
+  .daily-batch-row .batch-basic-fields .batch-work-field small{font-size:10px!important}
+  .daily-batch-row .batch-basic-fields .batch-attendance-field select,
+  .daily-batch-row .batch-basic-fields .batch-work-field .batch-hours{font-size:12px!important}
+}
