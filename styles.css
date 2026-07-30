@@ -1097,3 +1097,13 @@ input[type="number"]::-webkit-inner-spin-button{
 .daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#dca6bd!important}
 .daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{color:#eee!important}
 @media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#541c2a!important}}
+
+/* キャスト0の固有色（金色）を復帰 */
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{background:#5b3e1b!important;border-color:#805725!important;color:#fff3d5!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child{box-shadow:inset 4px 0 #d49a45!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero td.weekday{color:#ffe0a5!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .cast-zero-label{color:#ffe0a5!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input{background:#4a3218!important;border-color:#d49a45!important;color:#fff3d5!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#ffe0a5!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{color:#fff3d5!important}
+@media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#5b3e1b!important}}
