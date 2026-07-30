@@ -62,9 +62,9 @@
         <div class="section-head"><div><h2>今月の集計</h2></div></div>
         <div class="summary-grid">
           <article class="metric-card"><span class="metric-icon wine">￥</span><p>総売上</p><strong id="totalSales">¥0</strong><small id="salesCount">伝票 0件</small></article>
+          <article class="metric-card metric-payroll metric-balance"><span class="metric-icon green">◈</span><p>残金</p><strong id="totalBalance">¥0</strong><small id="balanceDetails">総売上 − 総支出 − 女子給</small><div class="payroll-ratio-inline"><span>残金率</span><strong id="balanceRatio">0%</strong><small>残金 ÷ 総売上</small></div></article>
           <article class="metric-card"><span class="metric-icon gold">◫</span><p>総支出</p><strong id="totalExpenses">¥0</strong><small id="expenseDetails">経費 0件</small></article>
           <article class="metric-card metric-payroll"><span class="metric-icon violet">♙</span><p>女子給</p><strong id="totalPayroll">¥0</strong><small id="payrollDetails">支給見込み</small><div class="payroll-ratio-inline"><span>女子給率</span><strong id="payrollRatio">0%</strong><small>女子給 ÷ 総売上</small></div></article>
-          <article class="metric-card metric-card-placeholder" aria-label="今後の集計項目用"></article>
         </div>
         <article class="panel daily-ledger-panel">
           <div class="panel-heading daily-ledger-heading"><div><h2>日別売上表</h2></div><div class="daily-ledger-heading-actions"><button class="shop-closed-button compact-button" id="addShopClosedDashboard" type="button">店休設定</button><div class="daily-ledger-total"><span>月間売上</span><strong id="dailyLedgerTotal">¥0</strong></div></div></div>
@@ -99,6 +99,6 @@
 <dialog id="expenseOptionDialog" class="customer-history-dialog"><form id="expenseOptionForm" method="dialog"><div class="dialog-head"><div><h2 id="expenseOptionTitle">項目を追加</h2></div><button type="button" class="close" onclick="closeExpenseOptionDialog()" aria-label="閉じる">×</button></div><div class="customer-history-body"><div class="expense-option-add-head"><span id="expenseOptionNameLabel">名称</span><div class="dialog-actions"><button type="button" class="secondary-button" onclick="closeExpenseOptionDialog()">キャンセル</button><button class="primary-button" value="save">追加する</button></div></div><label class="expense-option-name"><input id="expenseOptionName" autocomplete="off" required></label><div id="expenseOptionList" class="payment-method-list"></div></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=127290"></script>
+  <script src="app.js?v=127293"></script>
 </body>
 </html>
