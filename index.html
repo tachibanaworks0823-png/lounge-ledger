@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=127284" />
+  <link rel="stylesheet" href="styles.css?v=127285" />
   <link rel="stylesheet" href="daily-ledger.css?v=23" />
   <link rel="stylesheet" href="shift.css?v=42" />
 </head>
@@ -85,7 +85,7 @@
       </section>
 
       <section class="view" id="shifts">
-        <div class="section-head"><div><h2>シフト</h2></div><div class="button-row"><button class="shop-closed-button" id="addShopClosed" type="button">店休</button><button class="primary-button" id="addShiftBatch" type="button">個別一括入力</button></div></div>
+        <div class="section-head"><div><h2>シフト</h2></div><div class="button-row"><button class="shop-closed-button" id="addShopClosed" type="button">店休設定</button><button class="primary-button" id="addShiftBatch" type="button">個別一括入力</button></div></div>
         <article class="panel shift-panel"><div class="panel-heading"><div><h2 id="shiftMonthTitle">月間シフト表</h2></div><span class="shift-hint">マスをタップして入力</span></div><div class="shift-table-wrap"><table class="shift-table"><thead id="shiftTableHead"></thead><tbody id="shiftTableBody"></tbody></table></div></article><section class="shift-cast-summary"><h3>キャスト別シフト確認</h3><div class="shift-cast-cards" id="shiftCastSummary"></div></section>
       </section>
 
@@ -99,6 +99,6 @@
 <dialog id="expenseOptionDialog" class="customer-history-dialog"><form id="expenseOptionForm" method="dialog"><div class="dialog-head"><div><h2 id="expenseOptionTitle">項目を追加</h2></div><button type="button" class="close" onclick="closeExpenseOptionDialog()" aria-label="閉じる">×</button></div><div class="customer-history-body"><div class="expense-option-add-head"><span id="expenseOptionNameLabel">名称</span><div class="dialog-actions"><button type="button" class="secondary-button" onclick="closeExpenseOptionDialog()">キャンセル</button><button class="primary-button" value="save">追加する</button></div></div><label class="expense-option-name"><input id="expenseOptionName" autocomplete="off" required></label><div id="expenseOptionList" class="payment-method-list"></div></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=127284"></script>
+  <script src="app.js?v=127285"></script>
 </body>
 </html>
