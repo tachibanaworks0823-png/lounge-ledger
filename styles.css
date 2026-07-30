@@ -1107,3 +1107,9 @@ input[type="number"]::-webkit-inner-spin-button{
 .daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#ffe0a5!important}
 .daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{color:#fff3d5!important}
 @media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#5b3e1b!important}}
+
+/* キャスト0：色は行の背景だけ。入力枠・数値は前面の通常表示 */
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input{background:#171519!important;border-color:#6f5064!important;color:#f5b5cf!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#dca6bd!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{background:transparent!important;color:#eee!important;position:relative!important;z-index:1!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{position:relative!important;isolation:isolate!important}
