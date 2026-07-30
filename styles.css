@@ -1075,41 +1075,20 @@ input[type="number"]::-webkit-inner-spin-button{
 .daily-ledger-heading-actions{display:flex;align-items:center;gap:14px}.shop-closed-calendar{display:grid;gap:12px}.shop-closed-calendar p{margin:0;color:var(--muted);font-size:13px}.shop-closed-calendar-actions{display:flex;gap:8px}.shop-closed-weekdays,.shop-closed-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.shop-closed-weekdays span{text-align:center;color:var(--muted);font-size:12px}.shop-closed-day{min-height:54px;border:1px solid #594653;border-radius:9px;background:#1b171b;color:#f8edf2;display:grid;place-items:center;gap:1px;padding:5px;cursor:pointer}.shop-closed-day b{font-size:16px}.shop-closed-day small{font-size:11px;color:#afa0aa}.shop-closed-day.is-selected{background:#6d1d34;border-color:#f25486;color:#fff;box-shadow:inset 3px 0 #ff6e9a}.shop-closed-day.is-selected small{color:#ffd8e4}@media(max-width:560px){.daily-ledger-heading-actions{gap:8px}.daily-ledger-heading-actions .shop-closed-button{padding:8px 10px;font-size:12px}.shop-closed-day{min-height:48px}.shop-closed-weekdays,.shop-closed-days{gap:5px}}
 
 /* 日別売上表：キャスト0の営業日 */
-.daily-sales-table tr.is-cast-zero>td{background:#5b3e1b!important;border-color:#805725!important;color:#fff3d5}.daily-sales-table tr.is-cast-zero>td:first-child{box-shadow:inset 4px 0 #d49a45}.daily-sales-table tr.is-cast-zero .cast-zero-label{display:block;margin-top:2px;color:#ffe0a5;font-size:11px;font-weight:800}.daily-sales-table tr.is-cast-zero .daily-money-input{background:#4a3218!important;border-color:#d49a45!important}.daily-sales-table tr.is-cast-zero .daily-money-input input{color:#fff3d5!important}
 
 /* 日別売上表：キャスト0も店休と同じ行全体の見せ方に統一 */
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{background:#5b3e1b!important;border-color:#805725!important;color:#fff3d5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child{box-shadow:inset 4px 0 #d49a45!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td.weekday{color:#ffe0a5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .cast-zero-label{display:block!important;margin-top:2px!important;color:#ffe0a5!important;font-size:9px!important;font-weight:700!important;letter-spacing:.04em!important}
-@media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#5b3e1b!important}}
 
 /* キャスト0：日付の下にラベルを固定（店休と同じ表示位置） */
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child>b{display:block!important;position:relative!important;z-index:1!important;line-height:1.2!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child .cast-zero-label{position:relative!important;z-index:1!important;clear:both!important;display:block!important;line-height:1.2!important;margin:3px 0 0!important}
 
 /* 日別売上表：キャスト0は店休と完全に同じ表示 */
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{background:#541c2a!important;border-color:#824052!important;color:#ffdce5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child{box-shadow:none!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td.weekday{color:#ffb5c7!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .cast-zero-label{color:#ff91ab!important;font-size:9px!important;font-weight:700!important;letter-spacing:.04em!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input{background:#171519!important;border-color:#6f5064!important;color:#f5b5cf!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#dca6bd!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{color:#eee!important}
-@media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#541c2a!important}}
 
 /* キャスト0の固有色（金色）を復帰 */
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{background:#5b3e1b!important;border-color:#805725!important;color:#fff3d5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:first-child{box-shadow:inset 4px 0 #d49a45!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td.weekday{color:#ffe0a5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .cast-zero-label{color:#ffe0a5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input{background:#4a3218!important;border-color:#d49a45!important;color:#fff3d5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#ffe0a5!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{color:#fff3d5!important}
-@media(max-width:560px){.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(1),.daily-ledger-panel .daily-sales-table tr.is-cast-zero td:nth-child(2){background:#5b3e1b!important}}
 
 /* キャスト0：色は行の背景だけ。入力枠・数値は前面の通常表示 */
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input{background:#171519!important;border-color:#6f5064!important;color:#f5b5cf!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input i{color:#dca6bd!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero .daily-money-input input{background:transparent!important;color:#eee!important;position:relative!important;z-index:1!important}
-.daily-ledger-panel .daily-sales-table tr.is-cast-zero td{position:relative!important;isolation:isolate!important}
+
+
+/* キャスト0：店休と同じレイヤー仕様。色は行の背景のみ */
+.daily-sales-table tr.is-cast-zero td{background:#5b3e1b!important;border-color:#805725!important;color:#fff3d5!important}
+.daily-sales-table tr.is-cast-zero td:first-child{box-shadow:none!important}
+.daily-sales-table tr.is-cast-zero .weekday{color:#ffe0a5!important}
+.daily-sales-table .cast-zero-label{display:block;margin-top:2px;color:#ffe0a5;font-size:9px;font-weight:700;letter-spacing:.04em}
