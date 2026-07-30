@@ -248,3 +248,25 @@
     background:#5b3e1b!important;
   }
 }
+
+
+/* 日別売上表：伝票から自動反映される売上も手入力値と同じ見た目に統一 */
+.daily-sales-table .daily-sales-input,
+.daily-sales-table .daily-sales-input::placeholder{
+  color:#fff!important;
+  opacity:1!important;
+  font-family:"DM Sans","Noto Sans JP",sans-serif!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  line-height:1!important;
+}
+@media(max-width:560px){
+  .daily-table-wrap .daily-sales-table .daily-money-input > input.daily-sales-input,
+  .daily-table-wrap .daily-sales-table .daily-money-input > input.daily-sales-input::placeholder{
+    color:#fff!important;
+    opacity:1!important;
+    font-size:16px!important;
+    font-weight:600!important;
+    line-height:1!important;
+  }
+}
