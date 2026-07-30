@@ -270,3 +270,20 @@
     line-height:1!important;
   }
 }
+
+
+/* iPhone：日別売上表の売上表示をコンパクト化（入力時の拡大防止は維持） */
+@media(max-width:560px){
+  .daily-table-wrap .daily-sales-table td.sales .daily-money-input{
+    height:28px!important;
+  }
+  .daily-table-wrap .daily-sales-table td.sales .daily-money-input > input.daily-sales-input{
+    font-size:16px!important;
+    font-weight:600!important;
+    transform:scale(.78)!important;
+    transform-origin:center!important;
+  }
+  .daily-table-wrap .daily-sales-table td.sales .daily-money-input > i{
+    font-size:11px!important;
+  }
+}
