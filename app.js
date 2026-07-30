@@ -406,8 +406,8 @@ function renderCasts(){
   // 退店月以降は給与の支給一覧に表示しない（退店前の月だけ確認できます）。
   const visibleInPayroll=cast=>{
     const leavingMonth=dateKey(cast.leavingDate).slice(0,7);
-    const availableBeforeLeaving=!leavingMonth||String(data.month||'')<leavingMonth;
-    const activeForMonth=availableBeforeLeaving&&effectiveCastStatus(cast)!=='退店';
+    // 退店日を含む月までは給与一覧に表示します（例：7/31退店なら7月は表示）。
+    const activeForMonth=leavingMonth?String(data.month||'')<=leavingMonth:effectiveCastStatus(cast)!=='退店';
     if(!activeForMonth)return false;
     // 非表示キャストは、その月に実際の支給額がある場合だけ給与一覧に残します。
     return !cast.hidden||Number(calcCast(cast).payout||0)>0;
