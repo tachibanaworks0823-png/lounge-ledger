@@ -1349,6 +1349,6 @@ input[type="number"]::-webkit-inner-spin-button{
 
 /* iPhone：日別まとめ入力の日付欄を他の入力欄と同じ左寄せ位置に統一 */
 @media(max-width:560px){
-  #entryDialog .daily-batch-date{grid-column:1/-1!important;width:100%!important;min-width:0!important;}
-  #entryDialog .daily-batch-date input[type="date"]{text-align:left!important;justify-content:flex-start!important;padding-left:14px!important;}
+  #entryDialog .daily-batch-date{grid-column:1/-1!important;width:100%!important;min-width:0!important;margin-top:18px!important;}
+  #entryDialog .daily-batch-date input[type="date"]{text-align:center!important;justify-content:center!important;padding-left:14px!important;padding-right:14px!important;}
 }
