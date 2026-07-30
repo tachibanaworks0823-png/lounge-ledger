@@ -998,3 +998,50 @@ input[type="number"]::-webkit-inner-spin-button{
 /* サイドメニューを固定ヘッダーより常に前面に表示 */
 .sidebar{z-index:100!important}
 .overlay{z-index:90!important}
+
+/* iPhone：日別打込み編集を設定と同じ均一な3列配置にする */
+@media(max-width:560px){
+  #entryDialog .form-fields.daily-input-edit-fields{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;
+    padding:16px!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-edit-full,
+  #entryDialog .daily-input-edit-fields .daily-back-detail{
+    grid-column:1 / -1!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-edit-third{
+    grid-column:span 1!important;
+    min-width:0!important;
+  }
+  #entryDialog .daily-input-edit-fields .field{
+    min-width:0!important;
+    gap:5px!important;
+    font-size:10px!important;
+  }
+  #entryDialog .daily-input-edit-fields .field input,
+  #entryDialog .daily-input-edit-fields .field select{
+    width:100%!important;
+    min-width:0!important;
+    min-height:40px!important;
+    height:40px!important;
+    padding:8px 6px!important;
+    font-size:16px!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-back-detail section>div{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-back-detail label{
+    min-width:0!important;
+    font-size:10px!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-back-detail input{
+    width:100%!important;
+    min-width:0!important;
+    min-height:40px!important;
+    height:40px!important;
+    padding:8px 6px!important;
+    font-size:16px!important;
+  }
+}
