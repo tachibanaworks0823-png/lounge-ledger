@@ -1102,3 +1102,12 @@ input[type="number"]::-webkit-inner-spin-button{
 .daily-detail-metric span{font-size:10px;color:#cdb8c2}
 .daily-detail-metric strong{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:560px){.daily-detail-grid{gap:6px}.daily-detail-metric{padding:7px 6px}.daily-detail-metric strong{font-size:12px}}
+
+
+/* 日別詳細：既存の汎用flex指定を解除し、常に3列で表示 */
+.daily-detail-list article .daily-detail-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.daily-detail-list article .daily-detail-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+.daily-detail-list article .daily-detail-metric{display:grid!important;min-width:0!important;width:auto!important}
+@media(max-width:560px){
+  .daily-detail-list article .daily-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+}
