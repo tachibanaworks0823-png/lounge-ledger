@@ -1092,3 +1092,13 @@ input[type="number"]::-webkit-inner-spin-button{
 .daily-sales-table tr.is-cast-zero td:first-child{box-shadow:none!important}
 .daily-sales-table tr.is-cast-zero .weekday{color:#ffe0a5!important}
 .daily-sales-table .cast-zero-label{display:block;margin-top:2px;color:#ffe0a5;font-size:9px;font-weight:700;letter-spacing:.04em}
+
+
+/* 日別打込み：日付詳細の表示 */
+.daily-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.daily-detail-head>b{font-size:16px}
+.daily-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:5px}
+.daily-detail-metric{min-width:0;padding:8px 9px;border:1px solid #51404a;border-radius:8px;background:#211c21;display:grid;gap:3px}
+.daily-detail-metric span{font-size:10px;color:#cdb8c2}
+.daily-detail-metric strong{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.daily-detail-grid{gap:6px}.daily-detail-metric{padding:7px 6px}.daily-detail-metric strong{font-size:12px}}
