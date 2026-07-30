@@ -1216,3 +1216,26 @@ input[type="number"]::-webkit-inner-spin-button{
   .daily-batch-row>label.batch-four-field small{font-size:10px!important}
   .daily-batch-row>label.batch-four-field input{font-size:12px!important;padding:6px!important}
 }
+
+
+/* バック打込み：4列配置 */
+.daily-batch-row .batch-back-detail section>div,
+#entryDialog .daily-back-detail section>div{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.daily-batch-row .batch-back-detail input,
+#entryDialog .daily-back-detail input{
+  font-size:12px!important;
+  padding:6px!important;
+  min-width:0!important;
+}
+@media(max-width:560px){
+  .daily-batch-row .batch-back-detail section>div,
+  #entryDialog .daily-back-detail section>div{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  .daily-batch-row .batch-back-detail label,
+  #entryDialog .daily-back-detail label{font-size:9px!important}
+}
