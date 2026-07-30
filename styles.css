@@ -1111,3 +1111,21 @@ input[type="number"]::-webkit-inner-spin-button{
 @media(max-width:560px){
   .daily-detail-list article .daily-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
 }
+
+
+/* 日別詳細：列配置は維持し、項目名と値を横並びにする */
+.daily-detail-list article .daily-detail-metric{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:6px!important;
+}
+.daily-detail-list article .daily-detail-metric span{
+  margin:0!important;
+  white-space:nowrap!important;
+  flex:0 1 auto!important;
+}
+.daily-detail-list article .daily-detail-metric strong{
+  text-align:right!important;
+  flex:0 1 auto!important;
+}
