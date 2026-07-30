@@ -1045,3 +1045,28 @@ input[type="number"]::-webkit-inner-spin-button{
     font-size:16px!important;
   }
 }
+
+/* 日別まとめ入力：指定順の3列レイアウト */
+.daily-batch-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.daily-batch-row>.batch-time-field,
+.daily-batch-row>label.batch-work-field,
+.daily-batch-row>label.batch-count-field{
+  grid-column:span 1!important;
+  width:auto!important;
+  min-width:0!important;
+}
+.daily-batch-row>label.batch-sales-field{
+  grid-column:1 / -1!important;
+  width:auto!important;
+}
+.daily-batch-row .batch-back-detail section>div{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+@media(max-width:560px){
+  .daily-batch-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  .daily-batch-row>.batch-time-field,
+  .daily-batch-row>label.batch-work-field,
+  .daily-batch-row>label.batch-count-field{grid-column:span 1!important}
+  .daily-batch-row .batch-back-detail section>div{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
