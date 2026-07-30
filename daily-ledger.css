@@ -233,3 +233,18 @@
     text-size-adjust:100%!important;
   }
 }
+
+/* キャスト0：店休と同じく、背景色はセルの最下層だけに表示 */
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero > td{
+  background:#5b3e1b!important;
+  border-color:#805725!important;
+  color:#fff3d5!important;
+}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero > td:first-child{box-shadow:none!important}
+.daily-ledger-panel .daily-sales-table tr.is-cast-zero .weekday{color:#ffe0a5!important}
+@media(max-width:560px){
+  .daily-ledger-panel .daily-sales-table tr.is-cast-zero > td:nth-child(1),
+  .daily-ledger-panel .daily-sales-table tr.is-cast-zero > td:nth-child(2){
+    background:#5b3e1b!important;
+  }
+}
