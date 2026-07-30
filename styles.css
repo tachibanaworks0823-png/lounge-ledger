@@ -1148,3 +1148,26 @@ input[type="number"]::-webkit-inner-spin-button{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:7px!important;
 }
+
+
+/* 日別まとめ入力・日別打込み編集：4列入力とバック本数の先頭配置 */
+.daily-batch-row{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:8px!important}
+.daily-batch-row>.batch-cast-head,.daily-batch-row>.batch-back-detail{grid-column:1 / -1!important;width:auto!important}
+.daily-batch-row>.batch-top-field{grid-column:span 4!important;min-width:0!important}
+.daily-batch-row>label.batch-four-field{grid-column:span 3!important;min-width:0!important}
+.daily-batch-row>label.batch-sales-field{grid-column:1 / -1!important;min-width:0!important}
+.daily-batch-row>label.batch-four-field input{font-size:13px!important;padding:7px!important}
+#entryDialog .form-fields.daily-input-edit-fields{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:8px!important}
+#entryDialog .daily-input-edit-fields .daily-edit-full,#entryDialog .daily-input-edit-fields .daily-back-detail{grid-column:1 / -1!important}
+#entryDialog .daily-input-edit-fields .daily-edit-third{grid-column:span 4!important;min-width:0!important}
+#entryDialog .daily-input-edit-fields .daily-edit-fourth{grid-column:span 3!important;min-width:0!important}
+#entryDialog .daily-input-edit-fields .daily-edit-fourth input{font-size:13px!important;padding:7px!important}
+#entryDialog .batch-back-detail section>div,#entryDialog .daily-back-detail section>div{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+@media(max-width:560px){
+ .daily-batch-row{gap:6px!important}
+ .daily-batch-row>.batch-top-field{grid-column:span 4!important}
+ .daily-batch-row>label.batch-four-field{grid-column:span 3!important}
+ #entryDialog .daily-input-edit-fields{gap:6px!important}
+ #entryDialog .daily-input-edit-fields .daily-edit-third{grid-column:span 4!important}
+ #entryDialog .daily-input-edit-fields .daily-edit-fourth{grid-column:span 3!important}
+}
