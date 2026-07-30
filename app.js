@@ -413,7 +413,7 @@ function renderCasts(){
     return !cast.hidden||Number(calcCast(cast).payout||0)>0;
   };
   $('#castTable').innerHTML=sortedCasts().filter(visibleInPayroll).map(c=>{
-    const x=calcCast(c),payRate=x.nominated?Math.round(Number(x.payout||0)/Number(x.nominated||1)*100)+'%':'—',averageHourly=x.hours?yen(Number(x.payout||0)/Number(x.hours||1)):'—';
+    const x=calcCast(c),payRate=x.nominated?Math.round(Number(x.payout||0)/Number(x.nominated||1)*100)+'%':'—',averageHourly=x.hours?yen(Number(x.gross||0)/Number(x.hours||1)):'—';
     return '<tr><td><button type="button" class="payroll-cast-link" onclick="openForm(\'payrollDetails\',\''+c.id+'\')"><b>'+c.name+'</b><small>時給 '+yen(c.hourly)+'</small></button></td><td>'+value(x.nominated)+'</td><td>'+count(x.area,'本')+' / '+count(x.main,'本')+' / '+count(x.companion,'本')+' / '+count(x.extension,'本')+'</td><td>'+count(x.days,'日')+'</td><td>'+Number(x.hours||0).toFixed(1)+'h</td><td>'+value(x.hourly)+'</td><td>'+value(x.companionBack)+'</td><td>'+value(x.mainBack)+'</td><td>'+value(x.extensionBack)+'</td><td>'+value(x.drink)+'</td><td>'+value(x.decoration)+'</td><td>'+value(x.bottleChampagne)+'</td><td>'+value(x.allowance)+'</td><td>'+value(Number(x.back||0)+Number(x.allowance||0))+'</td><td>'+value(x.consumptionTax)+'</td><td>'+value(x.incomeTax)+'</td><td>'+value(x.welfare)+'</td><td>'+value(x.pull)+'</td><td>'+value(x.deductionTotal)+'</td><td>'+value(x.advanceAmount)+'</td><td>'+value(x.gross)+'</td><td>'+value(x.payoutBeforeAdvance)+'</td><td><b>'+value(x.payout)+'</b></td><td>'+payRate+'</td><td>'+averageHourly+'</td><td><button class="text-button" onclick="editCastPayroll(\''+c.id+'\')">詳細・編集</button></td></tr>';
   }).join('')||empty(26,'キャストはまだいません');
 }
