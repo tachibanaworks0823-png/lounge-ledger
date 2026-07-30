@@ -994,3 +994,7 @@ input[type="number"]::-webkit-inner-spin-button{
   .girls-payroll-rule-fields .setting-field{width:92px!important;min-width:92px!important}
   .girls-payroll-rule-fields .setting-field input{height:40px!important;min-height:40px!important}
 }
+
+/* サイドメニューを固定ヘッダーより常に前面に表示 */
+.sidebar{z-index:100!important}
+.overlay{z-index:90!important}
