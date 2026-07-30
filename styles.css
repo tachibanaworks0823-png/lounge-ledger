@@ -1352,3 +1352,15 @@ input[type="number"]::-webkit-inner-spin-button{
   #entryDialog .daily-batch-date{grid-column:1/-1!important;width:100%!important;min-width:0!important;margin-top:46px!important;}
   #entryDialog .daily-batch-date input[type="date"]{text-align:center!important;justify-content:center!important;padding-left:14px!important;padding-right:14px!important;}
 }
+
+
+/* 日別まとめ入力：実働時間の数値を入力欄の中央に統一 */
+.daily-batch-row .batch-basic-fields .batch-hours{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  height:40px!important;
+  line-height:1!important;
+  padding:0 6px!important;
+}
