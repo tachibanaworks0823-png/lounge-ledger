@@ -1472,3 +1472,39 @@ input[type="number"]::-webkit-inner-spin-button{
     min-width:0!important;
   }
 }
+
+
+/* 日別打込み編集：まとめ入力と同じ4列配置・勤怠欄 */
+#entryDialog .form-fields.daily-input-edit-fields{
+  grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#entryDialog .daily-input-edit-fields .daily-edit-third,
+#entryDialog .daily-input-edit-fields .daily-edit-fourth{
+  grid-column:span 3!important;
+  min-width:0!important;
+}
+#entryDialog .daily-input-edit-fields .daily-edit-full,
+#entryDialog .daily-input-edit-fields .daily-back-detail{grid-column:1 / -1!important}
+@media(max-width:560px){
+  #entryDialog .form-fields.daily-input-edit-fields{gap:6px!important}
+  #entryDialog .daily-input-edit-fields .daily-edit-third,
+  #entryDialog .daily-input-edit-fields .daily-edit-fourth{
+    grid-column:span 3!important;
+    min-width:0!important;
+  }
+  /* Safariの日付表示を入力枠の縦横中央に固定 */
+  #entryDialog .daily-input-edit-fields .daily-edit-full input[type="date"]{
+    height:46px!important;
+    min-height:46px!important;
+    max-height:46px!important;
+    line-height:46px!important;
+    padding:0 12px!important;
+    text-align:center!important;
+  }
+  #entryDialog .daily-input-edit-fields .daily-edit-full input[type="date"]::-webkit-date-and-time-value{
+    min-height:46px!important;
+    line-height:46px!important;
+    text-align:center!important;
+  }
+}
