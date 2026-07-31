@@ -69,7 +69,7 @@
         <article class="panel daily-ledger-panel">
           <div class="panel-heading daily-ledger-heading"><div><h2>日別売上表</h2></div><div class="daily-ledger-heading-actions"><button class="shop-closed-button compact-button" id="addShopClosedDashboard" type="button">店休設定</button><div class="daily-ledger-total"><span>月間売上</span><strong id="dailyLedgerTotal">¥0</strong></div></div></div>
           <div class="daily-kpi-row" id="dailyKpis"></div>
-          <div class="daily-table-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>曜日</th><th>売上</th><th>現金</th><th>カード</th><th>未収</th><th>組数</th><th>客数</th><th>客単価</th><th>日払い</th><th>支出</th><th>現金残金</th><th>女子給</th><th>女子給率</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div>
+          <div class="daily-table-wrap"><table class="daily-sales-table"><thead><tr><th>日付</th><th>曜日</th><th>売上</th><th>現金</th><th>カード</th><th>未収</th><th>組数</th><th>客数</th><th>客単価</th><th>男子日払い</th><th>キャスト日払い</th><th>支出</th><th>現金残金</th><th>女子給</th><th>女子給率</th></tr></thead><tbody id="dailySalesTable"></tbody></table></div>
         </article>
       </section>
 
@@ -99,6 +99,6 @@
 <dialog id="expenseOptionDialog" class="customer-history-dialog"><form id="expenseOptionForm" method="dialog"><div class="dialog-head"><div><h2 id="expenseOptionTitle">項目を追加</h2></div><button type="button" class="close" onclick="closeExpenseOptionDialog()" aria-label="閉じる">×</button></div><div class="customer-history-body"><div class="expense-option-add-head"><span id="expenseOptionNameLabel">名称</span><div class="dialog-actions"><button type="button" class="secondary-button" onclick="closeExpenseOptionDialog()">キャンセル</button><button class="primary-button" value="save">追加する</button></div></div><label class="expense-option-name"><input id="expenseOptionName" autocomplete="off" required></label><div id="expenseOptionList" class="payment-method-list"></div></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=00637596"></script>
+  <script src="app.js?v=26977019"></script>
 </body>
 </html>
