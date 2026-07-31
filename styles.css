@@ -1832,3 +1832,24 @@ input[type="number"]::-webkit-inner-spin-button{
     text-align:center!important;
   }
 }
+
+/* 個別保証（キャストごとの期間限定・無期設定） */
+.cast-guarantee{margin-top:4px;padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.018)}
+.cast-guarantee h3{margin:0;color:#ffc6dd;font-size:16px}
+.cast-guarantee p{margin:6px 0 12px;color:var(--muted);font-size:12px}
+.guarantee-period,.guarantee-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cast-guarantee details{margin-top:12px;border-top:1px solid var(--border);padding-top:11px}
+.cast-guarantee summary{cursor:pointer;color:#ffb4d4;font-weight:700}
+.guarantee-grid{margin-top:12px}
+.guarantee-field{font-size:11px}
+.guarantee-field input{font-size:13px}
+@media(max-width:560px){
+  #entryDialog .cast-guarantee{padding:12px}
+  #entryDialog .cast-guarantee h3{font-size:14px}
+  #entryDialog .cast-guarantee p{font-size:11px;line-height:1.45}
+  #entryDialog .guarantee-period{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #entryDialog .guarantee-period .field:last-child{grid-column:1/-1}
+  #entryDialog .guarantee-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #entryDialog .guarantee-field{font-size:10px}
+  #entryDialog .guarantee-field input{font-size:12px}
+}
