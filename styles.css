@@ -1796,3 +1796,7 @@ input[type="number"]::-webkit-inner-spin-button{
   .payroll-total-metric{padding:8px}
   .payroll-total-metric b{font-size:12px}
 }
+
+
+/* マイナス金額は全画面で明確に表示 */
+.negative-amount{color:#ff5b77!important;font-weight:700!important;}
