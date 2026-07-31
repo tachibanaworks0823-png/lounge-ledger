@@ -56,7 +56,16 @@ document.addEventListener('touchend',()=>{
   pullingToRefresh=false;pullDistance=0;pullRefreshIndicator.classList.remove('is-ready');
   if(shouldRefresh){pullRefreshIndicator.textContent='更新しています…';pullRefreshIndicator.classList.add('is-pulling');window.location.reload();}
   else{pullRefreshIndicator.classList.remove('is-pulling');pullRefreshIndicator.textContent='↓ 更新する';}
-},{passive:true}); const yen = n => '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(n||0));
+},{passive:true}); const yen = n => {
+  const value=Number(n||0);
+  return (value<0?'-':'')+'¥'+new Intl.NumberFormat('ja-JP').format(Math.round(Math.abs(value)));
+};
+function markNegativeAmounts(scope=document){
+  scope.querySelectorAll('*').forEach(element=>{
+    if(element.children.length||/^(INPUT|TEXTAREA|SELECT|OPTION)$/i.test(element.tagName))return;
+    element.classList.toggle('negative-amount',/-¥[0-9]/.test(element.textContent||''));
+  });
+}
 const clonePayload=value=>JSON.parse(JSON.stringify(value));
 const snapshotData=value=>{const snapshot=clonePayload(value);delete snapshot._backups;return snapshot;};
 const dataScore=value=>{
@@ -307,6 +316,7 @@ function render(){
     ['シフト',renderShifts],['支出',renderExpenses],['計算設定',renderSettings]
   ];
   renderTasks.forEach(([name,task])=>{try{task();}catch(error){console.error('画面描画エラー: '+name,error);}});
+  markNegativeAmounts();
 }
 function dailyRows(){
   const [year,month]=data.month.split('-').map(Number);
