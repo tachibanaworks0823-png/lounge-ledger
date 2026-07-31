@@ -1744,3 +1744,28 @@ input[type="number"]::-webkit-inner-spin-button{
   left:0!important;
   z-index:23!important;
 }
+
+
+/* キャスト給与：支給一覧の項目行は、表の最終行まで常に残す */
+#casts .table-wrap table thead{
+  position:static!important;
+  box-shadow:none!important;
+}
+#casts .table-wrap table thead th{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:30!important;
+  background:#2a2228!important;
+}
+#casts .table-wrap table thead th:first-child{
+  left:0!important;
+  z-index:32!important;
+}
+#casts .table-wrap table .payroll-sticky-tail td{
+  height:52px!important;
+  min-height:52px!important;
+  padding:0!important;
+  border:0!important;
+  background:#211c21!important;
+}
