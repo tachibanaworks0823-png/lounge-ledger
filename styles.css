@@ -1780,3 +1780,19 @@ input[type="number"]::-webkit-inner-spin-button{
   font-weight:700;
 }
 #entryDialog .dialog-head .payroll-details-edit-button[hidden]{display:none!important;}
+
+
+/* キャスト給与：月間詳細の合計と日別明細 */
+.payroll-month-totals{border:1px solid #674b5e;border-radius:10px;padding:13px;background:linear-gradient(135deg,#211a20,#19161a)}
+.payroll-month-totals h3{margin:0 0 10px;color:#f4d9e6;font-size:15px}
+.payroll-total-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.payroll-total-metric{min-width:0;padding:9px 10px;border:1px solid #4f3f4a;border-radius:7px;background:#181519}
+.payroll-total-metric span{display:block;color:#cbb9c6;font-size:11px;line-height:1.25;margin-bottom:4px}
+.payroll-total-metric b{display:block;color:#fff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.payroll-month-table th small{display:block;font-size:10px;line-height:1.15;color:#d5b9c9}
+.payroll-month-table .payroll-day-edit{font-size:12px;white-space:nowrap;color:#f16aad}
+@media(max-width:720px){
+  .payroll-total-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .payroll-total-metric{padding:8px}
+  .payroll-total-metric b{font-size:12px}
+}
