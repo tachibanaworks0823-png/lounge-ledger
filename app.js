@@ -868,9 +868,21 @@ function openForm(type,castId=null){mode=type;const payrollDetailsEditButton=$('
    const cast=data.casts.find(item=>item.id===editingPayrollCastId);
    const [year,month]=String(data.month||'').split('-').map(Number);
    const daysInMonth=new Date(year,month,0).getDate();
-   const monthly=cast?calcCast(cast):null;
+   const monthly=cast?calcCast(cast):{};
    const money=value=>Number(value||0)?yen(value):'—';
-   const number=value=>Number(value||0)?Number(value):'—';
+   const count=value=>Number(value||0)?Number(value)+'本':'—';
+   const metric=(label,value)=>'<div class="payroll-total-metric"><span>'+label+'</span><b>'+value+'</b></div>';
+   const rate=Number(monthly.nominated||0)>0?Math.round(Number(monthly.gross||0)/Number(monthly.nominated||0)*100)+'%':'—';
+   const average=Number(monthly.hours||0)>0?yen(Math.round(Number(monthly.gross||0)/Number(monthly.hours||0))):'—';
+   const totals=[
+     metric('本指名売上',money(monthly.nominated)),metric('場内 / 本指名 / 同伴 / 延長',count(monthly.area)+' / '+count(monthly.main)+' / '+count(monthly.companion)+' / '+count(monthly.extension)),
+     metric('勤務日数',Number(monthly.days||0)+'日'),metric('勤務時間',Number(monthly.hours||0).toFixed(1)+'h'),metric('時間給',money(monthly.hourly)),
+     metric('同伴B',money(monthly.companionBack)),metric('本指名B',money(monthly.mainBack)),metric('延長B',money(monthly.extensionBack)),
+     metric('ドリンク（P含む）',money(monthly.drink)),metric('飾り物',money(monthly.decoration)),metric('ボトル・シャンパン',money(monthly.bottleChampagne)),
+     metric('手当',money(monthly.allowance)),metric('バック計',money(monthly.back)),metric('消費税',money(monthly.consumptionTax)),metric('所得税',money(monthly.incomeTax)),
+     metric('厚生費',money(monthly.welfare)),metric('引き物',money(monthly.pull)),metric('控除計',money(monthly.deductionTotal)),metric('日払い',money(monthly.advanceAmount)),
+     metric('総支給額',money(monthly.gross)),metric('支給額（控除後）',money(monthly.payoutBeforeAdvance)),metric('支給額（日払い差引後）',money(monthly.payout)),metric('給率',rate),metric('平均時給',average)
+   ].join('');
    const rows=Array.from({length:daysInMonth},(_,index)=>{
      const date=data.month+'-'+String(index+1).padStart(2,'0');
      const entries=data.dailyInputs.filter(item=>item.castId===editingPayrollCastId&&item.date===date);
@@ -878,15 +890,20 @@ function openForm(type,castId=null){mode=type;const payrollDetailsEditButton=$('
      const sum=key=>calculated.reduce((total,item)=>total+Number(item[key]||0),0);
      const raw=key=>entries.reduce((total,item)=>total+Number(item[key]||0),0);
      const has=entries.length>0;
-     const hours=sum('hours'),attendance=entries.map(item=>item.attendance).filter(Boolean).join(' / '),area=raw('areaNomination'),main=raw('mainCount'),companion=raw('companionCount');
-     const advance=sum('advance'),deduction=sum('deduction'),allowance=sum('allowance'),sales=raw('mainSales'),back=sum('back'),gross=sum('gross'),payout=sum('payout');
-     const cell=(text,active=has)=>'<td>'+((active&&text!==undefined&&text!==null)?text:'—')+'</td>';
-     return '<tr><td class="payroll-detail-date">'+dateJP(date)+'</td>'+cell(attendance||'—')+cell(hours?hours.toFixed(1)+'h':'—')+cell(number(area)+'本')+cell(number(main)+'本')+cell(number(companion)+'本')+cell(money(advance))+cell(money(deduction))+cell(money(allowance))+cell(money(sales))+cell(money(back))+cell(money(gross))+cell(money(payout))+'</tr>';
+     const hours=sum('hours'),attendance=entries.map(item=>item.attendance).filter(Boolean).join(' / ');
+     const area=raw('areaNomination'),main=raw('mainCount'),companion=raw('companionCount'),extension=raw('mainExtension')+raw('companionExtension');
+     const allowance=sum('allowance'),sales=raw('mainSales'),back=sum('back'),gross=sum('gross'),advance=sum('advance'),deduction=sum('deduction');
+     const consumption=sum('consumptionTax'),income=sum('incomeTax'),welfare=sum('welfare'),pull=deduction+(hours>0?Number(data.settings.deductionPerShift||0):0);
+     const totalDeduction=consumption+income+welfare+pull,payoutBefore=Math.max(0,gross-totalDeduction),payout=sum('payout');
+     const dailyRate=sales>0?Math.round(gross/sales*100)+'%':'—',dailyAverage=hours>0?yen(Math.round(gross/hours)):'—';
+     const cell=value=>'<td>'+((has&&value!==undefined&&value!==null)?value:'—')+'</td>';
+     const edit=has?'<button type="button" class="text-button payroll-day-edit" onclick="editDailyInput(\''+entries[0].id+'\')">詳細・編集</button>':'—';
+     return '<tr><td class="payroll-detail-date">'+dateJP(date)+'</td>'+cell(attendance||'—')+cell(money(sales))+cell(count(area)+' / '+count(main)+' / '+count(companion)+' / '+count(extension))+cell(hours>0?'1日':'—')+cell(hours?hours.toFixed(1)+'h':'—')+cell(money(sum('hourly')))+cell(money(sum('companionBack')))+cell(money(sum('mainBack')))+cell(money(sum('extensionBack')))+cell(money(sum('drink')))+cell(money(sum('decoration')))+cell(money(sum('bottleChampagne')))+cell(money(allowance))+cell(money(back))+cell(money(consumption))+cell(money(income))+cell(money(welfare))+cell(money(pull))+cell(money(totalDeduction))+cell(money(advance))+cell(money(gross))+cell(money(payoutBefore))+cell(money(payout))+cell(dailyRate)+cell(dailyAverage)+cell(edit)+'</tr>';
    }).join('');
-   $('#dialogTitle').textContent=(cast?.name||'キャスト')+'｜'+year+'年'+month+'月の詳細';if(payrollDetailsEditButton){payrollDetailsEditButton.hidden=false;payrollDetailsEditButton.onclick=()=>openForm('payroll',editingPayrollCastId);}
-   fields.innerHTML='<section class="payroll-month-detail full"><div class="payroll-month-summary"><div><span>勤務日数</span><b>'+Number(monthly?.days||0)+'日</b></div><div><span>勤務時間</span><b>'+Number(monthly?.hours||0).toFixed(1)+'h</b></div><div><span>総支給額</span><b>'+yen(monthly?.gross||0)+'</b></div><div><span>支給額</span><b>'+yen(monthly?.payout||0)+'</b></div></div><div class="payroll-month-table-wrap"><table class="payroll-month-table"><thead><tr><th>日付</th><th>勤怠</th><th>実働</th><th>場内</th><th>本指名</th><th>同伴</th><th>日払い</th><th>引き物</th><th>手当</th><th>本指名売上</th><th>バック計</th><th>総支給額</th><th>支給額</th></tr></thead><tbody>'+rows+'</tbody></table></div></section>';
- }
- if(type==='dailyDetails'){
+   $('#dialogTitle').textContent=(cast?.name||'キャスト')+'｜'+year+'年'+month+'月の詳細';
+   if(payrollDetailsEditButton){payrollDetailsEditButton.hidden=false;payrollDetailsEditButton.onclick=()=>openForm('payroll',editingPayrollCastId);}
+   fields.innerHTML='<section class="payroll-month-detail full"><div class="payroll-month-summary payroll-month-summary-primary">'+metric('勤務日数',Number(monthly.days||0)+'日')+metric('勤務時間',Number(monthly.hours||0).toFixed(1)+'h')+metric('総支給額',money(monthly.gross))+metric('支給額',money(monthly.payout))+'</div><section class="payroll-month-totals"><h3>当月合計</h3><div class="payroll-total-grid">'+totals+'</div></section><div class="payroll-month-table-wrap"><table class="payroll-month-table"><thead><tr><th>日付</th><th>勤怠</th><th>本指名売上</th><th>場内 / 本指名 / 同伴 / 延長</th><th>勤務日数</th><th>勤務時間</th><th>時間給</th><th>同伴B</th><th>本指名B</th><th>延長B</th><th>ドリンク<br><small>P含む</small></th><th>飾り物</th><th>ボトル<br>シャンパン</th><th>手当</th><th>バック計</th><th>消費税</th><th>所得税</th><th>厚生費</th><th>引き物</th><th>控除計</th><th>日払い</th><th>総支給額</th><th>支給額<br><small>控除後</small></th><th>支給額<br><small>日払い差引後</small></th><th>給率</th><th>平均時給</th><th>操作</th></tr></thead><tbody>'+rows+'</tbody></table></div></section>';
+ } if(type==='dailyDetails'){
    const date=castId,entries=data.dailyInputs.filter(x=>x.date===date);
    const metric=(label,value,present)=>present?'<div class="daily-detail-metric"><span>'+label+'</span><strong>'+value+'</strong></div>':'';
    $('#dialogTitle').textContent=dateJP(date)+' の詳細';
