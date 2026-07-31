@@ -215,22 +215,51 @@ const dateKey=value=>{const raw=String(value||'').trim().replace(/\//g,'-');cons
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const effectiveCastStatus=cast=>{const leaving=dateKey(cast.leavingDate);if(leaving&&leaving<=todayKey())return '退店';if(leaving&&cast.status==='退店')return '在籍';return cast.status||'在籍';};
 const dailyBackKeys=['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration'];
-function dailyBackBreakdown(input){
-  const detailBack=keys=>keys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(data.settings[key]||0),0);
-  const companionBack=Number(input.companionCount||0)*Number(data.settings.companion||0);
-  const mainBack=Number(input.mainCount||0)*Number(data.settings.mainNomination||0);
-  const extensionBack=(Number(input.mainExtension||0)+Number(input.companionExtension||0))*Number(data.settings.extension||0);
+
+// 個別保証: 入力された項目だけ全体設定より優先し、終了日が空欄なら無期で適用します。
+const guaranteeSettingKeys=['mainNomination','companion','extension','free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle','mainChampagne','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle','companionChampagne','consumptionTax','taxRate','welfarePerShift','deductionPerShift','monthlyMainCompanionStep','monthlyMainCompanionAdd','monthlyCompanionStep','monthlyCompanionAdd','monthlySalesStep','monthlySalesAdd'];
+function activeCastGuarantee(cast,date){
+  const g=cast?.guarantee;
+  if(!g||!Object.keys(g).some(key=>!['startDate','endDate'].includes(key)&&g[key]!==''&&g[key]!==undefined))return null;
+  const d=date||'';
+  if(g.startDate&&d<g.startDate)return null;
+  if(g.endDate&&d>g.endDate)return null;
+  return g;
+}
+function castSettings(cast,date){
+  const guarantee=activeCastGuarantee(cast,date);
+  if(!guarantee)return data.settings;
+  const settings={...data.settings};
+  guaranteeSettingKeys.forEach(key=>{if(guarantee[key]!==''&&guarantee[key]!==undefined)settings[key]=Number(guarantee[key]);});
+  return settings;
+}
+function castHourly(cast,date){
+  const guarantee=activeCastGuarantee(cast,date);
+  return guarantee&&guarantee.hourly!==''&&guarantee.hourly!==undefined?Number(guarantee.hourly):Number(cast?.hourly||0);
+}
+const guaranteeLabels={mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）',extension:'延長バック（1本）',free1000:'フリー・場内 1,000円',free1500:'フリー・場内 1,500円',free2000:'フリー・場内 2,000円',free2500:'フリー・場内 2,500円',free3000:'フリー・場内 3,000円',main1000:'本指名 1,000円',main1500:'本指名 1,500円',main2000:'本指名 2,000円',main2500:'本指名 2,500円',main3000:'本指名 3,000円',mainP:'本指名 P',mainDecoration:'本指名 飾り物',mainBottle:'本指名 ボトル・シャンパン（%）',companion1000:'同伴 1,000円',companion1500:'同伴 1,500円',companion2000:'同伴 2,000円',companion2500:'同伴 2,500円',companion3000:'同伴 3,000円',companionP:'同伴 P',companionDecoration:'同伴 飾り物',companionBottle:'同伴 ボトル・シャンパン（%）',consumptionTax:'消費税（%）',taxRate:'所得税（%）',welfarePerShift:'厚生費（1出勤につき）',deductionPerShift:'控除（1出勤につき）',monthlyMainCompanionStep:'本指名・同伴 合計本数ごと',monthlyMainCompanionAdd:'本指名・同伴 時給加算',monthlyCompanionStep:'同伴 本数ごと',monthlyCompanionAdd:'同伴 時給加算',monthlySalesStep:'売上ごと',monthlySalesAdd:'売上 時給加算'};
+function guaranteeInput(key,label=guaranteeLabels[key]){return '<label class="field guarantee-field">'+label+'<input name="guarantee_'+key+'" type="number" inputmode="decimal" min="0" placeholder="全体設定を使用"></label>';}
+function guaranteeProfileFields(){
+  const fields=guaranteeSettingKeys.map(key=>guaranteeInput(key)).join('');
+  return '<section class="cast-guarantee full"><h3>個別保証設定</h3><p>入力した項目だけ全体設定より優先します。終了日が空欄なら無期です。</p><div class="guarantee-period"><label class="field">開始日<input name="guarantee_startDate" type="date"></label><label class="field">終了日（空欄で無期）<input name="guarantee_endDate" type="date"></label><label class="field">保証時給<input name="guarantee_hourly" type="number" inputmode="numeric" min="0" placeholder="全体時給を使用"></label></div><details><summary>バック・控除などを個別に変更する</summary><div class="guarantee-grid">'+fields+'</div></details></section>';
+}
+
+function dailyBackBreakdown(input,settings=data.settings){
+  const detailBack=keys=>keys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(settings[key]||0),0);
+  const companionBack=Number(input.companionCount||0)*Number(settings.companion||0);
+  const mainBack=Number(input.mainCount||0)*Number(settings.mainNomination||0);
+  const extensionBack=(Number(input.mainExtension||0)+Number(input.companionExtension||0))*Number(settings.extension||0);
   const drink=detailBack(['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','companion1000','companion1500','companion2000','companion2500','companion3000','companionP']);
   const decoration=detailBack(['mainDecoration','companionDecoration']);
-  const bottleChampagne=(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(data.settings.mainBottle||0)/100
-    +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(data.settings.companionBottle||0)/100;
+  const bottleChampagne=(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(settings.mainBottle||0)/100
+    +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(settings.companionBottle||0)/100;
   return {companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,backTotal:companionBack+mainBack+extensionBack+drink+decoration+bottleChampagne};
 }
-function monthlyHourlyBonus(values){
+function monthlyHourlyBonus(values,settings=data.settings){
   const count=Number(values.main||0)+Number(values.companion||0);
   const companion=Number(values.companion||0);
   const sales=Number(values.nominated||0);
-  const step=(key)=>Number(data.settings[key]||0);
+  const step=(key)=>Number(settings[key]||0);
   const earned=(value,stepKey,addKey)=>step(stepKey)>0?Math.floor(value/step(stepKey))*step(addKey):0;
   return earned(count,'monthlyMainCompanionStep','monthlyMainCompanionAdd')
     +earned(companion,'monthlyCompanionStep','monthlyCompanionAdd')
@@ -238,21 +267,22 @@ function monthlyHourlyBonus(values){
 }
 function calcDailyInput(input){
   const cast=data.casts.find(c=>c.id===input.castId);
+  const settings=castSettings(cast,input.date);
   const hours=Number(input.hours||0);
-  const hourly=hours*Number(cast?.hourly||0);
-  const backBreakdown=dailyBackBreakdown(input);
+  const hourly=hours*castHourly(cast,input.date);
+  const backBreakdown=dailyBackBreakdown(input,settings);
   const back=backBreakdown.backTotal;
   const allowance=Number(input.allowance||0);
   const gross=hourly+back+allowance;
-  const consumption=Math.round(gross*Number(data.settings.consumptionTax||0)/100);
-  const income=Math.round(Math.max(0,gross-consumption)*Number(data.settings.taxRate||0)/100);
-  // 実働時間がある日だけを「1出勤」として扱います。
+  const consumption=Math.round(gross*Number(settings.consumptionTax||0)/100);
+  const income=Math.round(Math.max(0,gross-consumption)*Number(settings.taxRate||0)/100);
   const worked=hours>0;
-  const welfare=worked?Number(data.settings.welfarePerShift||0):0;
+  const welfare=worked?Number(settings.welfarePerShift||0):0;
+  const baseDeduction=worked?Number(settings.deductionPerShift||0):0;
   const deduction=Number(input.deduction||0);
-  const deductions=income+consumption+welfare+(worked?Number(data.settings.deductionPerShift||0):0)+deduction;
+  const deductions=income+consumption+welfare+baseDeduction+deduction;
   const advance=Number(input.advance||0);
-  return {hours,advance,back,allowance,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,deduction,payout:Math.max(0,gross-deductions-advance),...backBreakdown};
+  return {hours,advance,back,allowance,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,baseDeduction,deduction,payout:Math.max(0,gross-deductions-advance),...backBreakdown};
 }
 function payrollAdjustment(castId){return (data.payrollAdjustments||[]).find(item=>item.castId===castId&&item.month===data.month)||{};}
 function applyPayrollAdjustment(castId,values){
@@ -285,14 +315,16 @@ function calcCast(cast){
     // 出勤日数・出勤ごとの控除は、実働時間がある日だけを対象にします。
     const days=values.filter(value=>Number(value.hours||0)>0).length,hours=sum('hours'),advance=sum('advance');
     const nominated=inputSum('mainSales'),area=inputSum('areaNomination'),main=inputSum('mainCount'),companion=inputSum('companionCount');
-    const hourlyBonus=monthlyHourlyBonus({main,companion,nominated});
-    const hourly=hours*(Number(cast.hourly||0)+hourlyBonus);
+    const payrollSettings=castSettings(cast,dailyInputs[dailyInputs.length-1]?.date||data.month+'-01');
+    const hourlyBonus=monthlyHourlyBonus({main,companion,nominated},payrollSettings);
+    const hourly=sum('hourly')+hours*hourlyBonus;
     const companionBack=sum('companionBack'),mainBack=sum('mainBack'),extensionBack=sum('extensionBack'),drink=sum('drink'),decoration=sum('decoration'),bottleChampagne=sum('bottleChampagne'),backTotal=sum('backTotal'),allowance=sum('allowance');
     const back=backTotal,gross=hourly+back+allowance;
-    const consumptionTax=Math.round(gross*Number(data.settings.consumptionTax||0)/100);
-    const incomeTax=Math.round(Math.max(0,gross-consumptionTax)*Number(data.settings.taxRate||0)/100);
-    const welfare=days*Number(data.settings.welfarePerShift||0);
-    const pull=inputSum('deduction')+days*Number(data.settings.deductionPerShift||0);
+    const bonusGross=hours*hourlyBonus;
+    const consumptionTax=sum('consumptionTax')+Math.round(bonusGross*Number(payrollSettings.consumptionTax||0)/100);
+    const incomeTax=sum('incomeTax')+Math.round(Math.max(0,bonusGross-Math.round(bonusGross*Number(payrollSettings.consumptionTax||0)/100))*Number(payrollSettings.taxRate||0)/100);
+    const welfare=sum('welfare');
+    const pull=inputSum('deduction')+sum('baseDeduction');
     const deductionTotal=incomeTax+consumptionTax+welfare+pull;
     return enrichCastPayroll(cast.id,{days,hours,advance,advanceAmount:advance,nominated,area,main,companion,extension:inputSum('mainExtension')+inputSum('companionExtension'),hourlyBonus,companionBack,mainBack,extensionBack,drink,decoration,bottleChampagne,allowance,backTotal,back,hourly,gross,consumptionTax,incomeTax,welfare,pull,deductionTotal,deductions:deductionTotal,payout:Math.max(0,gross-deductionTotal-advance)});
   }
@@ -950,16 +982,20 @@ function openForm(type,castId=null){mode=type;const payrollDetailsEditButton=$('
  }
  if(type==='shift'){ $('#dialogTitle').textContent='勤務を登録';fields.innerHTML=field('勤務日','date','date')+'<label class="field">キャスト<select name="castId">'+sortedCasts().map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></label>'+field('実働時間','hours','number')+field('日払い','advance','number');}
  if(type==='application'){ const application=data.applications.find(item=>item.id===editingApplicationId);$('#dialogTitle').textContent=application?'応募を編集':'応募を追加';fields.innerHTML=optionalField('応募日','applicationDate','date')+'<label class="field">ステータス<select name="status"><option value="" selected>選択してください</option><option>入店</option><option>不採用</option><option>返信無し</option><option>面接待ち</option><option>対応終了</option></select></label>'+'<label class="field">媒体<select name="media"><option value="" selected>選択してください</option>'+data.settings.applicationMedia.map(item=>'<option value="'+item+'">'+item+'</option>').join('')+'<option value="__new__">＋ 新しい媒体を追加</option><option value="__sort__">↕ 媒体の並び替え</option><option value="__manage__">✎ 既存の媒体を編集</option></select></label>'+'<label class="field">募集名<input name="_recruitmentEntryX9" type="search" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></label>'+'<label class="field">生年月日<input name="birthday" type="date"></label>'+optionalField('年齢','age','number')+optionalField('連絡先','phone','tel')+optionalField('Mail','email','email')+optionalField('面接希望日','preferredInterviewDate','date')+optionalField('面接確定日','confirmedInterviewDate','date')+optionalField('時間','interviewTime','time')+'<label class="field">リスケ<select name="reschedule"><option value="" selected>選択してください</option>'+[1,2,3,4,5].map(item=>'<option value="'+item+'">'+item+'</option>').join('')+'</select></label>'+'<label class="field full">備考<textarea name="note" rows="3"></textarea></label>';fields.querySelectorAll('input,textarea').forEach(input=>input.autocomplete='new-password');const birthday=fields.querySelector('[name="birthday"]'),age=fields.querySelector('[name="age"]'),media=fields.querySelector('[name="media"]');birthday.onchange=()=>{if(birthday.value)age.value=castAge(birthday.value).replace('歳','');};media.onchange=()=>{if(media.value==='__new__'){const name=(prompt('新しい媒体名を入力してください')||'').trim();if(!name){media.value='';return;}if(!data.settings.applicationMedia.includes(name))data.settings.applicationMedia.push(name);const option=document.createElement('option');option.value=name;option.textContent=name;media.insertBefore(option,media.querySelector('[value="__new__"]'));media.value=name;save();return;}if(media.value==='__sort__'){media.value='';window.openApplicationMediaOrder();return;}if(media.value!=='__manage__')return;const before=(prompt('編集する媒体名を入力してください\n\n登録済み：\n'+data.settings.applicationMedia.join('\n'))||'').trim();if(!before||!data.settings.applicationMedia.includes(before)){media.value='';return;}const after=(prompt('新しい媒体名を入力してください',before)||'').trim();if(!after||after===before){media.value=before;return;}if(data.settings.applicationMedia.includes(after)){alert('同じ媒体名がすでに登録されています。');media.value=before;return;}data.settings.applicationMedia=data.settings.applicationMedia.map(item=>item===before?after:item);data.applications.forEach(item=>{if(item.media===before)item.media=after;});const option=Array.from(media.options).find(item=>item.value===before);if(option){option.value=after;option.textContent=after;}media.value=after;save();};if(application){['applicationDate','media','birthday','age','phone','email','preferredInterviewDate','confirmedInterviewDate','interviewTime','reschedule','status','note'].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.value=application[name]??'';});const recruitmentInput=fields.querySelector('[name="_recruitmentEntryX9"]');if(recruitmentInput)recruitmentInput.value=application.recruitmentName??'';}else fields.querySelector('[name="applicationDate"]').value=businessDate();}
- if(type==='cast'){ const cast=data.casts.find(c=>c.id===editingCastId);$('#dialogTitle').textContent=cast?'キャストを編集・詳細':'キャストを追加';fields.innerHTML='<div class="cast-form-section full"><h3>ステータス</h3></div>'+'<label class="field">キャスト名<input name="_castEntryX9" type="search" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></label>'+'<label class="field">在籍状況<select name="status"><option>在籍</option><option>退店</option><option>体入</option><option>派遣</option></select></label>'+optionalField('入店日','joinedDate','date')+optionalField('退店日','leavingDate','date')+optionalField('氏名（姓）','castIdentityA')+optionalField('氏名（名）','castIdentityB')+'<label class="field birth-field">生年月日<input name="birthday" type="date"></label><label class="field age-field">年齢<input class="cast-age" name="age" type="number" min="0" max="120" inputmode="numeric" placeholder="年齢"></label>'+'<div class="cast-contact-row full">'+optionalField('連絡先','phone','tel')+optionalField('緊急連絡先','emergencyContact','tel')+optionalField('関係','emergencyRelation')+'</div>'+optionalField('住所','address')+optionalField('建物','building')+'<label class="field full">メモ<textarea name="memo" rows="3"></textarea></label><section class="cast-checklist full"><h3>確認項目</h3><label><input type="checkbox" name="termsSigned">規約サイン</label><label><input type="checkbox" name="photoSubmitted">写真</label><label><input type="checkbox" name="residenceCertificate">住民票</label></section>';form.autocomplete='off';fields.querySelectorAll('input:not([type="checkbox"]),textarea').forEach(input=>{input.autocomplete='new-password';input.setAttribute('autocorrect','off');input.setAttribute('autocapitalize','off');input.setAttribute('spellcheck','false');});
+ if(type==='cast'){ const cast=data.casts.find(c=>c.id===editingCastId);$('#dialogTitle').textContent=cast?'キャストを編集・詳細':'キャストを追加';fields.innerHTML='<div class="cast-form-section full"><h3>ステータス</h3></div>'+'<label class="field">キャスト名<input name="_castEntryX9" type="search" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"></label>'+'<label class="field">在籍状況<select name="status"><option>在籍</option><option>退店</option><option>体入</option><option>派遣</option></select></label>'+optionalField('入店日','joinedDate','date')+optionalField('退店日','leavingDate','date')+optionalField('氏名（姓）','castIdentityA')+optionalField('氏名（名）','castIdentityB')+'<label class="field birth-field">生年月日<input name="birthday" type="date"></label><label class="field age-field">年齢<input class="cast-age" name="age" type="number" min="0" max="120" inputmode="numeric" placeholder="年齢"></label>'+'<div class="cast-contact-row full">'+optionalField('連絡先','phone','tel')+optionalField('緊急連絡先','emergencyContact','tel')+optionalField('関係','emergencyRelation')+'</div>'+optionalField('住所','address')+optionalField('建物','building')+'<label class="field full">メモ<textarea name="memo" rows="3"></textarea></label><section class="cast-checklist full"><h3>確認項目</h3><label><input type="checkbox" name="termsSigned">規約サイン</label><label><input type="checkbox" name="photoSubmitted">写真</label><label><input type="checkbox" name="residenceCertificate">住民票</label></section>'+guaranteeProfileFields();form.autocomplete='off';fields.querySelectorAll('input:not([type="checkbox"]),textarea').forEach(input=>{input.autocomplete='new-password';input.setAttribute('autocorrect','off');input.setAttribute('autocapitalize','off');input.setAttribute('spellcheck','false');});
   const castNameInput=fields.querySelector('[name="_castEntryX9"]');
-  if(castNameInput){castNameInput.autocomplete='new-password';castNameInput.setAttribute('data-no-history','true');}form.noValidate=true;if(cast){['status','joinedDate','leavingDate','birthday','age','phone','emergencyContact','emergencyRelation','address','building','memo'].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.value=cast[name]||(name==='status'?'在籍':'');});fields.querySelector('[name="_castEntryX9"]').value=cast.name||'';fields.querySelector('[name="castIdentityA"]').value=cast.lastName||'';fields.querySelector('[name="castIdentityB"]').value=cast.firstName||'';['termsSigned','photoSubmitted','residenceCertificate'].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.checked=Boolean(cast[name]);});fields.querySelector('[name="status"]').value=effectiveCastStatus(cast);}}if(type==='cast'){const leavingDate=fields.querySelector('[name="leavingDate"]'),status=fields.querySelector('[name="status"]'),birthday=fields.querySelector('[name="birthday"]'),age=fields.querySelector('.cast-age');const updateAge=()=>{if(!birthday.value)return;const birth=new Date(birthday.value+'T00:00:00'),today=new Date();let years=today.getFullYear()-birth.getFullYear();const beforeBirthday=today.getMonth()<birth.getMonth()||(today.getMonth()===birth.getMonth()&&today.getDate()<birth.getDate());if(beforeBirthday)years--;age.value=years;};leavingDate.onchange=()=>{if(leavingDate.value)status.value=dateKey(leavingDate.value)<=todayKey()?'退店':(status.value==='退店'?'在籍':status.value);};birthday.onchange=updateAge;updateAge();primarySave.type='button';primarySave.onclick=()=>{try{saveCastProfile();}catch(error){console.error('Cast save failed',error);alert('保存に失敗しました。\n'+(error?.message||''));}};}
+  if(castNameInput){castNameInput.autocomplete='new-password';castNameInput.setAttribute('data-no-history','true');}form.noValidate=true;if(cast){['status','joinedDate','leavingDate','birthday','age','phone','emergencyContact','emergencyRelation','address','building','memo'].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.value=cast[name]||(name==='status'?'在籍':'');});fields.querySelector('[name="_castEntryX9"]').value=cast.name||'';fields.querySelector('[name="castIdentityA"]').value=cast.lastName||'';fields.querySelector('[name="castIdentityB"]').value=cast.firstName||'';['termsSigned','photoSubmitted','residenceCertificate'].forEach(name=>{const input=fields.querySelector('[name="'+name+'"]');if(input)input.checked=Boolean(cast[name]);});const guarantee=cast.guarantee||{};['startDate','endDate','hourly',...guaranteeSettingKeys].forEach(key=>{const input=fields.querySelector('[name="guarantee_'+key+'"]');if(input)input.value=guarantee[key]??'';});fields.querySelector('[name="status"]').value=effectiveCastStatus(cast);}}if(type==='cast'){const leavingDate=fields.querySelector('[name="leavingDate"]'),status=fields.querySelector('[name="status"]'),birthday=fields.querySelector('[name="birthday"]'),age=fields.querySelector('.cast-age');const updateAge=()=>{if(!birthday.value)return;const birth=new Date(birthday.value+'T00:00:00'),today=new Date();let years=today.getFullYear()-birth.getFullYear();const beforeBirthday=today.getMonth()<birth.getMonth()||(today.getMonth()===birth.getMonth()&&today.getDate()<birth.getDate());if(beforeBirthday)years--;age.value=years;};leavingDate.onchange=()=>{if(leavingDate.value)status.value=dateKey(leavingDate.value)<=todayKey()?'退店':(status.value==='退店'?'在籍':status.value);};birthday.onchange=updateAge;updateAge();primarySave.type='button';primarySave.onclick=()=>{try{saveCastProfile();}catch(error){console.error('Cast save failed',error);alert('保存に失敗しました。\n'+(error?.message||''));}};}
  const now=new Date().toISOString().slice(0,10);if(!((type==='cast'&&editingCastId)||(type==='dailyInput'&&editingDailyInputId)||(type==='slip'&&editingSlipIndex!==null)||type==='application'))fields.querySelectorAll('input[type=date]').forEach(x=>{if(!(type==='cast'&&(x.name==='leavingDate'||x.name==='birthday'))&&!(type==='slip'&&x.name==='receivedDate'))x.value=now;});if(((type==='slip'&&editingSlipIndex===null)||type==='dailyInput'||type==='dailyBatch')&&!(type==='dailyInput'&&editingDailyInputId)){const dateField=fields.querySelector('input[name="date"]');if(dateField)dateField.value=businessDate();}if(type==='dailyInput'){bindDesktopTimePickers();bindWorkHours();calculateWorkHours();}if(type==='dailyBatch'&&castId){const batchDate=fields.querySelector('[name="date"]');if(batchDate)batchDate.value=castId;}if(type==='dailyBatch')bindBatchHours();showEntryDialog();markNegativeAmounts($('#entryDialog'));
 }
 ['addSlip','dashboardAddSlip'].forEach(id=>{const button=$('#'+id);if(button)button.onclick=e=>{e.preventDefault();openForm('slip')};});
 $('#sortSlipsDate').onclick=()=>{slipDateSort=slipDateSort==='asc'?'desc':'asc';renderSlips()};$('#sortDailyInputDate').onclick=()=>{dailyInputDateSort=dailyInputDateSort==='asc'?'desc':'asc';renderDailyInputs()};$('#addDailyInput').onclick=()=>openForm('dailyBatch');$('#addExpense').onclick=()=>openForm('expense');if($('#addShift'))$('#addShift').onclick=()=>openForm('shift');if($('#addShiftBatch'))$('#addShiftBatch').onclick=()=>openForm('shiftBatch');if($('#addShopClosed'))$('#addShopClosed').onclick=()=>openForm('shopClosed');if($('#addShopClosedDashboard'))$('#addShopClosedDashboard').onclick=()=>openForm('shopClosed');if($('#addCast'))$('#addCast').onclick=()=>openForm('cast');if($('#addCastProfile'))$('#addCastProfile').onclick=()=>openForm('cast');
 function saveCastProfile(){
   const x=Object.fromEntries(new FormData(form));
-  const profile={name:x._castEntryX9||'',status:x.status||'在籍',joinedDate:x.joinedDate||'',leavingDate:x.leavingDate||'',lastName:x.castIdentityA||'',firstName:x.castIdentityB||'',birthday:x.birthday||'',age:x.age||'',phone:x.phone||'',emergencyContact:x.emergencyContact||'',emergencyRelation:x.emergencyRelation||'',address:x.address||'',building:x.building||'',memo:x.memo||'',termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate)};
+  const guarantee={startDate:x.guarantee_startDate||'',endDate:x.guarantee_endDate||'',hourly:x.guarantee_hourly||''};
+  guaranteeSettingKeys.forEach(key=>{guarantee[key]=x['guarantee_'+key]??'';});
+  if(guarantee.startDate&&guarantee.endDate&&guarantee.endDate<guarantee.startDate){alert('保証の終了日は開始日以降にしてください。');return;}
+  const hasGuarantee=Object.keys(guarantee).some(key=>!['startDate','endDate'].includes(key)&&guarantee[key]!==''&&guarantee[key]!==undefined);
+  const profile={name:x._castEntryX9||'',status:x.status||'在籍',joinedDate:x.joinedDate||'',leavingDate:x.leavingDate||'',lastName:x.castIdentityA||'',firstName:x.castIdentityB||'',birthday:x.birthday||'',age:x.age||'',phone:x.phone||'',emergencyContact:x.emergencyContact||'',emergencyRelation:x.emergencyRelation||'',address:x.address||'',building:x.building||'',memo:x.memo||'',termsSigned:Boolean(x.termsSigned),photoSubmitted:Boolean(x.photoSubmitted),residenceCertificate:Boolean(x.residenceCertificate),guarantee:hasGuarantee?guarantee:null};
   const existing=data.casts.find(c=>c.id===editingCastId);
   if(existing)Object.assign(existing,profile);else data.casts.push({id:'c-'+Date.now(),hourly:0,...profile});
   save();
