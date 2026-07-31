@@ -1593,3 +1593,50 @@ input[type="number"]::-webkit-inner-spin-button{
     font-size:16px!important;
   }
 }
+
+
+/* 日別打込み編集（PC）：基本入力の4列を均等な枠・余白で固定 */
+#entryDialog .form-fields.daily-input-edit-fields{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  column-gap:10px!important;
+  row-gap:10px!important;
+}
+#entryDialog .daily-input-edit-fields .field.daily-edit-third,
+#entryDialog .daily-input-edit-fields .field.daily-edit-fourth{
+  grid-column:span 1!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+#entryDialog .daily-input-edit-fields .field.daily-edit-third>input,
+#entryDialog .daily-input-edit-fields .field.daily-edit-third>select,
+#entryDialog .daily-input-edit-fields .field.daily-edit-fourth>input,
+#entryDialog .daily-input-edit-fields .field.daily-edit-fourth>select{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+#entryDialog .daily-input-edit-fields .time-picker-field .desktop-time-picker{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#entryDialog .daily-input-edit-fields .time-picker-field .desktop-time-picker select{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+
+@media(max-width:560px){
+  #entryDialog .form-fields.daily-input-edit-fields{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    column-gap:6px!important;
+    row-gap:8px!important;
+  }
+}
