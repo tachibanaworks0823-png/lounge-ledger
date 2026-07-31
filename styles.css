@@ -1570,3 +1570,26 @@ input[type="number"]::-webkit-inner-spin-button{
     line-height:40px!important;
   }
 }
+
+
+/* iPhone：日別打込み編集の場内・日払い・手当・引き物も横4列に統一 */
+@media(max-width:560px){
+  #entryDialog .form-fields.daily-input-edit-fields .field.daily-edit-fourth{
+    grid-column:span 1!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+  }
+  #entryDialog .daily-input-edit-fields .field.daily-edit-fourth>input{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    padding:0 6px!important;
+    font-size:16px!important;
+  }
+}
