@@ -1670,3 +1670,57 @@ input[type="number"]::-webkit-inner-spin-button{
 .payroll-month-table tbody tr:nth-child(even) .payroll-detail-date{
   background:#241e23!important;
 }
+
+
+/* キャスト給与：上部操作と支給一覧の見出しを固定し、明細だけをスクロール */
+#casts{
+  --casts-topbar-offset:107px;
+  --casts-section-offset:174px;
+  --casts-table-offset:224px;
+}
+#casts .section-head{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:var(--casts-topbar-offset)!important;
+  z-index:52!important;
+  margin:0 -38px 16px!important;
+  padding:12px 38px 14px!important;
+  background:linear-gradient(180deg,#110e12 0%,#100e11 92%,rgba(16,14,17,.98) 100%)!important;
+  border-bottom:1px solid #4d3945!important;
+  box-shadow:0 10px 16px #08060970!important;
+}
+#casts .table-panel .panel-heading{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:var(--casts-section-offset)!important;
+  z-index:51!important;
+  margin:0!important;
+  padding:14px 0 12px!important;
+  background:#211c21!important;
+  border-bottom:1px solid #4d3945!important;
+}
+#casts .table-wrap{
+  max-height:calc(100vh - var(--casts-table-offset))!important;
+  overflow:auto!important;
+}
+#casts .table-wrap thead th{
+  top:0!important;
+  z-index:8!important;
+}
+#casts .table-wrap thead th:first-child{z-index:10!important}
+@media(max-width:780px){
+  #casts .section-head{margin-right:-22px!important;margin-left:-22px!important;padding-right:22px!important;padding-left:22px!important;}
+}
+@media(max-width:560px){
+  #casts{
+    --casts-topbar-offset:78px;
+    --casts-section-offset:134px;
+    --casts-table-offset:181px;
+  }
+  #casts .section-head{
+    margin-right:-14px!important;
+    margin-left:-14px!important;
+    padding:10px 14px 12px!important;
+  }
+  #casts .table-panel .panel-heading{padding:11px 0 10px!important;}
+}
