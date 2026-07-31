@@ -217,7 +217,7 @@ const effectiveCastStatus=cast=>{const leaving=dateKey(cast.leavingDate);if(leav
 const dailyBackKeys=['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration'];
 
 // 個別保証: 入力された項目だけ全体設定より優先し、終了日が空欄なら無期で適用します。
-const guaranteeSettingKeys=['mainNomination','companion','extension','free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle','mainChampagne','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle','companionChampagne','consumptionTax','taxRate','welfarePerShift','deductionPerShift','monthlyMainCompanionStep','monthlyMainCompanionAdd','monthlyCompanionStep','monthlyCompanionAdd','monthlySalesStep','monthlySalesAdd'];
+const guaranteeSettingKeys=['mainNomination','companion','extension','freeDrinkRate','main1000','main1500','main2000','main2500','main3000','mainP','mainDecoration','mainBottle','mainChampagne','companion1000','companion1500','companion2000','companion2500','companion3000','companionP','companionDecoration','companionBottle','companionChampagne','consumptionTax','taxRate','welfarePerShift','deductionPerShift','monthlyMainCompanionStep','monthlyMainCompanionAdd','monthlyCompanionStep','monthlyCompanionAdd','monthlySalesStep','monthlySalesAdd'];
 function activeCastGuarantee(cast,date){
   const g=cast?.guarantee;
   if(!g||!Object.keys(g).some(key=>!['startDate','endDate'].includes(key)&&g[key]!==''&&g[key]!==undefined))return null;
@@ -237,7 +237,7 @@ function castHourly(cast,date){
   const guarantee=activeCastGuarantee(cast,date);
   return guarantee&&guarantee.hourly!==''&&guarantee.hourly!==undefined?Number(guarantee.hourly):Number(cast?.hourly||0);
 }
-const guaranteeLabels={mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）',extension:'延長バック（1本）',free1000:'フリー・場内 1,000円',free1500:'フリー・場内 1,500円',free2000:'フリー・場内 2,000円',free2500:'フリー・場内 2,500円',free3000:'フリー・場内 3,000円',main1000:'本指名 1,000円',main1500:'本指名 1,500円',main2000:'本指名 2,000円',main2500:'本指名 2,500円',main3000:'本指名 3,000円',mainP:'本指名 P',mainDecoration:'本指名 飾り物',mainBottle:'本指名 ボトル・シャンパン（%）',companion1000:'同伴 1,000円',companion1500:'同伴 1,500円',companion2000:'同伴 2,000円',companion2500:'同伴 2,500円',companion3000:'同伴 3,000円',companionP:'同伴 P',companionDecoration:'同伴 飾り物',companionBottle:'同伴 ボトル・シャンパン（%）',consumptionTax:'消費税（%）',taxRate:'所得税（%）',welfarePerShift:'厚生費（1出勤につき）',deductionPerShift:'控除（1出勤につき）',monthlyMainCompanionStep:'本指名・同伴 合計本数ごと',monthlyMainCompanionAdd:'本指名・同伴 時給加算',monthlyCompanionStep:'同伴 本数ごと',monthlyCompanionAdd:'同伴 時給加算',monthlySalesStep:'売上ごと',monthlySalesAdd:'売上 時給加算'};
+const guaranteeLabels={mainNomination:'本指名バック（1本）',companion:'同伴バック（1本）',extension:'延長バック（1本）',freeDrinkRate:'フリードリンクB（%）',main1000:'本指名 1,000円',main1500:'本指名 1,500円',main2000:'本指名 2,000円',main2500:'本指名 2,500円',main3000:'本指名 3,000円',mainP:'本指名 P',mainDecoration:'本指名 飾り物',mainBottle:'本指名 ボトル・シャンパン（%）',companion1000:'同伴 1,000円',companion1500:'同伴 1,500円',companion2000:'同伴 2,000円',companion2500:'同伴 2,500円',companion3000:'同伴 3,000円',companionP:'同伴 P',companionDecoration:'同伴 飾り物',companionBottle:'同伴 ボトル・シャンパン（%）',consumptionTax:'消費税（%）',taxRate:'所得税（%）',welfarePerShift:'厚生費（1出勤につき）',deductionPerShift:'控除（1出勤につき）',monthlyMainCompanionStep:'本指名・同伴 合計本数ごと',monthlyMainCompanionAdd:'本指名・同伴 時給加算',monthlyCompanionStep:'同伴 本数ごと',monthlyCompanionAdd:'同伴 時給加算',monthlySalesStep:'売上ごと',monthlySalesAdd:'売上 時給加算'};
 function guaranteeInput(key,label=guaranteeLabels[key]){return '<label class="field guarantee-field">'+label+'<input name="guarantee_'+key+'" type="number" inputmode="decimal" min="0" placeholder="全体設定を使用"></label>';}
 function guaranteeProfileFields(){
   const fields=guaranteeSettingKeys.map(key=>guaranteeInput(key)).join('');
@@ -249,7 +249,10 @@ function dailyBackBreakdown(input,settings=data.settings){
   const companionBack=Number(input.companionCount||0)*Number(settings.companion||0);
   const mainBack=Number(input.mainCount||0)*Number(settings.mainNomination||0);
   const extensionBack=(Number(input.mainExtension||0)+Number(input.companionExtension||0))*Number(settings.extension||0);
-  const drink=detailBack(['free1000','free1500','free2000','free2500','free3000','main1000','main1500','main2000','main2500','main3000','mainP','companion1000','companion1500','companion2000','companion2500','companion3000','companionP']);
+  const freeKeys=['free1000','free1500','free2000','free2500','free3000'];
+  const freeSales=freeKeys.reduce((sum,key)=>sum+Number(input[key]||0)*Number(key.replace('free','')||0),0);
+  const freeDrinkBack=settings.freeDrinkRate!==undefined&&settings.freeDrinkRate!==''?Math.round(freeSales*Number(settings.freeDrinkRate||0)/100):detailBack(freeKeys);
+  const drink=freeDrinkBack+detailBack(['main1000','main1500','main2000','main2500','main3000','mainP','companion1000','companion1500','companion2000','companion2500','companion3000','companionP']);
   const decoration=detailBack(['mainDecoration','companionDecoration']);
   const bottleChampagne=(Number(input.mainBottle||0)+Number(input.mainChampagne||0))*Number(settings.mainBottle||0)/100
     +(Number(input.companionBottle||0)+Number(input.companionChampagne||0))*Number(settings.companionBottle||0)/100;
