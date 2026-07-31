@@ -1852,3 +1852,17 @@ input[type="number"]::-webkit-inner-spin-button{
   #entryDialog .guarantee-field{font-size:10px}
   #entryDialog .guarantee-field input{font-size:12px}
 }
+
+
+/* iPhone：キャスト編集・詳細の入力時Safari自動ズームを防止 */
+@media(max-width:560px){
+  #entryDialog .form-fields.cast-profile-fields input:not([type="checkbox"]),
+  #entryDialog .form-fields.cast-profile-fields select,
+  #entryDialog .form-fields.cast-profile-fields textarea{
+    font-size:16px!important;
+  }
+  #entryDialog .form-fields.cast-profile-fields select[name="status"]{
+    text-align:center!important;
+    text-align-last:center!important;
+  }
+}
