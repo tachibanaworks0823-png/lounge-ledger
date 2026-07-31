@@ -1847,9 +1847,8 @@ input[type="number"]::-webkit-inner-spin-button{
   #entryDialog .cast-guarantee{padding:12px}
   #entryDialog .cast-guarantee h3{font-size:14px}
   #entryDialog .cast-guarantee p{font-size:11px;line-height:1.45}
-  #entryDialog .guarantee-period{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #entryDialog .guarantee-period .field:last-child{grid-column:1/-1}
-  #entryDialog .guarantee-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #entryDialog .guarantee-period{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  #entryDialog .guarantee-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   #entryDialog .guarantee-field{font-size:10px}
   #entryDialog .guarantee-field input{font-size:12px}
 }
