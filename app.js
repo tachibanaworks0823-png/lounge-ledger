@@ -392,7 +392,7 @@ window.updateDailyLedgerExpense=(date,value)=>{const amount=Math.max(0,Number(va
 window.updateDailyLedgerSales=(date,value)=>{const raw=String(value??'').trim(),existing=data.dailyLedgerSales.find(item=>item.date===date);if(raw===''){data.dailyLedgerSales=data.dailyLedgerSales.filter(item=>item.date!==date);}else{const amount=Math.max(0,Number(raw)||0);if(existing)existing.amount=amount;else data.dailyLedgerSales.push({date,amount});}save();renderDashboard();};
 window.updateDailyLedgerAdvance=(date,value)=>{const raw=String(value??'').trim(),existing=data.dailyLedgerAdvances.find(item=>item.date===date);if(raw===''){data.dailyLedgerAdvances=data.dailyLedgerAdvances.filter(item=>item.date!==date);}else{const amount=Math.max(0,Number(raw)||0);if(existing)existing.amount=amount;else data.dailyLedgerAdvances.push({date,amount});}save();renderDashboard();};
 function renderDashboard(){
-  const t=totals(),slips=data.slips.filter(x=>isSelectedMonth(slipSalesPostingDate(x))&&!isUnsettledSlip(x)),expenses=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${slips.length}件`;$('#totalBalance').textContent=yen(t.balance);$('#balanceRatio').textContent=`${t.sales?Math.round(t.balance/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${expenses.length}件`;$('#expenseRatio').textContent=`${t.sales?Math.round(t.expense/t.sales*100):0}%`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;$('#payrollDetails').textContent=`売上に対して ${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
+  const t=totals(),slips=data.slips.filter(x=>isSelectedMonth(slipSalesPostingDate(x))&&!isUnsettledSlip(x)),expenses=data.expenses.filter(x=>expenseAccountingMonth(x)===data.month); $('#totalSales').textContent=yen(t.sales);$('#salesCount').textContent=`伝票 ${slips.length}件`;$('#totalBalance').textContent=yen(t.balance);$('#balanceRatio').textContent=`${t.sales?Math.round(t.balance/t.sales*100):0}%`;$('#totalExpenses').textContent=yen(t.expense);$('#expenseDetails').textContent=`経費 ${expenses.length}件`;$('#expenseRatio').textContent=`${t.sales?Math.round(t.expense/t.sales*100):0}%`;$('#totalPayroll').textContent=yen(t.payroll);$('#payrollRatio').textContent=`${t.sales?Math.round(t.payroll/t.sales*100):0}%`;
   const rows=dailyRows(),ledgerSales=rows.reduce((sum,row)=>sum+row.sales,0),activeRows=rows.filter(x=>x.sales||x.expense||x.receivable||x.manualSalesEntered);
   $('#dailyLedgerTotal').textContent=yen(ledgerSales);
   const guests=rows.reduce((n,x)=>n+x.guests,0), groups=rows.reduce((n,x)=>n+x.groups,0), activeDays=activeRows.length;
@@ -400,7 +400,7 @@ function renderDashboard(){
     ['営業日数',`${activeDays}日`,''],
     ['平均売上',yen(activeDays?ledgerSales/activeDays:0),''],
     ['平均客単価',yen(guests?ledgerSales/guests:0),`来店 ${groups}組 / ${guests}名`],
-    ['現金比率',`${ledgerSales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/ledgerSales*100):0}%`,'現金売上 ÷ 総売上']
+    ['現金比率',`${ledgerSales?Math.round(rows.reduce((n,x)=>n+x.cash,0)/ledgerSales*100):0}%`,'']
   ].map(([label,value,note])=>`<div class="daily-kpi"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`).join('');
   $('#dailySalesTable').innerHTML=rows.map(x=>{
     const zeroSalesDay=x.manualSalesEntered&&x.manualSales===0&&x.slipSales===0;
