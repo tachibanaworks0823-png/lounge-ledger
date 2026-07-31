@@ -880,6 +880,7 @@ function openForm(type,castId=null){mode=type;const primarySave=form.querySelect
      const calc=calcDailyInput(x),nominationCount=Number(x.mainCount||0)+Number(x.companionCount||0);
      const metrics=[
        metric('実働',calc.hours+'h',Number(calc.hours||0)!==0),
+       metric('勤怠',x.attendance||'—',Boolean(x.attendance)),
        metric('日払い',yen(calc.advance),Number(calc.advance||0)!==0),
        metric('引き物',yen(calc.deduction),Number(calc.deduction||0)!==0),
        metric('同伴B',yen(calc.companionBack),Number(calc.companionBack||0)!==0),
