@@ -1876,3 +1876,14 @@ input[type="number"]::-webkit-inner-spin-button{
     font-family:inherit!important;
   }
 }
+
+
+/* iPhone：年齢欄もキャスト名と同じ見た目に揃える */
+@media(max-width:560px){
+  #entryDialog .form-fields.cast-profile-fields .age-field input,
+  #entryDialog .form-fields.cast-profile-fields .age-field .cast-age{
+    font-size:18px!important;
+    font-weight:600!important;
+    font-family:inherit!important;
+  }
+}
