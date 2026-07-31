@@ -1508,3 +1508,30 @@ input[type="number"]::-webkit-inner-spin-button{
     text-align:center!important;
   }
 }
+
+
+/* iPhone：日別打込み編集の時刻入力だけが広がる不具合を防止 */
+@media(max-width:560px){
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third>input,
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third>select,
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third.time-picker-field input[type="time"]{
+    display:block!important;
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    min-inline-size:0!important;
+    max-width:100%!important;
+    max-inline-size:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    padding:0 6px!important;
+    line-height:40px!important;
+  }
+}
