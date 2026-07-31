@@ -382,7 +382,7 @@ function dailyRows(){
     const legacyDeductions=Math.round(legacyGross*(Number(data.settings.taxRate||0)+Number(data.settings.consumptionTax||0))/100)+shifts.length*Number(data.settings.welfarePerShift||0);
     const dailyValues=dailyInputs.map(calcDailyInput);
     const dailySum=key=>dailyValues.reduce((n,x)=>n+Number(x[key]||0),0);
-    const autoAdvance=dailyInputs.length?dailySum('advance'):legacyAdvance,advance=autoAdvance+manualAdvance;
+    const autoAdvance=dailySum('advance'),advance=autoAdvance+manualAdvance;
     const payroll=dailyInputs.length?dailySum('payout'):Math.max(0,legacyGross-legacyDeductions-legacyAdvance);
     const cash=Math.max(0,sales-card),status=data.dailyStatuses.find(item=>item.date===date)?.status||'営業';
     return {date,day:i+1,weekday:weekdays[new Date(date+'T12:00:00').getDay()],status,slipSales,manualSales,manualSalesEntered,autoAdvance,castAdvance:autoAdvance,manualAdvance,manualAdvanceEntered,sales,card,receivable,unsettledPaid,cash,groups,guests,nominated,expense,advance,payroll,cashBalance:cash+unsettledPaid-expense-advance};
