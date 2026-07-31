@@ -1535,3 +1535,38 @@ input[type="number"]::-webkit-inner-spin-button{
     line-height:40px!important;
   }
 }
+
+
+/* 日別打込み編集（iPhone）：出勤・退勤を含む上段4枠を同じ幅に固定 */
+@media(max-width:560px){
+  #entryDialog .form-fields.daily-input-edit-fields{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    column-gap:6px!important;
+    row-gap:8px!important;
+  }
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third{
+    grid-column:span 1!important;
+    min-width:0!important;
+    width:auto!important;
+    max-width:none!important;
+    overflow:hidden!important;
+  }
+  #entryDialog .daily-input-edit-fields .field.daily-edit-third>input[type="time"]{
+    display:block!important;
+    box-sizing:border-box!important;
+    inline-size:100%!important;
+    width:100%!important;
+    min-inline-size:0!important;
+    min-width:0!important;
+    max-inline-size:100%!important;
+    max-width:100%!important;
+    -webkit-appearance:none!important;
+    appearance:none!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    padding:0 4px!important;
+    text-align:center!important;
+    line-height:40px!important;
+  }
+}
