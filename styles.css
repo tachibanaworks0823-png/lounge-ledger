@@ -1800,3 +1800,35 @@ input[type="number"]::-webkit-inner-spin-button{
 
 /* マイナス金額は全画面で明確に表示 */
 .negative-amount{color:#ff5b77!important;font-weight:700!important;}
+
+
+/* iPhone：キャスト編集・詳細は入力文字をコンパクトにし、対象欄を中央揃え */
+@media(max-width:560px){
+  #entryDialog .form-fields.cast-profile-fields .field{
+    font-size:10px!important;
+  }
+  #entryDialog .form-fields.cast-profile-fields .field input,
+  #entryDialog .form-fields.cast-profile-fields .field select{
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 8px!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+  }
+  #entryDialog .form-fields.cast-profile-fields .field:not(.full) input,
+  #entryDialog .form-fields.cast-profile-fields .field:not(.full) select,
+  #entryDialog .form-fields.cast-profile-fields .cast-contact-row input{
+    text-align:center!important;
+  }
+  #entryDialog .form-fields.cast-profile-fields textarea{
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+  #entryDialog .form-fields.cast-profile-fields .age-field .cast-age{
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 8px!important;
+    font-size:12px!important;
+    text-align:center!important;
+  }
+}
