@@ -1866,3 +1866,13 @@ input[type="number"]::-webkit-inner-spin-button{
     text-align-last:center!important;
   }
 }
+
+
+/* iPhone：在籍状況のネイティブ選択表示をキャスト名と同じ見た目に揃える */
+@media(max-width:560px){
+  #entryDialog .form-fields.cast-profile-fields select[name="status"]{
+    font-size:18px!important;
+    font-weight:600!important;
+    font-family:inherit!important;
+  }
+}
