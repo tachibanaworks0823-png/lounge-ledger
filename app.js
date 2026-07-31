@@ -237,9 +237,11 @@ function calcDailyInput(input){
   const gross=hourly+back+allowance;
   const consumption=Math.round(gross*Number(data.settings.consumptionTax||0)/100);
   const income=Math.round(Math.max(0,gross-consumption)*Number(data.settings.taxRate||0)/100);
-  const welfare=Number(data.settings.welfarePerShift||0);
+  // 実働時間がある日だけを「1出勤」として扱います。
+  const worked=hours>0;
+  const welfare=worked?Number(data.settings.welfarePerShift||0):0;
   const deduction=Number(input.deduction||0);
-  const deductions=income+consumption+welfare+Number(data.settings.deductionPerShift||0)+deduction;
+  const deductions=income+consumption+welfare+(worked?Number(data.settings.deductionPerShift||0):0)+deduction;
   const advance=Number(input.advance||0);
   return {hours,advance,back,allowance,hourly,gross,deductions,incomeTax:income,consumptionTax:consumption,welfare,deduction,payout:Math.max(0,gross-deductions-advance),...backBreakdown};
 }
@@ -271,7 +273,8 @@ function calcCast(cast){
     const values=dailyInputs.map(calcDailyInput);
     const sum=key=>values.reduce((n,x)=>n+Number(x[key]||0),0);
     const inputSum=key=>dailyInputs.reduce((n,x)=>n+Number(x[key]||0),0);
-    const days=dailyInputs.length,hours=sum('hours'),advance=sum('advance');
+    // 出勤日数・出勤ごとの控除は、実働時間がある日だけを対象にします。
+    const days=values.filter(value=>Number(value.hours||0)>0).length,hours=sum('hours'),advance=sum('advance');
     const nominated=inputSum('mainSales'),area=inputSum('areaNomination'),main=inputSum('mainCount'),companion=inputSum('companionCount');
     const hourlyBonus=monthlyHourlyBonus({main,companion,nominated});
     const hourly=hours*(Number(cast.hourly||0)+hourlyBonus);
