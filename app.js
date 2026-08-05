@@ -626,7 +626,7 @@ const simulationDefaults = {
   hours:[{start:'',end:''},{start:'',end:''}],
   targetSales:'',
   products:[{name:'',price:''}],
-  system:{setPrice:'',counterFee:'',boxFee:'',counterExtensionFee:'',boxExtensionFee:''},
+  system:{counterFee:'',boxFee:'',counterExtensionFee:'',boxExtensionFee:''},
   holidays:[]
 };
 let simulationDraft = [];
@@ -664,7 +664,7 @@ function syncSimulationForm(){
   const get=id=>document.querySelector(id)?.value??'';
   sim.hours=[{start:get('#simHours1Start'),end:get('#simHours1End')},{start:get('#simHours2Start'),end:get('#simHours2End')}];
   sim.targetSales=get('#simTargetSales');
-  sim.system={setPrice:get('#simSetPrice'),counterFee:get('#simCounterFee'),boxFee:get('#simBoxFee'),counterExtensionFee:get('#simCounterExtensionFee'),boxExtensionFee:get('#simBoxExtensionFee')};
+  sim.system={counterFee:get('#simCounterFee'),boxFee:get('#simBoxFee'),counterExtensionFee:get('#simCounterExtensionFee'),boxExtensionFee:get('#simBoxExtensionFee')};
   sim.products=[...document.querySelectorAll('[data-sim-product-row]')].map(row=>({name:row.querySelector('[data-sim-product-name]')?.value||'',price:row.querySelector('[data-sim-product-price]')?.value||''}));
   if(!sim.products.length) sim.products=[{name:'',price:''}];
   return sim;
@@ -676,7 +676,7 @@ function renderSimulation(){
   const [year,month]=String(data.month||'').split('-');
   const label=document.querySelector('#simMonthLabel');if(label)label.textContent=`${Number(year)}年${Number(month)}月`;
   setValue('#simHours1Start',sim.hours[0].start);setValue('#simHours1End',sim.hours[0].end);setValue('#simHours2Start',sim.hours[1].start);setValue('#simHours2End',sim.hours[1].end);
-  setValue('#simTargetSales',sim.targetSales);setValue('#simSetPrice',sim.system.setPrice);setValue('#simCounterFee',sim.system.counterFee);setValue('#simBoxFee',sim.system.boxFee);setValue('#simCounterExtensionFee',sim.system.counterExtensionFee);setValue('#simBoxExtensionFee',sim.system.boxExtensionFee);
+  setValue('#simTargetSales',sim.targetSales);setValue('#simCounterFee',sim.system.counterFee);setValue('#simBoxFee',sim.system.boxFee);setValue('#simCounterExtensionFee',sim.system.counterExtensionFee);setValue('#simBoxExtensionFee',sim.system.boxExtensionFee);
   const products=document.querySelector('#simProducts');
   if(products) products.innerHTML=sim.products.map((item,index)=>`<div class="sim-product-row" data-sim-product-row><input data-sim-product-name placeholder="品目名" value="${simulationEscape(item.name)}"><div class="sim-yen-input"><span>¥</span><input data-sim-product-price type="number" min="0" inputmode="numeric" placeholder="金額" value="${simulationEscape(item.price)}"></div><button type="button" class="sim-remove-product" data-sim-product-remove="${index}" aria-label="商品を削除">×</button></div>`).join('');
   const calendar=document.querySelector('#simHolidayCalendar');
@@ -695,11 +695,11 @@ function generateSimulationDraft(){
   const openDays=simulationDays().filter(date=>!sim.holidays.includes(date));
   if(!openDays.length){alert('営業日がありません。店休日を確認してください。');return;}
   const pricedProducts=sim.products.filter(item=>simulationMoney(item.price)>0);
-  const systemValues=[sim.system.setPrice,sim.system.counterFee,sim.system.boxFee,sim.system.counterExtensionFee,sim.system.boxExtensionFee].map(simulationMoney).filter(Boolean);
+  const systemValues=[sim.system.counterFee,sim.system.boxFee,sim.system.counterExtensionFee,sim.system.boxExtensionFee].map(simulationMoney).filter(Boolean);
   const guide=[...pricedProducts.map(item=>simulationMoney(item.price)),...systemValues];
   const average=guide.length?guide.reduce((total,value)=>total+value,0)/guide.length:30000;
   const count=Math.min(openDays.length,Math.max(1,Math.round(target/Math.max(average,10000))));
-  const labels=pricedProducts.length?pricedProducts.map(item=>item.name||'商品'):[sim.system.setPrice?'50分セット':'シミュレーション'];
+  const labels=pricedProducts.length?pricedProducts.map(item=>item.name||'商品'):[(sim.system.counterFee||sim.system.boxFee||sim.system.counterExtensionFee||sim.system.boxExtensionFee)?'50分セット':'シミュレーション'];
   const base=Math.floor(target/count), remainder=target-base*count;
   simulationDraft=Array.from({length:count},(_,index)=>({date:openDays[Math.floor(index*openDays.length/count)],label:labels[index%labels.length],amount:base+(index===count-1?remainder:0)}));
   renderSimulation();
