@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=80606001" />
+  <link rel="stylesheet" href="styles.css?v=80606002" />
   <link rel="stylesheet" href="daily-ledger.css?v=127294" />
   <link rel="stylesheet" href="shift.css?v=42" />
 </head>
@@ -103,12 +103,11 @@
       <section class="simulation-section"><h4>売上目標</h4><label>売り上げたい目標金額</label><div class="sim-yen-input"><span>¥</span><input id="simTargetSales" type="number" min="0" inputmode="numeric" placeholder="例：500000"></div></section>
       <section class="simulation-section simulation-products-section"><div class="simulation-section-title"><h4>商品・料金</h4><button class="icon-button" id="simAddProduct" type="button" title="商品を追加">＋</button></div><div id="simProducts" class="sim-products"></div></section>
       <section class="simulation-section"><h4>お店のシステム</h4><div class="sim-system-grid">
-        <label>1セット（分）<input id="simSetMinutes" type="number" min="0" inputmode="numeric"></label>
-        <label>1セット（円）<input id="simSetPrice" type="number" min="0" inputmode="numeric"></label>
-        <label>延長（分）<input id="simExtensionMinutes" type="number" min="0" inputmode="numeric"></label>
-        <label>延長（円）<input id="simExtensionPrice" type="number" min="0" inputmode="numeric"></label>
-        <label>カウンター料金<input id="simCounterFee" type="number" min="0" inputmode="numeric"></label>
-        <label>ボックス料金<input id="simBoxFee" type="number" min="0" inputmode="numeric"></label>
+        <label>1セット（50分）<input id="simSetPrice" type="number" min="0" inputmode="numeric" placeholder="料金"></label>
+        <label>カウンター<input id="simCounterFee" type="number" min="0" inputmode="numeric" placeholder="料金"></label>
+        <label>ボックス<input id="simBoxFee" type="number" min="0" inputmode="numeric" placeholder="料金"></label>
+        <label>カウンター延長<input id="simCounterExtensionFee" type="number" min="0" inputmode="numeric" placeholder="料金"></label>
+        <label>ボックス延長<input id="simBoxExtensionFee" type="number" min="0" inputmode="numeric" placeholder="料金"></label>
       </div></section>
     </div>
     <section class="simulation-section simulation-holiday-section"><div class="simulation-section-title"><div><h4>店休日</h4><p>作成する月の店休日を選択してください。</p></div></div><div id="simHolidayCalendar" class="sim-holiday-calendar"></div></section>
@@ -124,6 +123,6 @@
 <dialog id="expenseOptionDialog" class="customer-history-dialog"><form id="expenseOptionForm" method="dialog"><div class="dialog-head"><div><h2 id="expenseOptionTitle">項目を追加</h2></div><button type="button" class="close" onclick="closeExpenseOptionDialog()" aria-label="閉じる">×</button></div><div class="customer-history-body"><div class="expense-option-add-head"><span id="expenseOptionNameLabel">名称</span><div class="dialog-actions"><button type="button" class="secondary-button" onclick="closeExpenseOptionDialog()">キャンセル</button><button class="primary-button" value="save">追加する</button></div></div><label class="expense-option-name"><input id="expenseOptionName" autocomplete="off" required></label><div id="expenseOptionList" class="payment-method-list"></div></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=80606001"></script>
+  <script src="app.js?v=80606002"></script>
 </body>
 </html>
