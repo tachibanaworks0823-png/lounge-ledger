@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=80112002" />
+  <link rel="stylesheet" href="styles.css?v=80606001" />
   <link rel="stylesheet" href="daily-ledger.css?v=127294" />
   <link rel="stylesheet" href="shift.css?v=42" />
 </head>
@@ -47,7 +47,8 @@
         <button class="nav-item" data-view="cast-management"><span>♧</span>キャスト・応募管理</button>
         <button class="nav-item" data-view="shifts"><span>▦</span>シフト</button>
         <button class="nav-item" data-view="expenses"><span>◫</span>支出管理</button>
-        <button class="nav-item" data-view="settings"><span>⚙</span>設定</button>
+        <button class="nav-item" data-view="simulation"><span>◈</span>シミュレーション</button>
+      <button class="nav-item" data-view="settings"><span>⚙</span>設定</button>
       </nav>
       <div class="store-switcher"><span class="avatar">L</span><div><b>Lounge Sample</b><small>管理者</small></div><span class="chevron">⌄</span></div>
     </aside>
@@ -90,7 +91,32 @@
 
       <section class="view" id="expenses"><div class="section-head"><div><h2>支出管理</h2></div><button class="primary-button" id="addExpense">＋ 支出を入力</button></div><div class="expense-summary" id="expenseSummary"></div><article class="panel table-panel"><div class="panel-heading"><div><h2>支出一覧</h2><p id="expenseFilterInfo">カテゴリをクリックすると、そのカテゴリだけに絞り込めます。</p></div></div><div class="table-wrap"><table><thead><tr><th>支出日</th><th>金額</th><th>会社名・支払先</th><th>カテゴリ</th><th>内容</th><th></th></tr></thead><tbody id="expenseTable"></tbody></table></div></article></section>
 
-      <section class="view" id="settings"><div class="section-head"><div><h2>設定</h2><p class="description">バック率・時給・控除率を変更すると、以後の給与計算に適用されます。</p></div><button class="primary-button" id="saveSettings">設定を保存</button></div><article class="panel girls-payroll-system-panel"><div class="panel-heading"><div><h2>女子給システム</h2><p>条件を満たした月は、設定した時給に加算します。</p></div></div><div class="girls-payroll-settings" id="girlsPayrollSettings"></div></article><div class="settings-grid"><article class="panel"><div class="panel-heading"><div><h2>バック単価</h2></div></div><div class="setting-fields" id="backSettings"></div></article><article class="panel"><div class="panel-heading"><div><h2>控除設定</h2></div></div><div class="setting-fields" id="deductionSettings"></div></article></div></section>
+      <section class="view" id="simulation">
+  <div class="section-head simulation-head"><div><h2>シミュレーション</h2><p class="description">条件から現金伝票の案を作成します。保存前に必ず内容を確認できます。</p></div></div>
+  <div class="card simulation-card">
+    <div class="simulation-card-head"><div><h3>作成条件</h3><span id="simMonthLabel"></span></div><span class="simulation-cash">決済：現金のみ</span></div>
+    <div class="simulation-grid">
+      <section class="simulation-section"><h4>営業時間</h4>
+        <div class="sim-hour-row"><label>営業時間 1</label><input id="simHours1Start" type="time"><span>〜</span><input id="simHours1End" type="time"></div>
+        <div class="sim-hour-row"><label>営業時間 2</label><input id="simHours2Start" type="time"><span>〜</span><input id="simHours2End" type="time"></div>
+      </section>
+      <section class="simulation-section"><h4>売上目標</h4><label>売り上げたい目標金額</label><div class="sim-yen-input"><span>¥</span><input id="simTargetSales" type="number" min="0" inputmode="numeric" placeholder="例：500000"></div></section>
+      <section class="simulation-section simulation-products-section"><div class="simulation-section-title"><h4>商品・料金</h4><button class="icon-button" id="simAddProduct" type="button" title="商品を追加">＋</button></div><div id="simProducts" class="sim-products"></div></section>
+      <section class="simulation-section"><h4>お店のシステム</h4><div class="sim-system-grid">
+        <label>1セット（分）<input id="simSetMinutes" type="number" min="0" inputmode="numeric"></label>
+        <label>1セット（円）<input id="simSetPrice" type="number" min="0" inputmode="numeric"></label>
+        <label>延長（分）<input id="simExtensionMinutes" type="number" min="0" inputmode="numeric"></label>
+        <label>延長（円）<input id="simExtensionPrice" type="number" min="0" inputmode="numeric"></label>
+        <label>カウンター料金<input id="simCounterFee" type="number" min="0" inputmode="numeric"></label>
+        <label>ボックス料金<input id="simBoxFee" type="number" min="0" inputmode="numeric"></label>
+      </div></section>
+    </div>
+    <section class="simulation-section simulation-holiday-section"><div class="simulation-section-title"><div><h4>店休日</h4><p>作成する月の店休日を選択してください。</p></div></div><div id="simHolidayCalendar" class="sim-holiday-calendar"></div></section>
+    <div class="simulation-actions"><button type="button" class="primary-button" id="simGenerate">伝票案を生成</button></div>
+    <div id="simPreview" class="simulation-preview"></div>
+  </div>
+</section>
+<section class="view" id="settings"><div class="section-head"><div><h2>設定</h2><p class="description">バック率・時給・控除率を変更すると、以後の給与計算に適用されます。</p></div><button class="primary-button" id="saveSettings">設定を保存</button></div><article class="panel girls-payroll-system-panel"><div class="panel-heading"><div><h2>女子給システム</h2><p>条件を満たした月は、設定した時給に加算します。</p></div></div><div class="girls-payroll-settings" id="girlsPayrollSettings"></div></article><div class="settings-grid"><article class="panel"><div class="panel-heading"><div><h2>バック単価</h2></div></div><div class="setting-fields" id="backSettings"></div></article><article class="panel"><div class="panel-heading"><div><h2>控除設定</h2></div></div><div class="setting-fields" id="deductionSettings"></div></article></div></section>
     </main>
   </div>
   <div class="overlay" id="overlay"></div>
@@ -98,6 +124,6 @@
 <dialog id="expenseOptionDialog" class="customer-history-dialog"><form id="expenseOptionForm" method="dialog"><div class="dialog-head"><div><h2 id="expenseOptionTitle">項目を追加</h2></div><button type="button" class="close" onclick="closeExpenseOptionDialog()" aria-label="閉じる">×</button></div><div class="customer-history-body"><div class="expense-option-add-head"><span id="expenseOptionNameLabel">名称</span><div class="dialog-actions"><button type="button" class="secondary-button" onclick="closeExpenseOptionDialog()">キャンセル</button><button class="primary-button" value="save">追加する</button></div></div><label class="expense-option-name"><input id="expenseOptionName" autocomplete="off" required></label><div id="expenseOptionList" class="payment-method-list"></div></div></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=80500003"></script>
+  <script src="app.js?v=80606001"></script>
 </body>
 </html>
