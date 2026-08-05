@@ -621,7 +621,94 @@ function scrollShiftToToday(){
     wrap.scrollLeft=Math.max(0,Math.min(maximum,wrap.scrollLeft+delta));
   }));
 }
-function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});if(id==='shifts')scrollShiftToToday();}
+
+const simulationDefaults = {
+  hours:[{start:'',end:''},{start:'',end:''}],
+  targetSales:'',
+  products:[{name:'',price:''}],
+  system:{setMinutes:'',setPrice:'',extensionMinutes:'',extensionPrice:'',counterFee:'',boxFee:''},
+  holidays:[]
+};
+let simulationDraft = [];
+
+function simulationConfig(){
+  const raw=(data.simulation&&typeof data.simulation==='object')?data.simulation:{};
+  const products=Array.isArray(raw.products)&&raw.products.length?raw.products:[{name:'',price:''}];
+  data.simulation={
+    ...simulationDefaults,...raw,
+    hours:[0,1].map(i=>({...(simulationDefaults.hours[i]),...((Array.isArray(raw.hours)&&raw.hours[i])||{})})),
+    products:products.map(item=>({name:String(item?.name||''),price:item?.price??''})),
+    system:{...simulationDefaults.system,...(raw.system||{})},
+    holidays:Array.isArray(raw.holidays)?raw.holidays.filter(v=>typeof v==='string'):[]
+  };
+  return data.simulation;
+}
+function simulationDays(){
+  const [year,month]=String(data.month||'').split('-').map(Number);
+  if(!year||!month) return [];
+  const count=new Date(year,month,0).getDate();
+  return Array.from({length:count},(_,index)=>`${year}-${String(month).padStart(2,'0')}-${String(index+1).padStart(2,'0')}`);
+}
+function simulationMoney(value){return Math.max(0,Math.round(Number(value)||0));}
+function simulationEscape(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
+function simulationDateLabel(value){
+  const [year,month,day]=value.split('-').map(Number), date=new Date(year,month-1,day);
+  return `${day}日（${['日','月','火','水','木','金','土'][date.getDay()]}）`;
+}
+function syncSimulationForm(){
+  const sim=simulationConfig();
+  const get=id=>document.querySelector(id)?.value??'';
+  sim.hours=[{start:get('#simHours1Start'),end:get('#simHours1End')},{start:get('#simHours2Start'),end:get('#simHours2End')}];
+  sim.targetSales=get('#simTargetSales');
+  sim.system={setMinutes:get('#simSetMinutes'),setPrice:get('#simSetPrice'),extensionMinutes:get('#simExtensionMinutes'),extensionPrice:get('#simExtensionPrice'),counterFee:get('#simCounterFee'),boxFee:get('#simBoxFee')};
+  sim.products=[...document.querySelectorAll('[data-sim-product-row]')].map(row=>({name:row.querySelector('[data-sim-product-name]')?.value||'',price:row.querySelector('[data-sim-product-price]')?.value||''}));
+  if(!sim.products.length) sim.products=[{name:'',price:''}];
+  return sim;
+}
+function renderSimulation(){
+  const root=document.querySelector('#simulation'); if(!root) return;
+  const sim=simulationConfig();
+  const setValue=(selector,value)=>{const el=document.querySelector(selector);if(el&&document.activeElement!==el)el.value=value??'';};
+  const [year,month]=String(data.month||'').split('-');
+  const label=document.querySelector('#simMonthLabel');if(label)label.textContent=`${Number(year)}年${Number(month)}月`;
+  setValue('#simHours1Start',sim.hours[0].start);setValue('#simHours1End',sim.hours[0].end);setValue('#simHours2Start',sim.hours[1].start);setValue('#simHours2End',sim.hours[1].end);
+  setValue('#simTargetSales',sim.targetSales);setValue('#simSetMinutes',sim.system.setMinutes);setValue('#simSetPrice',sim.system.setPrice);setValue('#simExtensionMinutes',sim.system.extensionMinutes);setValue('#simExtensionPrice',sim.system.extensionPrice);setValue('#simCounterFee',sim.system.counterFee);setValue('#simBoxFee',sim.system.boxFee);
+  const products=document.querySelector('#simProducts');
+  if(products) products.innerHTML=sim.products.map((item,index)=>`<div class="sim-product-row" data-sim-product-row><input data-sim-product-name placeholder="品目名" value="${simulationEscape(item.name)}"><div class="sim-yen-input"><span>¥</span><input data-sim-product-price type="number" min="0" inputmode="numeric" placeholder="金額" value="${simulationEscape(item.price)}"></div><button type="button" class="sim-remove-product" data-sim-product-remove="${index}" aria-label="商品を削除">×</button></div>`).join('');
+  const calendar=document.querySelector('#simHolidayCalendar');
+  if(calendar) calendar.innerHTML=simulationDays().map(date=>{const off=sim.holidays.includes(date);return `<button type="button" class="sim-day${off?' is-holiday':''}" data-sim-holiday="${date}"><b>${simulationDateLabel(date)}</b><small>${off?'店休':'営業'}</small></button>`;}).join('');
+  const preview=document.querySelector('#simPreview');
+  if(preview) preview.innerHTML=simulationDraft.length?`<div class="simulation-preview-head"><div><h3>伝票案</h3><p>未保存です。内容を確認してから保存してください。</p></div><button type="button" class="primary-button" id="simSaveSlips">${simulationDraft.length}件を伝票として保存</button></div><div class="simulation-preview-table"><table><thead><tr><th>日付</th><th>品目</th><th>売上</th><th>決済</th></tr></thead><tbody>${simulationDraft.map(item=>`<tr><td>${simulationDateLabel(item.date)}</td><td>${simulationEscape(item.label)}</td><td>¥${item.amount.toLocaleString()}</td><td>現金</td></tr>`).join('')}</tbody></table></div>`:'';
+  document.querySelector('#simAddProduct')?.addEventListener('click',()=>{syncSimulationForm().products.push({name:'',price:''});save();renderSimulation();});
+  document.querySelectorAll('[data-sim-product-remove]').forEach(button=>button.addEventListener('click',()=>{const simNow=syncSimulationForm();simNow.products.splice(Number(button.dataset.simProductRemove),1);if(!simNow.products.length)simNow.products=[{name:'',price:''}];save();renderSimulation();}));
+  document.querySelectorAll('[data-sim-holiday]').forEach(button=>button.addEventListener('click',()=>{const simNow=syncSimulationForm(),date=button.dataset.simHoliday;simNow.holidays=simNow.holidays.includes(date)?simNow.holidays.filter(item=>item!==date):[...simNow.holidays,date];save();renderSimulation();}));
+  document.querySelector('#simGenerate')?.addEventListener('click',generateSimulationDraft);
+  document.querySelector('#simSaveSlips')?.addEventListener('click',saveSimulationSlips);
+}
+function generateSimulationDraft(){
+  const sim=syncSimulationForm(),target=simulationMoney(sim.targetSales);
+  if(!target){alert('売り上げたい目標金額を入力してください。');return;}
+  const openDays=simulationDays().filter(date=>!sim.holidays.includes(date));
+  if(!openDays.length){alert('営業日がありません。店休日を確認してください。');return;}
+  const pricedProducts=sim.products.filter(item=>simulationMoney(item.price)>0);
+  const systemValues=[sim.system.setPrice,sim.system.extensionPrice,sim.system.counterFee,sim.system.boxFee].map(simulationMoney).filter(Boolean);
+  const guide=[...pricedProducts.map(item=>simulationMoney(item.price)),...systemValues];
+  const average=guide.length?guide.reduce((total,value)=>total+value,0)/guide.length:30000;
+  const count=Math.min(openDays.length,Math.max(1,Math.round(target/Math.max(average,10000))));
+  const labels=pricedProducts.length?pricedProducts.map(item=>item.name||'商品'):[sim.system.setPrice?`${sim.system.setMinutes||''}分セット`:'シミュレーション'];
+  const base=Math.floor(target/count), remainder=target-base*count;
+  simulationDraft=Array.from({length:count},(_,index)=>({date:openDays[Math.floor(index*openDays.length/count)],label:labels[index%labels.length],amount:base+(index===count-1?remainder:0)}));
+  renderSimulation();
+}
+function saveSimulationSlips(){
+  if(!simulationDraft.length)return;
+  if(!confirm(`作成した${simulationDraft.length}件の伝票を保存します。既存の伝票は変更しません。よろしいですか？`))return;
+  const stamp=Date.now();
+  simulationDraft.forEach((item,index)=>data.slips.push({id:`SIM-${stamp}-${index}`,date:item.date,receivedDate:'',customerName:`シミュレーション（${item.label}）`,total:item.amount,card:0,receivable:0,payment:'現金',payments:[{method:'現金',amount:item.amount}],receipt:false,groups:1,guests:1,casts:[]}));
+  simulationDraft=[];save();render();renderSimulation();alert('シミュレーション伝票を保存しました。');
+}
+
+function setView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===id));const h=document.querySelector(`#${id} h2`);$('#pageTitle').textContent=id==='dashboard'?monthLabel():h.textContent;$('#monthButton').hidden=id==='cast-management';closeMenu();window.scrollTo({top:0,behavior:'smooth'});if(id==='shifts')scrollShiftToToday();if(id==='simulation')renderSimulation();}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-view-target]').forEach(b=>b.onclick=()=>setView(b.dataset.viewTarget));const changeMonth=e=>{const value=e.target.value;if(!/^\d{4}-\d{2}$/.test(value))return;data.month=value;save();render();};$('#monthButton').onchange=changeMonth;$('#monthButton').oninput=changeMonth;
 const dialog=$('#entryDialog'), form=$('#entryForm'), fields=$('#formFields'), mediaOrderDialog=$('#mediaOrderDialog'), mediaOrderList=$('#mediaOrderList'), paymentMethodDialog=$('#paymentMethodDialog'), paymentMethodForm=$('#paymentMethodForm'), paymentMethodList=$('#paymentMethodList'), customerHistoryDialog=$('#customerHistoryDialog'), customerHistoryList=$('#customerHistoryList'), customerPickerDialog=$('#customerPickerDialog'), customerPickerList=$('#customerPickerList'), expenseOptionDialog=$('#expenseOptionDialog'), expenseOptionForm=$('#expenseOptionForm'), expenseOptionList=$('#expenseOptionList');let mode='', slipDateSort='desc', dailyInputDateSort='asc', editingCastId=null, editingDailyInputId=null, editingApplicationId=null, editingSlipIndex=null, editingExpenseId=null, editingPayrollCastId=null, mediaOrderDraft=[], expenseOptionType='';
 function expenseOptionItems(){return expenseOptionType==='category'?data.settings.categories:(data.settings.payeeHistory||(data.settings.payeeHistory=[]));}
