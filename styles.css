@@ -1967,3 +1967,14 @@ input[type="number"]::-webkit-inner-spin-button{
     box-shadow:0 6px 10px rgba(8,5,8,.3)!important;
   }
 }
+
+
+/* 認証前はアプリ本体を透かさず、前回表示のヘッダーや画面を完全に隠す */
+#authScreen.auth-screen:not(.hidden){
+  position:fixed !important;
+  inset:0 !important;
+  z-index:2147483647 !important;
+  min-height:100dvh;
+  overflow-y:auto;
+  background:radial-gradient(circle at 18% 12%,#5b173d 0%,#211017 43%,#0a0b10 100%) !important;
+}
