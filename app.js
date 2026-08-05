@@ -1073,6 +1073,45 @@ $('#saveSettings').onclick=()=>{document.querySelectorAll('[data-setting]').forE
 $('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#overlay').classList.add('show')};function closeMenu(){$('#sidebar').classList.remove('open');$('#overlay').classList.remove('show')}$('#overlay').onclick=closeMenu;
 const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
 function showAuthMessage(message){$('#authMessage').textContent=message;}
+async function signInWithResilientTransport(email,password){
+  const client=await ensureSupabaseClient();
+  const signInViaApi=async()=>{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    try{
+      const response=await fetch(`${window.SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+        method:'POST',
+        headers:{apikey:window.SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({email,password}),
+        signal:controller.signal
+      });
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok){
+        return {error:{message:payload.msg||payload.error_description||payload.message||`HTTP ${response.status}`}};
+      }
+      if(!payload.access_token||!payload.refresh_token){
+        return {error:{message:'認証応答を確認できませんでした。'}};
+      }
+      const {data,error}=await client.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
+      return {data,error};
+    }finally{
+      clearTimeout(timeout);
+    }
+  };
+  try{
+    return await signInViaApi();
+  }catch(apiError){
+    console.warn('Direct sign-in request failed. Retrying with Supabase client.',apiError);
+    try{
+      return await client.auth.signInWithPassword({email,password});
+    }catch(clientError){
+      const apiMessage=apiError?.message||'direct request failed';
+      const clientMessage=clientError?.message||'client request failed';
+      throw new Error(`${apiMessage} / ${clientMessage}`);
+    }
+  }
+}
+
 async function initializeAuth(){
   try{
     const client=await ensureSupabaseClient();
@@ -1111,9 +1150,10 @@ $('#authForm').addEventListener('submit',async e=>{
   authLoading=true;
   showAuthMessage('ログインしています…');
   try{
-    const client=await ensureSupabaseClient();
+    const email=$('#authEmail').value.trim();
+    const password=$('#authPassword').value;
     const result=await Promise.race([
-      client.auth.signInWithPassword({email:$('#authEmail').value.trim(),password:$('#authPassword').value}),
+      signInWithResilientTransport(email,password),
       new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),15000))
     ]);
     if(result?.timeout){showAuthMessage('ログインに時間がかかっています。通信を確認して再度お試しください。');return;}
@@ -1128,7 +1168,7 @@ $('#authForm').addEventListener('submit',async e=>{
     showAuthMessage('ログイン状態を確認できませんでした。もう一度お試しください。');
   }catch(error){
     console.error('Sign in failed',error);
-    showAuthMessage('ログイン通信に失敗しました。通信を確認し、少し待ってから再度お試しください。');
+    const reason=String(error?.message||'').replace(/\s+/g,' ').slice(0,96);showAuthMessage(`ログイン通信に失敗しました${reason?`（${reason}）`:''}。`);
   }finally{
     authLoading=false;
   }
