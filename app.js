@@ -2,8 +2,35 @@ window.SUPABASE_URL ??= 'https://ojrdymzceyfqjjnhleqh.supabase.co';
 window.SUPABASE_PUBLISHABLE_KEY ??= 'sb_publishable_dppPYAR_cf23aziHH4g_tA_eMvEGdf4';
 
 const storageKey = 'lounge-ledger-v1';
-const supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
+let supabaseClient = window.supabase?.createClient(window.SUPABASE_URL, window.SUPABASE_PUBLISHABLE_KEY);
 let cloudUser = null, saveTimer = null, cloudLoaded = false, lastCloudScore = 0, authLoading = false;
+
+function loadAuthScript(src){
+  return new Promise((resolve,reject)=>{
+    const found=[...document.scripts].find(script=>script.src===src);
+    if(found){
+      if(window.supabase?.createClient){resolve();return;}
+      found.addEventListener('load',resolve,{once:true});
+      found.addEventListener('error',()=>reject(new Error('script load failed')),{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src=src;script.async=true;
+    script.onload=resolve;
+    script.onerror=()=>reject(new Error('script load failed'));
+    document.head.appendChild(script);
+  });
+}
+async function ensureSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  for(const src of ['https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js']){
+    try{await Promise.race([loadAuthScript(src),new Promise((_,reject)=>setTimeout(()=>reject(new Error('script load timeout')),8000))]);}catch(_){}
+    if(window.supabase?.createClient) break;
+  }
+  if(!window.supabase?.createClient) throw new Error('Supabase authentication library unavailable');
+  supabaseClient=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_PUBLISHABLE_KEY);
+  return supabaseClient;
+}
 const defaultData = {
   month: '2026-07',
   casts: [
@@ -1047,15 +1074,18 @@ $('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#overlay').
 const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
 function showAuthMessage(message){$('#authMessage').textContent=message;}
 async function initializeAuth(){
-  if(!supabaseClient){showAuthMessage('認証サービスを読み込めませんでした。');return;}
   try{
-    const {data:{session}}=await supabaseClient.auth.getSession();
+    const client=await ensureSupabaseClient();
+    const {data:{session}}=await client.auth.getSession();
     if(session) await setSignedIn(session.user);
-  }catch(error){console.error('Session check failed',error);}
-  supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
-    if(session&&(!cloudUser||cloudUser.id!==session.user.id)) await setSignedIn(session.user);
-    if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
-  });
+    client.auth.onAuthStateChange(async(_event,session)=>{
+      if(session&&(!cloudUser||cloudUser.id!==session.user.id)) await setSignedIn(session.user);
+      if(!session){cloudUser=null;cloudLoaded=false;lastCloudScore=0;authLoading=false;$('#authScreen').classList.remove('hidden');}
+    });
+  }catch(error){
+    console.error('Session check failed',error);
+    showAuthMessage('認証サービスに接続できませんでした。通信を確認して、もう一度お試しください。');
+  }
 }
 async function setSignedIn(user){
   if(authLoading) return false;
@@ -1081,8 +1111,9 @@ $('#authForm').addEventListener('submit',async e=>{
   authLoading=true;
   showAuthMessage('ログインしています…');
   try{
+    const client=await ensureSupabaseClient();
     const result=await Promise.race([
-      supabaseClient.auth.signInWithPassword({email:$('#authEmail').value.trim(),password:$('#authPassword').value}),
+      client.auth.signInWithPassword({email:$('#authEmail').value.trim(),password:$('#authPassword').value}),
       new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),15000))
     ]);
     if(result?.timeout){showAuthMessage('ログインに時間がかかっています。通信を確認して再度お試しください。');return;}
@@ -1097,11 +1128,11 @@ $('#authForm').addEventListener('submit',async e=>{
     showAuthMessage('ログイン状態を確認できませんでした。もう一度お試しください。');
   }catch(error){
     console.error('Sign in failed',error);
-    showAuthMessage('ログイン通信に失敗しました。通信を確認してください。');
+    showAuthMessage('ログイン通信に失敗しました。通信を確認し、少し待ってから再度お試しください。');
   }finally{
     authLoading=false;
   }
 });
-$('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');const {data:result,error}=await supabaseClient.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');};
-$('#logoutButton').onclick=()=>supabaseClient.auth.signOut();
+$('#signUpButton').onclick=async()=>{const email=$('#authEmail').value,password=$('#authPassword').value;if(!email||!password){showAuthMessage('メールアドレスと6文字以上のパスワードを入力してください。');return;}showAuthMessage('アカウントを作成しています…');try{const client=await ensureSupabaseClient();const {data:result,error}=await client.auth.signUp({email,password});if(error)showAuthMessage(error.message);else if(!result.session)showAuthMessage('確認メールを送信しました。メール内のリンクを開いてください。');}catch(error){console.error('Sign up failed',error);showAuthMessage('認証サービスに接続できませんでした。通信を確認して、もう一度お試しください。');}};
+$('#logoutButton').onclick=()=>{if(supabaseClient) supabaseClient.auth.signOut();};
 initializeAuth();
