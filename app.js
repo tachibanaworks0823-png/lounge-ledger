@@ -386,7 +386,7 @@ function render(){
     ['月選択',updateMonthUi],['ダッシュボード',renderDashboard],['未収伝票',renderUnsettledSlips],
     ['伝票一覧',renderSlips],['日別伝票',renderDailySlips],['日別打込み',renderDailyInputs],
     ['女子給',renderCasts],['キャスト管理',renderCastManagement],['応募',renderApplications],
-    ['シフト',renderShifts],['支出',renderExpenses],['計算設定',renderSettings]
+    ['シフト',renderShifts],['支出',renderExpenses],['計算設定',renderSettings],['シミュレーション',renderSimulation]
   ];
   renderTasks.forEach(([name,task])=>{try{task();}catch(error){console.error('画面描画エラー: '+name,error);}});
   markNegativeAmounts();
